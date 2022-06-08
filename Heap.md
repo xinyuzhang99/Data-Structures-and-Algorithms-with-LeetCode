@@ -143,7 +143,7 @@ Explanation: "the", "is", "sunny" and "day" are the four most frequent words, wi
   - `k` is in the range `[1, The number of **unique** words[i]]`
 
 - **Thoughts**
-  - 对于找top-k的题目，使用Heap进行排序
+  - 对于找==top-k==的题目，使用Heap进行排序
   - 题目要求的顺序为：输出<u>频率大</u>的字符串，如果频率相同输出<u>字母顺序小</u>的字符串 --> 考虑使用堆结构进行排序 --> 由于python自带的是min-heap，故条件改为：<font color=blue>**频率小的元素放在堆顶，字母顺序大的元素放在堆顶** </font> --> 频率小的元素先出堆，字母顺序大的元素先出堆 --> 最后按照顺序取出来后<font color=blue>**反转顺序**</font>，即为正确顺序
   - <font color=red>**难点：**</font> write the <font color=red>**comparator function**</font>
 
@@ -189,7 +189,7 @@ Explanation: "the", "is", "sunny" and "day" are the four most frequent words, wi
               heapq.heappush(minheap, Node(key, value)) 
               if len(minheap) > k:   		   # 去掉频率小，在选择范围外的元素
                   heapq.heappop(minheap) 
-  
+                  
           res = []
           while len(minheap) > 0:
               res.append(heapq.heappop(minheap).key)
