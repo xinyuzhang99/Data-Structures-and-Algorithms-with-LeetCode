@@ -198,6 +198,107 @@ Explanation: "the", "is", "sunny" and "day" are the four most frequent words, wi
           return res
   ```
 
-  
 
-  
+## 3. 347 [Top K Frequent Elements](https://leetcode.com/problems/top-k-frequent-elements/description/)
+
+|  Category  |   Difficulty    |                             Tags                             |
+| :--------: | :-------------: | :----------------------------------------------------------: |
+| algorithms | Medium (65.02%) | [`hash-table`](https://leetcode.com/tag/hash-table); [`heap`](https://leetcode.com/tag/heap) |
+
+Given an integer array `nums` and an integer `k`, return *the* `k` *most frequent elements*. You may return the answer in **any order**.
+
+**Example 1:**
+
+```
+Input: nums = [1,1,1,2,2,3], k = 2
+Output: [1,2]
+```
+
+**Example 2:**
+
+```
+Input: nums = [1], k = 1
+Output: [1]
+```
+
+**Constraints:**
+
+- `1 <= nums.length <= 105`
+- `k` is in the range `[1, the number of unique elements in the array]`.
+- It is **guaranteed** that the answer is **unique**.
+
+**Follow up:** Your algorithm's time complexity must be better than `O(nlogn)`, where n is the array's size.
+
+- **Thoughts**
+
+  - 对于找==top-k==的题目，使用Heap进行排序
+  - 由于minheap是根据count的大小进行排序，但是最后我们要输出的是对应的value值 --> 在heap里放的值是 (count, value) pair
+
+- **Solution**
+
+  - <u>Method 1: Heap</u>
+
+    - S1: build a hashtable which contains values and counts
+    - S2: build a minheap and insert values
+    - S3: append the most frequent element and reverse the list
+
+    ```python
+    from collections import Counter
+    import heapq
+    def topKFrequent(self, nums: List[int], k: int) -> List[int]:
+      hashtable = Counter(nums)
+      minheap = []
+      heapq.heapify(minheap)
+      
+      for num, count in hashtable.items():
+        element = [count, num]
+        heapq.heappush(minheap, element)
+        if len(minheap) > k:
+          heapq.heappop(minheap)
+      
+      res = []
+      while k > 0:
+        res.append(heapq.heappop(minheap)[1])
+        k -= 1
+      res.reverse()
+      return res
+    ```
+
+    - Time complexity: $O(N + Nlogk + N) = O(Nlogk)$ --> $N$为数组的长度，$k$为堆的大小；第一个$O(N)$是遍历哈希表的时间，$Nlogk$是每次堆操作需要$O(logk)$的时间，一共有N个元素，故为$O(Nlogk)$；最后一个$O(N)$为`res.reverse()`的时间
+
+    - Space complexity: $O(N)+O(k)=O(N)$
+
+  - <u>Method 2: Bucket Sort</u>
+
+    由于每一个元素出现的频率都不可能大于数组长度，于是可以创建bucket，令count为key, 实际数组值为value
+
+    <img src="https://pic.leetcode-cn.com/ad27531bbe762c0cf408a1e80f6468800d3e4ee2d6318963276b9ed923dd2c54-file_1561712388097" alt="img" style="zoom: 33%;" />
+
+    -  S1: create a hashtable to store each element and its counts
+    - S2: create a frequency bucket to store count and element --> len(freq) = len(nums) (Create list of empty lists for bucktes: for frequencies 1, 2, ..., n)
+    - S3: traverse backwards through the dictionary and append elements
+
+    ```python
+    from collections import Counter
+    def topKFrequent(self, nums: List[int], k: int) -> List[int]:
+      count = {}
+      freq = [[] for i in range(len(nums) + 1)] # 0, 1, 2, ..., n
+      
+      # S1
+      for n in nums:
+        count[n] = 1 + count.get(n, 0)
+      # S2
+      for n, c in count.items():
+        freq[c].append(n)
+      
+      # S3
+      res = []
+      for i in range(len(freq) - 1, 0, -1):
+        for n in freq[i]:												# for each count, append each element in the bucket
+          res.append(n)
+          if len(res) == k:
+            return res 
+    ```
+
+    - Time complexity: $O(n)$ --> n 表示数组的长度。首先，遍历一遍数组统计元素的频率，这一系列操作的时间复杂度是 O(n)；桶的数量为 n + 1n+1，所以桶排序的时间复杂度为 O(n)
+    - Space complexity: O(n)
