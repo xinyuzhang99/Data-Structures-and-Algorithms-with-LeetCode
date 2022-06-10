@@ -169,3 +169,80 @@ numMatrix.sumRegion(1, 2, 2, 4); // return 12 (i.e sum of the blue rectangle)
   - Time complexity: $O(row * column)$ 
 
     Space complexity: $O(row * column)$ --> create a `preSum` matrix
+
+### 3. 238 [Product of Array Except Self](https://leetcode.com/problems/product-of-array-except-self/description/)
+
+|  Category  |   Difficulty    |                   Tags                    |
+| :--------: | :-------------: | :---------------------------------------: |
+| algorithms | Medium (64.06%) | [`array`](https://leetcode.com/tag/array) |
+
+Given an integer array `nums`, return *an array* `answer` *such that* `answer[i]` *is equal to the product of all the elements of* `nums` *except* `nums[i]`.
+
+The product of any prefix or suffix of `nums` is **guaranteed** to fit in a **32-bit** integer.
+
+You must write an algorithm that runs in `O(n)` time and without using the division operation.
+
+**Example 1:**
+
+```
+Input: nums = [1,2,3,4]
+Output: [24,12,8,6]
+```
+
+**Example 2:**
+
+```
+Input: nums = [-1,1,0,-3,3]
+Output: [0,0,9,0,0]
+```
+
+**Constraints:**
+
+- `2 <= nums.length <= 105`
+- `-30 <= nums[i] <= 30`
+- The product of any prefix or suffix of `nums` is **guaranteed** to fit in a **32-bit** integer.
+
+**Follow up:** Can you solve the problem in `O(1) `extra space complexity? (The output array **does not** count as extra space for space complexity analysis.)
+
+- **Thoughts**
+
+  - 这道题和303有些类似 --> 构造一个 `prefix` 数组记录「前缀积」，再用一个 `postfix` 记录「后缀积」，根据前缀和后缀积就能计算除了当前元素之外其他元素的积。
+
+- **Solution**
+
+  ```python
+  def productExceptSelf(self, nums: List[int]) -> List[int]:
+          ## 1: O(N) extra space complexity
+          pre = [1] * len(nums)
+          post = [1] * len(nums)
+  
+          # prefix 
+          for i in range(1, len(nums)):
+              pre[i] = pre[i - 1] * nums[i - 1]
+          
+          # postfix
+          for i in range(len(nums) - 2, -1, -1):
+              post[i] = post[i + 1] * nums[i + 1]
+          
+          res = [0] * len(nums)
+          for i in range(len(nums)):
+              res[i] = pre[i] * post[i]
+          return res
+          # Time complexity: O(N)
+          # Space complexity: O(N)
+  
+          ## !! Follow-up: O(1) extra space complexity
+          res = [1] * len(nums)
+          for i in range(1, len(nums)):
+              res[i] = res[i - 1] * nums[i - 1]
+  
+          product = 1
+          for i in range(len(nums) - 1, -1, -1):
+              res[i] *= product
+              product = product * nums[i]
+          return res
+          # Time complexity: O(N)
+          # Space complexity: O(1) --> 输出数组不算进空间复杂度中，因此我们只需要常数的空间存放变量
+  ```
+
+  
