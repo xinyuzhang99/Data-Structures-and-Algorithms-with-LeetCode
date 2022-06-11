@@ -265,3 +265,64 @@ Explanation: Same as Example 1, except with the 5 in the top left corner being m
 
     Space complexity: $O(81) = O(1)$
 
+## 4. 128 [Longest Consecutive Sequence](https://leetcode.com/problems/longest-consecutive-sequence/description/)
+
+|  Category  |   Difficulty    |                             Tags                             |
+| :--------: | :-------------: | :----------------------------------------------------------: |
+| algorithms | Medium (48.75%) | [`array`](https://leetcode.com/tag/array); [`union-find`](https://leetcode.com/tag/union-find) |
+
+Given an unsorted array of integers `nums`, return *the length of the longest consecutive elements sequence.*
+
+You must write an algorithm that runs in `O(n)` time.
+
+**Example 1:**
+
+```
+Input: nums = [100,4,200,1,3,2]
+Output: 4
+Explanation: The longest consecutive elements sequence is [1, 2, 3, 4]. Therefore its length is 4.
+```
+
+**Example 2:**
+
+```
+Input: nums = [0,3,7,2,5,8,4,6,0,1]
+Output: 9
+```
+
+- **Constraints:**
+
+  - `0 <= nums.length <= 105`
+
+  - `-109 <= nums[i] <= 109`
+
+- **Thoughts**
+
+  - 首先想到的算法为先将数组排序，然而排序所需的时间复杂度为$O(nlogn)$，不满足题目要求的$O(N)$ 
+  - 由于同一个数对结果的影响一样，可以使用`set`来进行去重
+  - --> 考虑枚举数组中的每个数 x，考虑以其为起点，不断尝试匹配 x+1, x+2, x+1,x+2,⋯ 是否存在; 如果这个数的前一个值 (x-1) 已经存在在set里，则这个数不是起点，跳过
+
+- **Solution**
+
+  - S1: create a set and record nums
+  - S2: iterate through each element to see if it's a start of a consecutive sequence
+  - S3: if find a start, continue to find the length
+
+  ```python
+  def longestConsecutive(self, nums: List[int]) -> int:
+    numSet = set(nums)
+    longest = 0
+    for n in numSet:
+      if n - 1 not in numSet:
+        length = 1
+        while (n + length in numSet):
+          length += 1
+        longest = max(longest, length)
+    return longest
+  ```
+
+  - Time complexity: $O(N)$
+
+    Space complexity: $O(N)$
+
+  
