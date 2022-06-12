@@ -134,8 +134,8 @@ Output: 0
                 return 0
     
             return window
-    ```
-    
+```
+
 Time Complexity: <font color=red>**O(N)**</font> --> n is the length of the array (the two pointers move n times at most) 主要是看每一个元素被操作的次数，每个元素在滑动窗后进来操作一次，出去操作一次，每个元素都是被操作两次，所以时间复杂度是 2 × n 也就是O(n)
     
 Space Complexity: O(1)
@@ -574,15 +574,15 @@ Notice that the answer must be a substring, "pwke" is a subsequence and not a su
     class Solution:
         def lengthOfLongestSubstring(self, s: str) -> int:
           charSet = set()
-            l = 0
-            res = []
+          l = 0
+          res = []
     
-            for r in range(len(s)):
-                while s[r] in charSet:
-                    charSet.remove(s[l])
-                    l += 1
-                res = max(res, r - l + 1)
-            return res
+          for r in range(len(s)):
+            while s[r] in charSet:
+              charSet.remove(s[l])
+              l += 1
+              res = max(res, r - l + 1)
+              return res
     ```
 
     

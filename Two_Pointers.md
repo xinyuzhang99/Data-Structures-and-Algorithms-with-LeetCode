@@ -771,4 +771,201 @@ Since an empty string reads the same forward and backward, it is a palindrome.
     # Space complexity: O(1)
   ```
 
-  
+## 11. 42 [Trapping Rain Water](https://leetcode.com/problems/trapping-rain-water/description/)
+
+|  Category  |  Difficulty   |                             Tags                             |
+| :--------: | :-----------: | :----------------------------------------------------------: |
+| algorithms | Hard (56.75%) | [`array`](https://leetcode.com/tag/array); [`two-pointers`](https://leetcode.com/tag/two-pointers); [`stack`](https://leetcode.com/tag/stack) |
+
+Given `n` non-negative integers representing an elevation map where the width of each bar is `1`, compute how much water it can trap after raining.
+
+**Example 1:**
+
+![img](https://assets.leetcode.com/uploads/2018/10/22/rainwatertrap.png)
+
+```
+Input: height = [0,1,0,2,1,0,1,3,2,1,2,1]
+Output: 6
+Explanation: The above elevation map (black section) is represented by array [0,1,0,2,1,0,1,3,2,1,2,1]. In this case, 6 units of rain water (blue section) are being trapped.
+```
+
+**Example 2:**
+
+```
+Input: height = [4,2,0,3,2,5]
+Output: 9
+```
+
+- **Constraints:**
+
+  - `n == height.length`
+
+  - `1 <= n <= 2 * 104`
+
+  - `0 <= height[i] <= 105`
+
+- **Solution**
+
+  - <u>Method 1: Brute-force</u>
+
+    ---> 直接按问题描述进行。对于数组中的每个元素，我们找出下雨后水能达到的最高位置，等于两边最大高度的较小值减去当前高度的值 --> calculate at each point on x-axis, how much water can be trapped `min(l_max, r_max) - height[i]`
+
+    ```python
+    def trap(height: List[int]) -> int:
+      if not height:
+        return 0
+      res = 0
+      n = len(height)
+      
+      for i in range(n):
+        l_max = 0
+        r_max = 0
+        # !! Important 在计算左墙和右墙时都要把自己本身i算入，以免出现res<0的情况
+        # find the max wall in the left: max(height[0...i])
+        for j in range(i + 1):
+          l_max = max(l_max, height[j])
+        # find the max wall in the right: max(height[i...end])
+        for j in range(i, n):
+          r_max = max(r_max, height[j])
+        # 如果自己就是最高的话，l_max == r_max == height[i]
+        res += min(l_max, r_max) - height[i]
+      return res
+    ```
+
+    - Time complexity: $O(N^2)$
+
+      Space complexity: $O(1)$
+
+  - <u>Method 2: 备忘录优化 --> 提前将`l_max`和`r_max`存储为数组</u>
+
+    --> **我们开两个数组 `r_max` 和 `l_max` 充当备忘录，`l_max[i]` 表示位置 `i` 左边最高的柱子高度，`r_max[i]` 表示位置 `i` 右边最高的柱子高度**
+
+    ```python
+    def trap(height: List[int]) -> int:
+      if not height:
+        return 0
+      n = len(height)
+      l_max = [0] * n
+      r_max = [0] * n
+      
+      # 初始化 base case
+      l_max[0] = height[0]
+      r_max[n - 1] = height[n - 1]
+      
+      # 从左向右计算 l_max
+      for i in range(1, n):
+        l_max[i] = max(l_max[i - 1], height[i])
+      # 从右向左计算 r_max
+      for j in range(n - 2, -1, -1):
+        r_max[j] = max(r_max[i + 1], height[j])
+        
+      res = 0
+      for i in range(n):
+        res += min(l_max[i], r_max[i]) - height[i]
+      return res
+    ```
+
+    - Time complexity: $O(3N) = O(N)$
+
+      Space complexity: $O(2N) = O(N)$
+
+  - <u>==Method 3: Two Pointers==</u>
+
+    --> 不使用备忘录提前计算了，而是用双指针**边走边算**，节省下空间复杂度
+
+    ```python
+    def trap(height: List[int]) -> int:
+      if not height:
+        return 0
+      n = len(height)
+      l, r = 0, n - 1
+      l_max, r_max = height[l], height[r]
+      
+      for i in range(1, n):
+        if l_max <= r_max:
+          l += 1
+          l_max = max(l_max, height[i])
+          res += l_max - height[i]
+        else:
+          r -= 1
+          r_max = max(r_max, height[i])
+          res += r_max - height[i]
+      return res
+    ```
+
+    - Time complexity: $O(N)$
+
+      Space complexity: $O(1)$
+
+## 12. 11 [Container With Most Water](https://leetcode.com/problems/container-with-most-water/description/)
+
+|  Category  |   Difficulty    |                             Tags                             |
+| :--------: | :-------------: | :----------------------------------------------------------: |
+| algorithms | Medium (53.98%) | [`array`](https://leetcode.com/tag/array); [`two-pointers`](https://leetcode.com/tag/two-pointers) |
+
+You are given an integer array `height` of length `n`. There are `n` vertical lines drawn such that the two endpoints of the `ith` line are `(i, 0)` and `(i, height[i])`.
+
+Find two lines that together with the x-axis form a container, such that the container contains the most water.
+
+Return *the maximum amount of water a container can store*.
+
+**Notice** that you may not slant the container. 
+
+**Example 1:**
+
+<img src="https://s3-lc-upload.s3.amazonaws.com/uploads/2018/07/17/question_11.jpg" alt="img" style="zoom:50%;" />
+
+```
+Input: height = [1,8,6,2,5,4,8,3,7]
+Output: 49
+Explanation: The above vertical lines are represented by array [1,8,6,2,5,4,8,3,7]. In this case, the max area of water (blue section) the container can contain is 49.
+```
+
+**Example 2:**
+
+```
+Input: height = [1,1]
+Output: 1
+```
+
+- **Constraints:**
+
+  - `n == height.length`
+
+  - `2 <= n <= 105`
+
+  - `0 <= height[i] <= 104`
+
+- **Thoughts**
+
+  - 这题和42.接雨水问题很类似，可以完全套用思路，而且还更简单。两道题的区别在于：**接雨水问题给出的类似一幅直方图，每个横坐标都有宽度，而本题给出的每个横坐标是一条竖线，没有宽度**。
+
+  - 因为本题中竖线没有宽度，所以 `left` 和 `right` 之间能够盛的水就是：
+
+    ```python
+    min(height[left], height[right]) * (right - left)
+    ```
+
+- **Solution**
+
+  ```python
+  def maxArea(self, height: List[int]) -> int:
+    if not height:
+      return 0
+    
+    n = len(height)
+    l, r = 0, n - 1
+    res = 0
+    for i in range(n):
+      area = min(height[l], height[r]) * (r - l)
+      res = max(res, area)
+      if height[l] <= height[r]:
+        l += 1
+      else:
+        r -= 1
+    return res
+  ```
+
+  - Time complexity: $O(N)$
+
+    Space complexity: $O(1)$
