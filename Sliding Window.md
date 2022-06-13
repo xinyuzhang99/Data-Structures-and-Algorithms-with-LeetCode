@@ -10,13 +10,18 @@
 
 - **Template**
 
+  - Question 1: 进行窗口内数据的一系列更新即加入字符时，应该更新哪些数据？
+  - Question 2: 左侧窗口什么时候收缩（收缩条件）
+  - Question 3: 收缩窗口时需要去掉字符，还应该更新哪些数据？
+  - Question 4: 结果应该在扩大窗口时还是缩小窗口时进行更新
+  
   ```python
   def slidingWindow(s: str, t: str):
     # edge/corner case: (Example)
     # if t == '':
       # return ''  
     
-    # need = dict()   # needs和window 相当于计数器，分别记录t中字符出现次数(需要凑齐的字符)和「窗口」中的相应字符的出现次数
+    # need = dict()  # needs和window 相当于计数器，分别记录t中字符出现次数(需要凑齐的字符)和「窗口」中的*相应*字符的出现次数
     # window = dict()
     countT, window = {}, {}
     
@@ -389,7 +394,7 @@ Output: false
                       valid += 1
               
               while (right - left + 1) > len(s1):
-                  if valid == len(countS1):
+                  if valid == len(countS1):      ### valid记载的是窗口中满足countS1条件的字符个数，并不包含count!!
                       return True
                   out_char = s2[left]
                   left += 1             
@@ -585,4 +590,71 @@ Notice that the answer must be a substring, "pwke" is a subsequence and not a su
               return res
     ```
 
+
+## 7. 424 [Longest Repeating Character Replacement](https://leetcode.com/problems/longest-repeating-character-replacement/description/)
+
+|  Category  |   Difficulty    |                             Tags                             |
+| :--------: | :-------------: | :----------------------------------------------------------: |
+| algorithms | Medium (50.91%) | [`two-pointers`](https://leetcode.com/tag/two-pointers); [`sliding-window`](https://leetcode.com/tag/sliding-window) |
+
+You are given a string `s` and an integer `k`. You can choose any character of the string and change it to any other uppercase English character. You can perform this operation at most `k` times.
+
+Return *the length of the longest substring containing the same letter you can get after performing the above operations*.
+
+**Example 1:**
+
+```
+Input: s = "ABAB", k = 2
+Output: 4
+Explanation: Replace the two 'A's with two 'B's or vice versa.
+```
+
+**Example 2:**
+
+```
+Input: s = "AABABBA", k = 1
+Output: 4
+Explanation: Replace the one 'A' in the middle with 'B' and form "AABBBBA".
+The substring "BBBB" has the longest repeating letters, which is 4.
+```
+
+- **Constraints:**
+
+  - `1 <= s.length <= 105`
+
+  - `s` consists of only uppercase English letters.
+
+  - `0 <= k <= s.length`
+
+- **Thoughts**
+
+  - Question 1: 扩大窗口时需要将字符频率加入进`window`的hashmap里
+  - Question 2: 左侧窗口收缩条件：当窗口长度减去最大频率字符数大于最多能更改的次数时 --> `len(window) - max(count) > k`
+  - Question 3: 收缩窗口时需要去掉字符，然后移动左指针进行收缩
+  - Question 4: res是在收缩窗口后更新
+
+- **Solution**
+
+  ```python
+  def characterReplacement(self, s: str, k: int) -> int:
+    window = {}
+    res = 0
     
+    l = 0
+    # maxf = 0
+     for r in range(len(s)):
+      window[s[r]] = 1 + window.get(s[r], 0)
+      # maxf = max(maxf, window[s[r]])
+      # while (r - l + 1) - maxf > k
+      while (r - l + 1) - max(window.values()) > k:
+        window[s[l]] -= 1
+        l += 1
+      res = max(res, r - l + 1)
+    return res
+  ```
+  
+  - Time complexity: O(N)
+  
+    Space complexity: O(N)
+  
+  - 使用comment的用法更optimized
