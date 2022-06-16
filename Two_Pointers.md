@@ -1018,7 +1018,7 @@ Explanation: In this case, no transactions are done and the max profit = 0.
           profit = prices[r] - prices[l]
           res = max(res, profit)
         else:
-          # if prices[r] < prices[l] --> not profitable --> set l to the low price --> l = r
+          # if prices[r] < prices[l] --> not profitable --> set l to the low price --> l = r1
           l = r
         r += 1
      return res
