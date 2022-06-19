@@ -1,5 +1,36 @@
 # Stack 栈
 
+- **单调栈模板**
+
+  单调栈：单调栈用途不太广泛，只处理一类典型的问题，比如==「下一个更大元素」，「上一个更小元素」==等
+
+  --> 输入一个数组 `nums`，请你返回一个等长的结果数组，结果数组中对应索引存储着下一个更大元素，如果没有更大的元素，就存 -1。
+
+  - S1: 将数组倒着往栈里放
+  - S2: 对于每一个数`nums[i]`，先判断栈是否为空 --> 若为空，则证明没有下一个更大的数；若栈不为空，则判断`nums[i]`与栈顶值的大小 --> 若该数大于栈顶值，则证明该数更大，将小于该数的值都除去，获得下一个数或者-1
+  - S3: 经过`while`循环除去中间小的元素，获得比`nums[i]`大的元素 
+  - S4: 将`nums[i]`加入到栈中，继续向前找寻是否该值为前面值的下一个更大元素
+
+  ```python
+  def nextGreaterElement(nums):
+    n = len(nums)
+    res = [-1] * n
+    stack = []								# 储存比当前值更大的数
+    
+    # 倒着往栈里放 --> 正着出栈（逆序遍历）
+    for i in range(n - 1, -1, -1):
+      # 把两个大的元素中间的元素排除 --> 先让栈顶中比nums[i]小的元素出栈
+      while stack and nums[i] >= stack[-1]:
+        stack.pop()
+        
+      # 在结果加上nums[i] 身后的更大元素
+      res[i] = stack[-1] if stack else -1  
+      stack.append(nums[i])
+    return res
+  ```
+
+​		题目：5(496)
+
 ## 1. 232 [Implement Queue using Stacks](https://leetcode.com/problems/implement-queue-using-stacks/description/)
 
 |  Category  |  Difficulty   |     Tags      |
@@ -373,3 +404,204 @@ minStack.getMin(); // return -2
 
   - 易错点：
     - 在Python中进行负数整除: `int(a / b)`向上取整 --> 如果用`a // b`会向下取整
+
+## 5. 496 [Next Greater Element I](https://leetcode.com/problems/next-greater-element-i/description/)
+
+|  Category  |  Difficulty   |                   Tags                    |
+| :--------: | :-----------: | :---------------------------------------: |
+| algorithms | Easy (70.12%) | [`stack`](https://leetcode.com/tag/stack) |
+
+The **next greater element** of some element `x` in an array is the **first greater** element that is **to the right** of `x` in the same array.
+
+You are given two **distinct 0-indexed** integer arrays `nums1` and `nums2`, where `nums1` is a subset of `nums2`.
+
+For each `0 <= i < nums1.length`, find the index `j` such that `nums1[i] == nums2[j]` and determine the **next greater element** of `nums2[j]` in `nums2`. If there is no next greater element, then the answer for this query is `-1`.
+
+Return *an array* `ans` *of length* `nums1.length` *such that* `ans[i]` *is the **next greater element** as described above.*
+
+**Example 1:**
+
+```
+Input: nums1 = [4,1,2], nums2 = [1,3,4,2]
+Output: [-1,3,-1]
+Explanation: The next greater element for each value of nums1 is as follows:
+- 4 is underlined in nums2 = [1,3,4,2]. There is no next greater element, so the answer is -1.
+- 1 is underlined in nums2 = [1,3,4,2]. The next greater element is 3.
+- 2 is underlined in nums2 = [1,3,4,2]. There is no next greater element, so the answer is -1.
+```
+
+**Example 2:**
+
+```
+Input: nums1 = [2,4], nums2 = [1,2,3,4]
+Output: [3,-1]
+Explanation: The next greater element for each value of nums1 is as follows:
+- 2 is underlined in nums2 = [1,2,3,4]. The next greater element is 3.
+- 4 is underlined in nums2 = [1,2,3,4]. There is no next greater element, so the answer is -1. 
+```
+
+- **Constraints:**
+
+  - `1 <= nums1.length <= nums2.length <= 1000`
+
+  - `0 <= nums1[i], nums2[i] <= 104`
+
+  - All integers in `nums1` and `nums2` are **unique**.
+
+  - All the integers of `nums1` also appear in `nums2`.
+
+**Follow up:** Could you find an `O(nums1.length + nums2.length)` solution?
+
+- **Thoughts**
+
+  - 当题目出现「找到最近一个比其大的元素」的字眼时，自然会想到==「单调栈」==。
+
+    具体的，由于目标是找到某个数其在nums2的右边中第一个比其大的数，因此可以对 nums2进行逆序遍历。
+
+    我们在遍历nums2时，实时维护一个单调栈，当我们遍历到元素 nums2[i]时，可以先将栈顶中比 nums2[i]小的元素出栈，最终结果有两种可能：
+
+    - 栈为空，说明nums2[i]之前（右边）没有比其大的数；
+
+    - 栈不为空， 此时栈顶元素为nums2[i]在nums2中（右边）最近的比其大的数。
+
+  - 总结：该题目为单调栈模板的应用，先使用单调栈得到`nums2`里每一个值的下一个最大值，存入哈希表，然后利用`nums1`元素的index直接得到结果
+
+- **Solution**
+
+  ```python
+  def nextGreaterElement(self, nums1: List[int], nums2: List[int]) -> List[int]:
+    stack = []
+    hashtable = {}
+    res = []
+  
+    for i in range(len(nums2) - 1, -1, -1):
+      while stack and nums2[i] > stack[-1]:
+        stack.pop()
+      hashtable[nums2[i]] = stack[-1] if stack else -1
+      stack.append(nums2[i])
+  
+    for n in nums1:
+        res.append(hashtable[n])
+    return res
+  ```
+
+  - Time complexity: O(M + N) --> `M = len(nums2); N = len(nums1)`
+
+    Space complexity: O(N) --> create a hashtable with `len(nums2)`
+
+## 6. 739 [Daily Temperatures](https://leetcode.com/problems/daily-temperatures/description/)
+
+|  Category  |   Difficulty    |                             Tags                             |
+| :--------: | :-------------: | :----------------------------------------------------------: |
+| algorithms | Medium (67.27%) | [`hash-table`](https://leetcode.com/tag/hash-table); [`stack`](https://leetcode.com/tag/stack) |
+
+Given an array of integers `temperatures` represents the daily temperatures, return *an array* `answer` *such that* `answer[i]` *is the number of days you have to wait after the* `ith` *day to get a warmer temperature*. If there is no future day for which this is possible, keep `answer[i] == 0` instead.
+
+**Example 1:**
+
+```
+Input: temperatures = [73,74,75,71,69,72,76,73]
+Output: [1,1,4,2,1,1,0,0]
+```
+
+**Example 2:**
+
+```
+Input: temperatures = [30,40,50,60]
+Output: [1,1,1,0]
+```
+
+**Example 3:**
+
+```
+Input: temperatures = [30,60,90]
+Output: [1,1,0] 
+```
+
+- **Constraints:**
+
+  - `1 <= temperatures.length <= 105`
+
+  - `30 <= temperatures[i] <= 100`
+
+- **Thoughts**
+
+  该题仍然是单调栈，本质上也是找下一个更大元素，只不过现在不是问你下一个更大元素的值是多少，而是问你当前元素距离下一个更大元素的索引距离而已 --> stack储存的不是值而是索引
+
+- **Solution**
+
+  ```python
+  def dailyTemperatures(self, temperatures: List[int]) -> List[int]:
+          n = len(temperatures)
+          stack = []				# 放元素索引，而不是元素
+  
+          res = [0] * n
+          for i in range(n - 1, -1, -1):
+              while stack and temperatures[i] >= temperatures[stack[-1]]:
+                  stack.pop()
+              res[i] = stack[-1] - i if stack else -
+              stack.append(i)
+          return res
+  ```
+
+  - Time complexity: O(N)
+
+    Space complexity: O(N) 
+
+## 7. 503 [Next Greater Element II](https://leetcode.com/problems/next-greater-element-ii/description/)
+
+|  Category  |   Difficulty    |                   Tags                    |
+| :--------: | :-------------: | :---------------------------------------: |
+| algorithms | Medium (62.20%) | [`stack`](https://leetcode.com/tag/stack) |
+
+Given a circular integer array `nums` (i.e., the next element of `nums[nums.length - 1]` is `nums[0]`), return *the **next greater number** for every element in* `nums`.
+
+The **next greater number** of a number `x` is the first greater number to its traversing-order next in the array, which means you could search circularly to find its next greater number. If it doesn't exist, return `-1` for this number.
+
+**Example 1:**
+
+```
+Input: nums = [1,2,1]
+Output: [2,-1,2]
+Explanation: The first 1's next greater number is 2; 
+The number 2 can't find next greater number. 
+The second 1's next greater number needs to search circularly, which is also 2.
+```
+
+**Example 2:**
+
+```
+Input: nums = [1,2,3,4,3]
+Output: [2,3,4,-1,4]
+```
+
+- **Constraints:**
+
+  - `1 <= nums.length <= 104`
+
+  - `-109 <= nums[i] <= 109`
+
+- **Thoughts**
+
+  - 该题目是一个典型的单调栈题目，只是需要处理的是循环数组。对于循环数组，一般是通过`%`求余数来模拟环形特效 --> `arr[index % len(nums)]`
+  - 这个问题肯定还是要用单调栈的解题模板，但难点在于，比如输入是 `[2,1,2,4,3]`，对于最后一个元素 3，如何找到元素 4 作为下一个更大元素。**对于这种需求，常用套路就是将数组长度翻倍**
+
+- **Solution**
+
+  ```python
+  def nextGreaterElements(self, nums: List[int]) -> List[int]:
+          n = len(nums)
+          res = [-1] * n
+          stack = []
+          
+          for i in range(2 * n - 1, -1, -1):
+              while stack and nums[i % n] >= stack[-1]:
+                  stack.pop()
+              res[i % n] = stack[-1] if stack else -1
+              stack.append(nums[i % n])
+          return res
+  ```
+
+  - Time complexity: O(N)
+
+    Space complexity: O(N) 
