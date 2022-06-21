@@ -605,3 +605,226 @@ Output: [2,3,4,-1,4]
   - Time complexity: O(N)
 
     Space complexity: O(N) 
+
+## 8. 853 [Car Fleet](https://leetcode.com/problems/car-fleet/description/)
+
+|  Category  |   Difficulty    |                          Tags                           |
+| :--------: | :-------------: | :-----------------------------------------------------: |
+| algorithms | Medium (48.42%) | [`two-pointers`](https://leetcode.com/tag/two-pointers) |
+
+There are `n` cars going to the same destination along a one-lane road. The destination is `target` miles away.
+
+You are given two integer array `position` and `speed`, both of length `n`, where `position[i]` is the position of the `ith` car and `speed[i]` is the speed of the `ith` car (in miles per hour).
+
+A car can never pass another car ahead of it, but it can catch up to it and drive bumper to bumper **at the same speed**. The faster car will **slow down** to match the slower car's speed. The distance between these two cars is ignored (i.e., they are assumed to have the same position).
+
+A **car fleet** is some non-empty set of cars driving at the same position and same speed. Note that a single car is also a car fleet.
+
+If a car catches up to a car fleet right at the destination point, it will still be considered as one car fleet.
+
+Return *the **number of car fleets** that will arrive at the destination*. 
+
+**Example 1:**
+
+```
+Input: target = 12, position = [10,8,0,5,3], speed = [2,4,1,1,3]
+Output: 3
+Explanation:
+The cars starting at 10 (speed 2) and 8 (speed 4) become a fleet, meeting each other at 12.
+The car starting at 0 does not catch up to any other car, so it is a fleet by itself.
+The cars starting at 5 (speed 1) and 3 (speed 3) become a fleet, meeting each other at 6. The fleet moves at speed 1 until it reaches target.
+Note that no other cars meet these fleets before the destination, so the answer is 3.
+```
+
+**Example 2:**
+
+```
+Input: target = 10, position = [3], speed = [3]
+Output: 1
+Explanation: There is only one car, hence there is only one fleet.
+```
+
+**Example 3:**
+
+```
+Input: target = 100, position = [0,2,4], speed = [4,2,1]
+Output: 1
+Explanation:
+The cars starting at 0 (speed 4) and 2 (speed 2) become a fleet, meeting each other at 4. The fleet moves at speed 2.
+Then, the fleet (speed 2) and the car starting at 4 (speed 1) become one fleet, meeting each other at 6. The fleet moves at speed 1 until it reaches target.
+```
+
+- **Constraints:**
+
+  - `n == position.length == speed.length`
+
+  - `1 <= n <= 105`
+
+  - `0 < target <= 106`
+
+  - `0 <= position[i] < target`
+
+  - All the values of `position` are **unique**.
+
+  - `0 < speed[i] <= 106`
+
+- **Thoughts**
+
+  - 是否能够形成车队，取决于下述规律：
+
+    **如果车 `x` 排在 车 `y` 后面，且 `x` 到达终点所需时间比 `y` 少，则 `x` 必然会被 `y` 卡住，形成车队**。
+
+    所以本题的思路是先根据每辆车的起始位置 `position` 排序，然后计算出时间数组 `time`。
+
+    假设计算出的 `time` 数组为 `[12, 3, 7, 1, 2]`，那么观察数组的单调性变化，最后肯定会形成三个车队，他们到达终点的时间分别是 12, 7, 2。
+
+  - S1: sort the (position, speed) pair in ascending order based on position
+
+    S2: create a time array to store time needed for each car
+
+    S3: 将车辆按照起始位置降序排序后，我们顺序扫描这些车辆。
+
+    - 如果相邻的两辆车，前者比后者行驶到终点需要的时间短，那么后者永远追不上前者，即从后者开始的若干辆车辆会组成一个新的车队；如果前者不比后者行驶到终点需要的时间短，那么后者可以在终点前追上前者，并和前者形成车队。此时我们将后者到达终点的时间置为前者到达终点的时间。
+
+- **Solution**
+
+  ```python
+  def carFleet(self, target: int, position: List[int], speed: List[int]) -> int:
+    pair = sorted(zip(position, speed))
+    
+    time = []
+    for p, s in pair:
+      time.append((target - p) / s)
+  
+    res = 0
+    while len(time) > 1:
+      lead = time.pop()
+      if lead < time[-1]:  # lead不会被追上，车队数量+1
+        res += 1
+      else:
+        time[-1] = lead    # lead会被追上，为了确认该车队有多少车辆，将lead设置为time[-1]，根据lead最终到达时间进行判断
+    
+    return res + 1				 # remain one car --> a fleet
+  ```
+
+  - Time complexity: O(NlogN) --> 排序的时间复杂度
+
+    Space complexity: O(N) --> create a time stack 
+
+## 9. 84 [Largest Rectangle in Histogram](https://leetcode.com/problems/largest-rectangle-in-histogram/description/)
+
+|  Category  |  Difficulty   |                             Tags                             |
+| :--------: | :-----------: | :----------------------------------------------------------: |
+| algorithms | Hard (40.93%) | [`array`](https://leetcode.com/tag/array); [`stack`](https://leetcode.com/tag/stack) |
+
+Given an array of integers `heights` representing the histogram's bar height where the width of each bar is `1`, return *the area of the largest rectangle in the histogram*.
+
+**Example 1:**
+
+<img src="https://assets.leetcode.com/uploads/2021/01/04/histogram.jpg" alt="img" style="zoom:50%;" />
+
+```
+Input: heights = [2,1,5,6,2,3]
+Output: 10
+Explanation: The above is a histogram where width of each bar is 1.
+The largest rectangle is shown in the red area, which has an area = 10 units.
+```
+
+**Example 2:**
+
+<img src="https://assets.leetcode.com/uploads/2021/01/04/histogram-1.jpg" alt="img" style="zoom:50%;" />
+
+```
+Input: heights = [2,4]
+Output: 4 
+```
+
+- **Constraints:**
+
+  - `1 <= heights.length <= 105`
+
+  - `0 <= heights[i] <= 104`
+
+- **Thoughts**
+
+  - 该题目求的是最大面积，所以需要记录的信息包含宽度。宽度是由下标确定的，记录了下标其实对应的高度就可以直接从输入数组中得出，因此，应该记录的是下标。
+
+  - 我们就拿示例的数组 [2, 1, 5, 6, 2, 3] 为例：
+
+    1、一开始看到的柱形高度为 2 ，这个时候以这个 2 为高度的最大面积的矩形还不能确定，我们需要继续向右遍历。
+
+    <img src="https://pic.leetcode-cn.com/414a06bad966eba25ef6c1281e5780381205d1c76c70b7a2561969bfe859eb01-image.png" alt="image.png" style="zoom:33%;" />
+
+    2、然后看到到高度为 1 的柱形，这个时候以这个柱形为高度的矩形的最大面积还是不知道的。但是**它之前的以 2 为高度的最大面积的矩形是可以确定的**，这是因为这个 1 比 2 小 ，因为这个 1 卡在了这里 2 不能再向右边扩展了。
+
+    <img src="https://pic.leetcode-cn.com/dcbed1d0cba33c059f3833a0da2e78e5e0a96370a415930acbdb126b44b398c8-image.png" alt="image.png" style="zoom:50%;" />
+
+    我们计算一下以 2 为高度的最大矩形的面积是 2。其实这个时候，求解这个问题的思路其实已经慢慢打开了。如果已经确定了一个柱形的高度，我们可以无视它，将它去除。
+
+    <img src="https://pic.leetcode-cn.com/da72cf520eb05a42725a8982bb27e507f9213b257b6f32bd6ef4a49e1d416a1f-image.png" alt="image.png" style="zoom:50%;" />
+
+    3、遍历到高度为 5 的柱形，同样的以当前看到柱形为高度的矩形的最大面积也是不知道的，因为我们还要看右边高度的情况。那么它的左右有没有可以确定的柱形呢？没有，这是因为 5 比 1 大，我们看后面马上就出现了 6，不管是 1 这个柱形还是 5 这个柱形，都还可以向右边扩展
+
+    <img src="https://pic.leetcode-cn.com/1bc87193557ab8c2a0bc2319aef66a12c4514aa45e9aa823eefa0e536289f0ed-image.png" alt="image.png" style="zoom:50%;" />
+
+    4、接下来，遍历到高度为 6 的柱形，同样的，以柱形 1、5、6 为高度的最大矩形面积还是不能确定下来；
+
+    <img src="https://pic.leetcode-cn.com/c34663bee2af70da626134a0426e7ac8e8e305a039abb43862a807fc1a7183a8-image.png" alt="image.png" style="zoom:50%;" />
+
+    5、再接下来，遍历到高度为 2 的柱形。
+
+    <img src="https://pic.leetcode-cn.com/180d06d75a6480c649d0d4ad6c31e755a4e9c03294d23b7fb28bbac3fb0c006a-image.png" alt="image.png" style="zoom:50%;" />
+
+    发现了一件很神奇的事情，**高度为 6 的柱形对应的最大矩形的面积的宽度可以确定下来**，它就是夹在高度为 5 的柱形和高度为 2 的柱形之间的距离，它的高度是 6，宽度是 1。
+
+    <img src="https://pic.leetcode-cn.com/5a60100c86cacd620424c807b6c062dd8f9990538da27420de81822557f8c782-image.png" alt="image.png" style="zoom:50%;" />
+
+    将可以确定的柱形设置为虚线。
+
+    <img src="https://pic.leetcode-cn.com/5cc53fec12ab6a3c790c30c47ac183e5fd0426a50a7cd46d813cac6718f658cc-image.png" alt="image.png" style="zoom:50%;" />
+
+    接下来柱形 5 对应的最大面积的矩形的宽度也可以确定下来，它是夹在高度为 1 和高度为 2 的两个柱形之间的距离；
+
+    <img src="https://pic.leetcode-cn.com/c4ae9e65efe6247d63b1ac2834015bf1be6270e0d323e6f02d7e1bb4ab6644ed-image.png" alt="image.png" style="zoom:50%;" />
+
+    确定好以后，我们将它标成虚线。
+
+    <img src="https://pic.leetcode-cn.com/973788fa2d6407c9db41c100e9fa9b9ef00e4891343089773b716316c6f3e7f2-image.png" alt="image.png" style="zoom:50%;" />
+
+    我们发现了，只要是遇到了当前柱形的高度比它上一个柱形的高度严格小的时候，一定可以确定它之前的某些柱形的最大宽度，并且确定的柱形宽度的顺序是从右边向左边。
+    这个现象告诉我们，在遍历的时候需要记录的信息就是遍历到的柱形的下标，它一左一右的两个柱形的下标的差就是这个面积最大的矩形对应的最大宽度。
+
+  - S1: create a stack to store the index and height of each element
+
+    S2: for each elment, while heights[i] > stack[-1] --> calculate the area and remove it --> set the index back to the original index
+
+    S3: for the remaining rectangles in stack, area = (len - index) * height
+
+    <img src="/Users/xinyuzhang/Library/Application Support/typora-user-images/image-20220620190715410.png" alt="image-20220620190715410" style="zoom: 67%;" />
+
+    <img src="/Users/xinyuzhang/Library/Application Support/typora-user-images/image-20220620190726465.png" alt="image-20220620190726465" style="zoom:50%;" />
+
+  - **Solution**
+
+    ```python
+    def largestRectangleArea(self, heights: List[int]) -> int:
+      maxArea = 0
+      
+      stack = []    # store a pair: (index, height)
+      for i, h in enumerate(heights):
+        start = i
+        while stack and h < stack[-1][1]:
+          index, height = stack.pop()
+          area = height * (i - index)
+          maxArea = max(area, maxArea)
+          start = index
+        stack.append((start, h))
+      
+      for i, h in stack:
+        maxArea = max(maxArea, h * (len(heights) - i))
+      return maxArea
+    ```
+
+    - Time complexity: O(N) --> 输入数组里的每一个元素入栈一次，出栈一次
+
+      Space complexity: O(N) --> create a stack 
