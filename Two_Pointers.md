@@ -881,20 +881,21 @@ Output: 9
       l, r = 0, n - 1
       l_max, r_max = height[l], height[r]
       
-      for i in range(1, n):
+      res = 0
+      while (l < r): 
         if l_max <= r_max:
           l += 1
-          l_max = max(l_max, height[i])
+          l_max = max(l_max, height[l])
           res += l_max - height[i]
         else:
           r -= 1
-          r_max = max(r_max, height[i])
+          r_max = max(r_max, height[r])
           res += r_max - height[i]
       return res
     ```
-
+    
     - Time complexity: $O(N)$
-
+    
       Space complexity: $O(1)$
 
 ## 12. 11 [Container With Most Water](https://leetcode.com/problems/container-with-most-water/description/)
@@ -956,19 +957,26 @@ Output: 1
     n = len(height)
     l, r = 0, n - 1
     res = 0
-    for i in range(n):
+    while l < r:
       area = min(height[l], height[r]) * (r - l)
       res = max(res, area)
+      # 双指针技巧，移动较低的一边
       if height[l] <= height[r]:
         l += 1
       else:
         r -= 1
     return res
   ```
-
+  
   - Time complexity: $O(N)$
-
+  
     Space complexity: $O(1)$
+  
+  - <font color=red>**注意点：**</font>
+  
+    移动较低的一边：**因为矩形的高度是由 `min(height[left], height[right])` 即较低的一边决定的**：
+  
+    你如果移动较低的那一边，那条边可能会变高，使得矩形的高度变大，进而就「有可能」使得矩形的面积变大；相反，如果你去移动较高的那一边，矩形的高度是无论如何都不会变大的，所以不可能使矩形的面积变得更大。
 
 ## 13. 121 [Best Time to Buy and Sell Stock](https://leetcode.com/problems/best-time-to-buy-and-sell-stock/description/)
 
