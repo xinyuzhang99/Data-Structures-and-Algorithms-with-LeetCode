@@ -324,5 +324,3 @@ Output: 9
   - Time complexity: $O(N)$
 
     Space complexity: $O(N)$
-
-  
