@@ -579,3 +579,91 @@ Output: -1
 
     Space Complexity: O(1)
 
+## 6. 981 [Time Based Key-Value Store](https://leetcode.com/problems/time-based-key-value-store/description/)
+
+|  Category  |   Difficulty    |                    Tags                     |
+| :--------: | :-------------: | :-----------------------------------------: |
+| algorithms | Medium (52.68%) | [`greedy`](https://leetcode.com/tag/greedy) |
+
+Design a time-based key-value data structure that can store multiple values for the same key at different time stamps and retrieve the key's value at a certain timestamp.
+
+Implement the `TimeMap` class:
+
+- `TimeMap()` Initializes the object of the data structure.
+- `void set(String key, String value, int timestamp)` Stores the key `key` with the value `value `at the given time `timestamp`.
+- `String get(String key, int timestamp)` Returns a value such that `set` was called previously, with `timestamp_prev <= timestamp`. If there are multiple such values, it returns the value associated with the largest `timestamp_prev`. If there are no values, it returns `""`. 
+
+**Example 1:**
+
+```java
+Input
+["TimeMap", "set", "get", "get", "set", "get", "get"]
+[[], ["foo", "bar", 1], ["foo", 1], ["foo", 3], ["foo", "bar2", 4], ["foo", 4], ["foo", 5]]
+Output
+[null, null, "bar", "bar", null, "bar2", "bar2"]
+
+Explanation
+TimeMap timeMap = new TimeMap();
+timeMap.set("foo", "bar", 1);  // store the key "foo" and value "bar" along with timestamp = 1.
+timeMap.get("foo", 1);         // return "bar"
+timeMap.get("foo", 3);         // return "bar", since there is no value corresponding to foo at timestamp 3 and timestamp 2, then the only value is at timestamp 1 is "bar".
+timeMap.set("foo", "bar2", 4); // store the key "foo" and value "bar2" along with timestamp = 4.
+timeMap.get("foo", 4);         // return "bar2"
+timeMap.get("foo", 5);         // return "bar2"
+```
+
+- **Constraints:**
+
+  - `1 <= key.length, value.length <= 100`
+
+  - `key` and `value` consist of lowercase English letters and digits.
+
+  - `1 <= timestamp <= 107`
+
+  - ==All the timestamps `timestamp` of `set` are strictly increasing.==
+
+  - At most `2 * 105` calls will be made to `set` and `get`.
+
+- **Thoughts**
+
+  - 为实现 `get` 操作，我们需要用一个哈希表存储 `set` 操作传入的数据。具体地，哈希表的键为字符串 `key`，值为一个二元组列表，二元组中存储的是时间戳 `timestamp` 和值 `value`。
+
+
+  - 关键点：由于set 操作中的时间戳都是严格递增的，因此二元组列表中保存的时间戳也是严格递增的 --> sorted array --> binary search
+
+- **Solution**
+
+  ```python
+  from collections import defaultdict
+  class TimeMap:
+  
+      def __init__(self):
+        self.timeMap = {}
+        # self.timeMap = defaultdict(list)
+  
+      def set(self, key: str, value: str, timestamp: int) -> None:
+        if key not in self.timeMap:
+          self.timeMap[key] = []
+        self.timeMap[key].append([timemap, value])
+  
+      # find the maximum number less than timestamp --> sorted --> binary search 
+      def get(self, key: str, timestamp: int) -> str:
+        if key not in self.timeMap:
+          return ''
+        
+        res = ''
+        values = self.timeMap[key]      # get the list of values
+        l, r = 0, len(values) - 1
+        while l <= r:
+          m = (l + r)//2
+          if values[m][0] <= timestamp: 
+            res = values[m][1]
+            l = m + 1										# find a bigger value
+          else:
+            r = m - 1										# find a smaller value
+        return res
+  ```
+
+  - Time Complexity: O(1) for `init__` and `set`; O(logn) for `get` (binary search)
+
+    Space Complexity: O(n) --> create a hashmap
