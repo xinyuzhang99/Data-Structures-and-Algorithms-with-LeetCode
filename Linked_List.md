@@ -205,7 +205,7 @@ Explanation: Since the list has two middle nodes with values 3 and 4, we return 
 
 - **Thoughts**
 
-  - 由于直接得到单链表的长度 `n`，想一次遍历就得到中间节点，使用==「快慢指针」==的技巧：
+  - 由于无法直接得到单链表的长度 `n`，想一次遍历就得到中间节点，使用==「快慢指针」==的技巧：
 
     我们让两个指针 `slow` 和 `fast` 分别指向链表头结点 `head`。
 
