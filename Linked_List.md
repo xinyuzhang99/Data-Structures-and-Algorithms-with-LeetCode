@@ -148,7 +148,7 @@ Output: [1]
           dummyhead = ListNode() 
           dummyhead.next = head # dummyhead points to the list
   
-          slow = dummyhead
+          slow = dummyhead			# !!注意不是slow = fast = dummyhead.next而是指向空节点
           fast = dummyhead
   
           while n != 0:          # 快指针先走n步
@@ -590,6 +590,85 @@ Output: [1,2,3]
             return head       
     ```
 
+### 7. 2 [Add Two Numbers](https://leetcode.com/problems/add-two-numbers/description/)
+
+|  Category  |   Difficulty    |                             Tags                             |
+| :--------: | :-------------: | :----------------------------------------------------------: |
+| algorithms | Medium (38.74%) | [`linked-list`](https://leetcode.com/tag/linked-list); [`math`](https://leetcode.com/tag/math) |
+
+You are given two **non-empty** linked lists representing two non-negative integers. The digits are stored in **reverse order**, and each of their nodes contains a single digit. Add the two numbers and return the sum as a linked list.
+
+You may assume the two numbers do not contain any leading zero, except the number 0 itself.
+
+**Example 1:**
+
+<img src="https://assets.leetcode.com/uploads/2020/10/02/addtwonumber1.jpg" alt="img" style="zoom:50%;" />
+
+```
+Input: l1 = [2,4,3], l2 = [5,6,4]
+Output: [7,0,8]
+Explanation: 342 + 465 = 807.
+```
+
+**Example 2:**
+
+```
+Input: l1 = [0], l2 = [0]
+Output: [0]
+```
+
+**Example 3:**
+
+```
+Input: l1 = [9,9,9,9,9,9,9], l2 = [9,9,9,9]
+Output: [8,9,9,9,0,0,0,1]
+```
+
+- **Constraints:**
+
+  - The number of nodes in each linked list is in the range `[1, 100]`.
+
+  - `0 <= Node.val <= 9`
+
+  - It is guaranteed that the list represents a number that does not have leading zeros.
+
+- **Thoughts**
+
+  - 由于输入的两个链表都是逆序存储数字的位数的，因此两个链表中同一位置的数字可以直接相加。我们同时遍历两个链表，逐位计算它们的和，并与当前位置的进位值相加。具体而言，如果当前两个链表处相应位置的数字为 n1,n2，进位值为 carry，则它们的和为 n1+n2+carry；其中，答案链表处相应位置的数字为(n1+n2+carry)mod10，而新的进位值为 $\lfloor\frac{n1+n2+\textit{carry}}{10}\rfloor $
+
+  - 如果两个链表的长度不同，则可以认为长度短的链表的后面有若干个 0 。
+
+  - 如果链表遍历结束后，有 `carry > 0`，还需要在答案链表的后面附加一个节点，节点的值为carry。
+
+- **Solution**
+
+  ```python
+  def addTwoNumbers(self, l1: Optional[ListNode], l2: Optional[ListNode]) -> Optional[ListNode]:
+    dummy = ListNode(-1)
+    cur = dummy
+    carry = 0
+    
+    while l1 or l2:
+      sum = 0
+      if l1:
+        sum += l1.val
+        l1 = l1.next
+      if l2:
+        sum += l2.val
+        l2 = l2.next
+      sum += carry
+      cur.next = ListNode(sum % 10)
+      carry = sum // 10
+      cur = cur.next
+    
+    if carry != 0:
+      cur.next = ListNode(carry)
+    return dummy.next
+  ```
+
+  - Time Complexity: $O(max(m, n))$ --> 其中 m 和 n 分别为两个链表的长度。我们要遍历两个链表的全部位置，而处理每个位置只需要 O(1) 的时间。
+
+    Space Complexity: O(1)
 
 ## 2. ==Iteration / Recursion 迭代/递归反转单链表==
 
@@ -970,3 +1049,272 @@ class Solution:
 - Time Complexity: O(N) 
 
   Space Complexity: O(N) --> need stack memory for recursion
+
+## 3. 143 [Reorder List](https://leetcode.com/problems/reorder-list/description/)
+
+|  Category  |   Difficulty    |                         Tags                          |
+| :--------: | :-------------: | :---------------------------------------------------: |
+| algorithms | Medium (48.31%) | [`linked-list`](https://leetcode.com/tag/linked-list) |
+
+You are given the head of a singly linked-list. The list can be represented as:
+
+```
+L0 → L1 → … → Ln - 1 → Ln
+```
+
+*Reorder the list to be on the following form:*
+
+```
+L0 → Ln → L1 → Ln - 1 → L2 → Ln - 2 → …
+```
+
+You may not modify the values in the list's nodes. Only nodes themselves may be changed.
+
+**Example 1:**
+
+![img](https://assets.leetcode.com/uploads/2021/03/04/reorder1linked-list.jpg)
+
+```
+Input: head = [1,2,3,4]
+Output: [1,4,2,3]
+```
+
+**Example 2:**
+
+![img](https://assets.leetcode.com/uploads/2021/03/09/reorder2-linked-list.jpg)
+
+```
+Input: head = [1,2,3,4,5]
+Output: [1,5,2,4,3]
+```
+
+- **Constraints:**
+
+  - The number of nodes in the list is in the range `[1, 5 * 104]`.
+
+  - `1 <= Node.val <= 1000`
+
+- **Thoughts**
+
+  - For list `[1,2,3,4,5,6,7]` we need to return `[1,7,2,6,3,5,4]`. We can note, that it is actually two lists `[1,2,3,4]` and `[7,6,5]`, where elements are interchange. 
+    - S1: Find the middle of the list --> use ==`slow/fast`== iterators trick, where `slow` moves with speed `1` and `fast` moves with speed `2`. Then when `fast` reches the end, `slow` will be in the middle, as we need. ***[LeetCode 876]***
+    - S2: Reverse the second part of linked list. <font color=red>Do not forget to use `slow.next = None`, in opposite case you will have list with loop. </font> ***[LeetCode 206]***
+    - S3: Merge two lists, given its heads. 
+
+- **Solution**
+
+  ```python
+  def reorderList(self, head: Optional[ListNode]) -> None:
+    """
+    Do not return anything, modify head in-place instead.
+    """
+    
+    # S1: find the middle node (LeetCode 876)
+    slow = fast = head
+    while fast and fast.next:
+      slow = slow.next
+      fast = fast.next.next
+   
+    # S2: reverse the second half of the linked list (LeetCode 206)
+  	cur = slow.next
+    prev = slow.next = None  # slow.next = None: separate the first and second half --> prevent loops 
+    while cur:
+      temp = cur.next
+      cur.next = prev
+      prev = cur
+      cur = temp
+    
+    # S3: merge two linked lists one-by-one
+    first, second = head, prev
+    while first and second:
+      temp1, temp2 = first.next, second.next    # prev is the head of the second half
+      first.next = second
+      second.next = temp1
+      
+      first = temp1
+      second = temp2
+  ```
+
+  - Time Complexity: O(3N) = O(N) --> first do `O(n)` iterations to find middle, then we do `O(n)` iterations to reverse second half and finally we do `O(n)` iterations to merge lists
+
+    Space Complexity: O(1) 
+
+## ==3. 其余链表技巧==
+
+### 1. 138 [Copy List with Random Pointer](https://leetcode.com/problems/copy-list-with-random-pointer/description/)
+
+|  Category  |   Difficulty    |                             Tags                             |
+| :--------: | :-------------: | :----------------------------------------------------------: |
+| algorithms | Medium (48.46%) | [`hash-table`](https://leetcode.com/tag/hash-table); [`linked-list`](https://leetcode.com/tag/linked-list) |
+
+ A linked list of length `n` is given such that each node contains an additional random pointer, which could point to any node in the list, or `null`.
+
+Construct a [**deep copy**](https://en.wikipedia.org/wiki/Object_copying#Deep_copy) of the list. The deep copy should consist of exactly `n` **brand new** nodes, where each new node has its value set to the value of its corresponding original node. Both the `next` and `random` pointer of the new nodes should point to new nodes in the copied list such that the pointers in the original list and copied list represent the same list state. **None of the pointers in the new list should point to nodes in the original list**.
+
+For example, if there are two nodes `X` and `Y` in the original list, where `X.random --> Y`, then for the corresponding two nodes `x` and `y` in the copied list, `x.random --> y`.
+
+Return *the head of the copied linked list*.
+
+The linked list is represented in the input/output as a list of `n` nodes. Each node is represented as a pair of `[val, random_index]` where:
+
+- `val`: an integer representing `Node.val`
+- `random_index`: the index of the node (range from `0` to `n-1`) that the `random` pointer points to, or `null` if it does not point to any node.
+
+Your code will **only** be given the `head` of the original linked list.
+
+**Example 1:**
+
+<img src="https://assets.leetcode.com/uploads/2019/12/18/e1.png" alt="img" style="zoom: 33%;" />
+
+```
+Input: head = [[7,null],[13,0],[11,4],[10,2],[1,0]]
+Output: [[7,null],[13,0],[11,4],[10,2],[1,0]]
+```
+
+**Example 2:**
+
+<img src="https://assets.leetcode.com/uploads/2019/12/18/e2.png" alt="img" style="zoom:33%;" />
+
+```
+Input: head = [[1,1],[2,1]]
+Output: [[1,1],[2,1]]
+```
+
+**Example 3:**
+
+**<img src="https://assets.leetcode.com/uploads/2019/12/18/e3.png" alt="img" style="zoom:33%;" />**
+
+```
+Input: head = [[3,null],[3,0],[3,null]]
+Output: [[3,null],[3,0],[3,null]]
+```
+
+- **Constraints:**
+
+  - `0 <= n <= 1000`
+
+  - `-104 <= Node.val <= 104`
+
+  - `Node.random` is `null` or is pointing to some node in the linked list.
+
+- **Thoughts**
+
+  - 本题要求我们对一个特殊的链表进行深拷贝。如果是普通链表，我们可以直接按照遍历的顺序创建链表节点。而本题中因为==随机指针==的存在，<font color=blue>**当我们拷贝节点时，「当前节点的随机指针指向的节点」可能还没创建**</font>，因此我们需要变换思路。
+
+- **Solution**
+
+  - <u>Method 1: Hashmap</u>
+
+    --> use extra space to keep **old node ---> new node** mapping to prevent creating multiples copies of same node
+
+    --> 思路：先将所有节点单独存放在哈希表里，之后再进行指针的连接
+
+    - S1: First pass: Create a deep copy of all nodes without linking them； Use a hash map to map old nodes to new nodes 
+    - S2: Second pass: Connect all pointers in the hashmap
+
+    首先遍历原链表，每遍历到一个节点，都新建一个相同val的节点，然后使用HashMap存放原链表到新链表的键值对。第二次遍历时通过HashMap，建立新链表节点之间的next和random关系。
+
+    ```python
+    class Node:
+        def __init__(self, x: int, next: 'Node' = None, random: 'Node' = None):
+            self.val = int(x)
+            self.next = next
+            self.random = random
+    
+    class Solution:
+        def copyRandomList(self, head: 'Optional[Node]') -> 'Optional[Node]':
+            if not head:
+                return head
+                
+            hashmap = {None: None}   # 原节点的next和随机指针可能为空，令这些节点指向空
+            # S1: add all nodes separately in the hashmap
+            cur = head
+            while cur:
+                copy = Node(cur.val)
+                hashmap[cur] = copy   # add a copy node to the hashmap
+                cur = cur.next
+            
+            # S2: connect all pointers
+            cur = head
+            while cur:  # 遍历原链表的同时更新新链表
+                copy = hashmap[cur]
+                copy.next = hashmap[cur.next]
+                copy.random = hashmap[cur.random] 
+                cur = cur.next
+            return hashmap[head]
+    ```
+
+    - Time Complexity: O(2N) = O(N)
+
+      Space Complexity: O(N) --> create a map to store all new nodes 
+
+  - <u>Method 2: Iteration</u>
+
+    --> 由于使用哈希表储存复制的节点需要O(N)的空间复杂度，也可以更改原链表，实现O(1)的空间复杂度
+
+    We can avoid using extra space for old node ---> new node mapping, by tweaking the original linked list. Simply interweave the nodes of the old and copied list. 
+
+    For e.g.
+
+    `Old List: A --> B --> C --> D
+    InterWeaved List: A --> A' --> B --> B' --> C --> C' --> D --> D'`
+
+    基本就是：==新节点接在老节点之后，连接新随机指针，分离链表。==
+
+    <img src="https://pic.leetcode-cn.com/1626886532-UBAqDs-image.png" alt="image.png" style="zoom:50%;" />
+
+    在每一个老节点之后，新建与老节点val相同的节点，插入在老节点之后，注意，随机指针不急赋值，因为随机在何处还不知，需要把链表全部新老节点建立连接完成。
+
+    <img src="https://pic.leetcode-cn.com/1626886679-niBTZo-image.png" alt="image.png" style="zoom:50%;" />
+
+    赋值新随机指针，等于为老随机指针的下一个。
+
+    <img src="https://pic.leetcode-cn.com/1626889435-VypNsR-image.png" alt="image.png" style="zoom:50%;" />
+
+    拆分链表。随机指针不受影响，老链表依然在，新链表复制完成
+
+    <img src="https://pic.leetcode-cn.com/1626889471-eXelMq-image.png" alt="image.png" style="zoom:50%;" />
+
+    <img src="https://pic.leetcode-cn.com/1626889485-tTgOqG-image.png" alt="image.png" style="zoom:50%;" />
+
+    ```python
+    class Node:
+        def __init__(self, x: int, next: 'Node' = None, random: 'Node' = None):
+            self.val = int(x)
+            self.next = next
+            self.random = random
+    
+    class Solution:
+        def copyRandomList(self, head: 'Optional[Node]') -> 'Optional[Node]':
+          if not head:
+            return head
+          
+          # S1: insert a copied node after each node
+          cur = head
+          while cur: # traverse through all nodes in the original list
+            copy = Node(cur.val)
+            copy.next = cur.next
+            cur.next = copy
+            cur = cur.next.next
+         
+          # S2: connect all random pointers of copied nodes
+          cur = head
+          while cur:
+            copy = cur.next
+            copy.random = cur.random.next if cur.random else None
+            cur = cur.next.next
+          
+          # S3: separate two linked lists
+          cur = head
+          newHead = head.next
+          while cur:
+            new = cur.next
+            cur.next = cur.next.next
+            new.next = new.next.next if new.next else None
+            cur = cur.next
+          return newHead
+    ```
+
+    - Time Complexity: O(3N) = O(N)
+
+      Space Complexity: O(1) --> no extra space
