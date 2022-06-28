@@ -293,7 +293,7 @@ Explanation: There is no cycle in the linked list.
 
     每当慢指针 `slow` 前进一步，快指针 `fast` 就前进两步。(similar to 876)
 
-    如果 `fast` 最终遇到空指针，说明链表中没有环；如果 `fast` 最终和 `slow` 相遇，那肯定是 `fast` 超过了 `slow` 一圈，说明链表中含有环
+    如果 `fast` 最终遇到空指针，说明链表中没有环；如果 `fast` 最终和 `slow` 相遇，那肯定是 `fast` 超过了 `slow` 一圈，说明链表中含有环 ==若有环，两指针一定会相遇。因为每走 1 轮，`fast` 与 `slow` 的间距 +1，`fast` 终会追上 `slow`==
 
 - **Solution**
 
@@ -669,6 +669,123 @@ Output: [8,9,9,9,0,0,0,1]
   - Time Complexity: $O(max(m, n))$ --> 其中 m 和 n 分别为两个链表的长度。我们要遍历两个链表的全部位置，而处理每个位置只需要 O(1) 的时间。
 
     Space Complexity: O(1)
+
+### 8. 142 [Linked List Cycle II](https://leetcode.com/problems/linked-list-cycle-ii/description/)
+
+|  Category  |   Difficulty    |                             Tags                             |
+| :--------: | :-------------: | :----------------------------------------------------------: |
+| algorithms | Medium (44.41%) | [`linked-list`](https://leetcode.com/tag/linked-list); [`two-pointers`](https://leetcode.com/tag/two-pointers) |
+
+Given the `head` of a linked list, return *the node where the cycle begins. If there is no cycle, return* `null`.
+
+There is a cycle in a linked list if there is some node in the list that can be reached again by continuously following the `next` pointer. Internally, `pos` is used to denote the index of the node that tail's `next` pointer is connected to (**0-indexed**). It is `-1` if there is no cycle. **Note that** `pos` **is not passed as a parameter**.
+
+**Do not modify** the linked list.
+
+**Example 1:**
+
+<img src="https://assets.leetcode.com/uploads/2018/12/07/circularlinkedlist.png" alt="img" style="zoom:67%;" />
+
+```
+Input: head = [3,2,0,-4], pos = 1
+Output: tail connects to node index 1
+Explanation: There is a cycle in the linked list, where tail connects to the second node.
+```
+
+**Example 2:**
+
+![img](https://assets.leetcode.com/uploads/2018/12/07/circularlinkedlist_test2.png)
+
+```
+Input: head = [1,2], pos = 0
+Output: tail connects to node index 0
+Explanation: There is a cycle in the linked list, where tail connects to the first node.
+```
+
+**Example 3:**
+
+![img](https://assets.leetcode.com/uploads/2018/12/07/circularlinkedlist_test3.png)
+
+```
+Input: head = [1], pos = -1
+Output: no cycle
+Explanation: There is no cycle in the linked list.
+```
+
+- **Constraints:**
+
+  - The number of the nodes in the list is in the range `[0, 104]`.
+
+  - `-105 <= Node.val <= 105`
+
+  - `pos` is `-1` or a **valid index** in the linked-list. 
+
+**Follow up:** Can you solve it using `O(1)` (i.e. constant) memory? --> ==see Method 2==
+
+- **Thoughts**
+
+  - 这道题目，不仅考察对链表的操作，而且还需要一些数学运算。
+
+    主要考察两知识点：
+
+    - 判断链表是否环
+    - 如果有环，如何找到这个环的入口
+
+- **Solution**
+
+  - <u>Method 1: Hashset</u>
+
+    一个非常直观的思路是：我们遍历链表中的每个节点，并将它记录下来；一旦遇到了此前遍历过的节点，就可以判定链表中存在环。借助哈希表可以很方便地实现。
+
+    ```python
+    def detectCycle(self, head: Optional[ListNode]) -> Optional[ListNode]:
+      if not head:
+        return head
+      
+      hashset = set()
+      while head:
+        if head in hashset:
+          return head
+        hashset.add(head)
+        head = head.next
+      return None
+    ```
+
+    - Time Complexity: O(N)
+
+      Space Complexity: O(N) --> build a set
+
+  - <u>Method 2: Two-Pointers</u>
+
+    我们使用两个指针，$\textit{fast}$ 与 $\textit{slow}$。它们起始都位于链表的头部。随后，$\textit{slow}$每次向后移动一个位置，而 $\textit{fast}$ 指针向后移动两个位置。如果链表中存在环，则 $\textit{fast}$ 指针最终将再次与 $\textit{slow}$ 指针在环中相遇。由于任意时刻，$\textit{fast}$ 指针走过的距离都为 $\textit{slow}$ 指针的 2 倍 --> `fast = 2 * slow`
+
+    设链表中环外部分的长度为 a。slow 指针进入环后，又走了 b 的距离与 fast 相遇。此时，fast 指针已经走完了环的 n 圈，因此它走过的总距离为 `a+n(b+c)+b=a+(n+1)b+nc`。
+
+    <img src="/Users/xinyuzhang/Downloads/IMG_1700D2C619A3-1.jpeg" alt="IMG_1700D2C619A3-1" style="zoom: 33%;" />
+
+    --> **<u>从相遇点到入环点的距离加上 n-1 圈的环长，恰好等于从链表头部到入环点的距离。</u>** --> 当发现 slow 与 fast 相遇时，我们再额外使用一个指针 ptr。起始，它指向链表头部；随后，它和 slow 每次向后移动一个位置。最终，它们会在入环点相遇
+
+    ```python
+    def detectCycle(self, head: Optional[ListNode]) -> Optional[ListNode]:
+      if not head:
+        return head
+      
+      slow, fast = head, head
+      while fast and fast.next:
+        slow = slow.next
+        fast = fast.next.next
+        if slow == fast:
+          ptr = head
+          while ptr != slow:
+            ptr = ptr.next
+            slow = slow.next
+          return slow
+      return None 
+    ```
+
+    - Time Complexity: O(N)
+
+      Space Complexity: O(1) --> only use three pointers (slow, fast, ptr)
 
 ## 2. ==Iteration / Recursion 迭代/递归反转单链表==
 
