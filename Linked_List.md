@@ -1550,3 +1550,154 @@ Output: [[3,null],[3,0],[3,null]]
     - Time Complexity: O(3N) = O(N)
 
       Space Complexity: O(1) --> no extra space
+
+### 2. 146 [LRU Cache](https://leetcode.com/problems/lru-cache/description/)
+
+|  Category  |   Difficulty    |                    Tags                     |
+| :--------: | :-------------: | :-----------------------------------------: |
+| algorithms | Medium (40.01%) | [`design`](https://leetcode.com/tag/design) |
+
+Design a data structure that follows the constraints of a **[Least Recently Used (LRU) cache](https://en.wikipedia.org/wiki/Cache_replacement_policies#LRU)**.
+
+Implement the `LRUCache` class:
+
+- `LRUCache(int capacity)` Initialize the LRU cache with **positive** size `capacity`.
+- `int get(int key)` Return the value of the `key` if the key exists, otherwise return `-1`.
+- `void put(int key, int value)` Update the value of the `key` if the `key` exists. Otherwise, add the `key-value` pair to the cache. If the number of keys exceeds the `capacity` from this operation, ==**evict** the least recently used key==.
+
+The functions `get` and `put` ==must each run in `O(1)` average time complexity==.
+
+**Example 1:**
+
+```java
+Input
+["LRUCache", "put", "put", "get", "put", "get", "put", "get", "get", "get"]
+[[2], [1, 1], [2, 2], [1], [3, 3], [2], [4, 4], [1], [3], [4]]
+Output
+[null, null, null, 1, null, -1, null, -1, 3, 4]
+
+Explanation
+LRUCache lRUCache = new LRUCache(2);
+lRUCache.put(1, 1); // cache is {1=1}
+lRUCache.put(2, 2); // cache is {1=1, 2=2}
+lRUCache.get(1);    // return 1
+lRUCache.put(3, 3); // LRU key was 2, evicts key 2, cache is {1=1, 3=3}
+lRUCache.get(2);    // returns -1 (not found)
+lRUCache.put(4, 4); // LRU key was 1, evicts key 1, cache is {4=4, 3=3}
+lRUCache.get(1);    // return -1 (not found)
+lRUCache.get(3);    // return 3
+lRUCache.get(4);    // return 4 
+```
+
+- **Constraints:**
+
+  - `1 <= capacity <= 3000`
+
+  - `0 <= key <= 104`
+
+  - `0 <= value <= 105`
+
+  - At most 2` * 105` calls will be made to `get` and `put`.
+
+- **Thoughts**
+
+  - 题目是要求设计数据结构：
+
+    首先要接收一个 `capacity` 参数作为缓存的最大容量，然后实现两个 API，一个是 `put(key, val)` 方法存入键值对，另一个是 `get(key)` 方法获取 `key` 对应的 `val`，如果 `key` 不存在则返回 -1。
+
+    注意哦，`get` 和 `put` 方法必须都是 `O(1)` 的时间复杂度
+
+    <font color=red>`put`函数的难点在于要除去the least recently used key --> 元素必须有序</font>
+
+  - 要让 `put` 和 `get` 方法的时间复杂度为 O(1)，我们可以总结出 `cache` 这个数据结构必要的条件：
+
+    1、显然 `cache` 中的元素必须有时序，以区分最近使用的和久未使用的数据，当容量满了之后要删除最久未使用的那个元素腾位置。
+
+    2、我们要在 `cache` 中快速找某个 `key` 是否已存在并得到对应的 `val`；
+
+    3、每次访问 `cache` 中的某个 `key`，需要将这个元素变为最近使用的，也就是说 `cache` 要支持在任意位置快速插入和删除元素。
+
+    那么，什么数据结构同时符合上述条件呢？==哈希表查找快，但是数据无固定顺序；链表有顺序之分，插入删除快，但是查找慢。所以结合一下，形成一种新的数据结构：哈希链表 `LinkedHashMap`==。
+
+    LRU 缓存算法的核心数据结构就是哈希链表，双向链表和哈希表的结合体。
+
+    <img src="https://labuladong.github.io/algo/images/LRU%e7%ae%97%e6%b3%95/4.jpg" alt="img" style="zoom:50%;" />
+
+    - 双向链表按照被使用的顺序存储了这些键值对，靠近头部的键值对是最近使用的，而靠近尾部的键值对是最久未使用的。
+
+    - 哈希表即为普通的哈希映射（HashMap），通过缓存数据的键映射到其在双向链表中的位置。
+
+    ![image-20220629174519603](/Users/xinyuzhang/Library/Application Support/typora-user-images/image-20220629174519603.png)
+
+    <img src="https://labuladong.github.io/algo/images/LRU%e7%ae%97%e6%b3%95/put.jpg" alt="img" style="zoom: 50%;" />
+
+- **Solution**
+
+  ```python
+  # S1: build a doubly linked list class for each node
+  class Node: 
+      def __init__(self, key, val):
+          self.key = key
+          self.val = val
+          self.prev = self.next = None
+  
+  class LRUCache:
+      def __init__(self, capacity: int):
+          self.capacity = capacity
+          self.cache = {} # map key to node
+  
+          # Use two dummyhead nodes --> 插入时不用管相邻是否有节点
+          self.left = Node(-1, -1)
+          self.right = Node(-1, -1)  
+          # connect the two dummynodes
+          self.left.next = self.right
+          self.right.prev = self.left  
+  
+      # remove a node in the doubly linked list
+      # 删除一个节点不光要得到该节点本身的指针，也需要操作其前驱节点的指针，而双向链表才能支持直接查找前驱，保证操作的时间复杂度 O(1)
+      def remove(self, node):
+          pre, nxt = node.prev, node.next
+          pre.next = nxt
+          nxt.prev = pre
+  
+      # insert the node to the right
+      # 只从尾部插入 --> 靠尾部的数据是最近使用的，靠头部的数据是最久未使用的
+      def insert(self, node):  
+          pre, nxt = self.right.prev, self.right
+          pre.next, nxt.prev = node, node
+          node.prev, node.next = pre, nxt
+  
+      def get(self, key: int) -> int:
+          # Return the value of the key from cache
+          # Remove the element and insert from the right 
+          if key in self.cache:
+              self.remove(self.cache[key])
+              self.insert(self.cache[key])
+              return self.cache[key].val  # self.cache[key] is a node
+          return -1
+          
+      def put(self, key: int, value: int) -> None:
+          if key in self.cache:
+              self.remove(self.cache[key])
+          self.cache[key] = Node(key, value)    # 创建一个新的节点添加进哈希表
+          self.insert(self.cache[key])					# 将该节点添加至双向链表
+  
+          # remove from the list and delete the LRU from the hashmap
+          if len(self.cache) > self.capacity:
+              LRU = self.left.next
+              self.remove(LRU)  								# 如果超出容量，删除双向链表的尾部节点
+              self.cache.pop(LRU.key)  					# 删除哈希表中对应的项
+              # or: del self.cache[LRU.key]
+  ```
+
+  - Time Complexity: O(1)
+
+    Space Complexity: O(Capacity) --> 因为哈希表和双向链表最多存储 capacity+1 个元素
+
+  - <font color =red>**注意点：**</font>
+
+    - 使用双向链表而不是单向链表的原因是：在缓存满了需要删除的时候，双向链表可以通过`right`快速找到最后一个节点。如果使用单向链表想要找到最后一个节点，需要从头节点遍历过去 --> <u>删除一个节点不光要得到该节点本身的指针，也需要操作其前驱节点的指针，而双向链表才能支持直接查找前驱，保证操作的时间复杂度 O(1)</u>。
+
+    - 为什么要在链表中同时存储 key 和 val，而不是只存储 val: 
+
+      在`put`函数中，当缓存容量已满，我们不仅仅要删除最后一个 `Node` 节点，还要把 `cache` 中映射到该节点的 `key` 同时删除，而这个 `key` 只能由 `Node` 得到。如果 `Node` 结构中只存储 `val`，那么我们就无法得知 `key` 是什么，就无法删除 `map` 中的键，造成错误。
