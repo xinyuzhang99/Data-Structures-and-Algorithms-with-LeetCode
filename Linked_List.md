@@ -787,13 +787,128 @@ Explanation: There is no cycle in the linked list.
 
       Space Complexity: O(1) --> only use three pointers (slow, fast, ptr)
 
+### 9. 287 [Find the Duplicate Number](https://leetcode.com/problems/find-the-duplicate-number/description/)
+
+|  Category  |   Difficulty    |                             Tags                             |
+| :--------: | :-------------: | :----------------------------------------------------------: |
+| algorithms | Medium (58.84%) | [`array`](https://leetcode.com/tag/array);  [`two-pointers`](https://leetcode.com/tag/two-pointers); [`binary-search`](https://leetcode.com/tag/binary-search) |
+
+Given an array of integers `nums` containing `n + 1` integers where ==each integer is in the range `[1, n]` inclusive.==
+
+There is only **one repeated number** in `nums`, return *this repeated number*.
+
+==You must solve the problem **without** modifying the array `nums` and uses only constant extra space.==
+
+**Example 1:**
+
+```
+Input: nums = [1,3,4,2,2]
+Output: 2
+```
+
+**Example 2:**
+
+```
+Input: nums = [3,1,3,4,2]
+Output: 3
+```
+
+- **Constraints:**
+
+  - `1 <= n <= 105`
+
+  - `nums.length == n + 1`
+
+  - `1 <= nums[i] <= n`
+
+  - All the integers in `nums` appear only **once** except for **precisely one integer** which appears **two or more** times.
+
+- **Follow up:**
+
+  - How can we prove that at least one duplicate number must exist in `nums`?
+
+  - Can you solve the problem in linear runtime complexity?
+
+- **Thoughts**
+
+  - 该题的难点在于题目要求的without modifying the array and use only constant extra space，不然可以将数列排序或者使用哈希集合来做
+
+  - 题目表明：each integer is in the range `[1, n]` inclusive --> 所有元素的值都不超过该数组的长度 --> 我们对 nums 数组建图，每个位置 ii 连一条 $i\rightarrow \textit{nums}[i]$ 的边。由于存在的重复的数字 target，因此 target 这个位置一定有起码两条指向它的边，因此整张图一定存在环，且我们要找到的 target 就是这个环的入口，那么整个问题就等价于 **142. 环形链表 II**。使用双指针找出环，并找到环的起点 --> ==Floyd’s Cycle Finding Algorithm（Floyd判圈算法）==
+
+    <img src="/Users/xinyuzhang/Downloads/IMG_8BD7623244E9-1.jpeg" alt="IMG_8BD7623244E9-1" style="zoom: 33%;" />
+
+    
+
+- <u>**Method 1: Two-Pointers; Floyd's cycle finding algorithm**</u>
+
+  ```python
+  def findDuplicate(self, nums: List[int]) -> int:
+    ## Method: Linked List Cycle (Floyd's Algorithm)
+    # --> see each element as a pointer --> point to the according index
+    slow, fast = 0, 0
+    while True:
+      slow = nums[slow]
+      fast = nums[nums[fast]]			# advance fast twice
+      if slow == fast:
+        ptr = 0
+        while slow != ptr:
+          slow = nums[slow]
+          ptr = nums[ptr]
+          if slow == ptr:
+            return slow
+  ```
+
+  - Time Complexity: O(N)
+
+    Space Complexity: O(1) --> only use three pointers (slow, fast, ptr)
+
+  - <font color=red>**注意点：**</font>
+    - 这道题能使用Floyd判圈算法解决是因为，它以节点0而不是nums[0]作为遍历链表唯一的入口，并且链表中不存在某个节点能重新回到链表入口结点0 --> 由于数字从1开始计数，0这个位置不可能被其它位置的数字指向，所以0位置不可能在环内，所以从0开始遍历一定会指向某个包含重复数字的环
+    - [Floyd’s cycle finding algorithm](https://www.geeksforgeeks.org/detect-loop-in-a-linked-list/) or Hare-Tortoise algorithm is a pointer algorithm that uses only two pointers, moving through the sequence at different speeds. This algorithm is used to find a loop in a linked list. It uses two pointers **one moving twice as fast as the other one.** The faster one is called the faster pointer and the other one is called the slow pointer.
+
+- **<u>Method 2: Binary Search</u>**
+
+  - 因为题目要找的是一个整数，并且==这个整数有明确的范围==，所以可以使用「二分查找」。
+
+    - 重点理解：这个问题使用「二分查找」是在数组 [1, 2,.., n] 中查找一个整数，而并非在输入数组数组中查找一个整数。
+    - **解题思路**：每一次猜一个数，然后 **遍历整个输入数组**，进而缩小搜索区间，最后确定重复的是哪个数。
+    - 「二分查找」的思路是先猜一个数（搜索范围 [left..right] 里位于中间的数 mid），然后统计原始数组中小于等于 mid 的元素的个数 count：
+
+      - 如果 count 严格大于 mid。根据抽屉原理 (Pigeonhole Principle: if n items are put into ${\displaystyle m}$  containers, with n > m, then at least one container must contain more than one item)，重复元素就在区间 `[left..mid]` 里；
+      - 否则，重复元素可以在区间 `[mid + 1..right]`里找到
+  - <font color=red>二分搜索法只对有序的数列有用 --> 这道题因为整数有明确的的范围一定有[1, n]，数列长度为n + 1，所以1-n是有序的</font>
+
+  ```python
+  def findDuplicate(self, nums: List[int]) -> int:
+    n = len(nums)
+    l, r = 1, n - 1    # 1~n是有序的，对这个范围进行二分查找，然后选取1-n中的mid去原数组中统计小于等于它的有多少个数
+    									 # l, r也是数组的最大最小值
+    
+    while l <= r:
+      m = (l + r)//2
+      count = 0
+      for num in nums:
+        if num <= m:
+          count += 1
+      
+      if count > m:
+        r = m - 1
+      else:
+        l = m + 1
+    return l				  # 退出以后 left 与 right 重合，返回 right 也可以。
+  ```
+
+  - Time Complexity: ==O(NlogN)== --> binary search: $O(logN)$, for loop: O(N)
+
+    Space Complexity: O(1) --> only use two pointers
+
 ## 2. ==Iteration / Recursion 迭代/递归反转单链表==
 
 <font color=red>**重要！！看这个链接和labuladong算法小抄结合**</font> 
 
 https://leetcode.cn/problems/reverse-linked-list-ii/solution/yi-bu-yi-bu-jiao-ni-ru-he-yong-di-gui-si-lowt/
 
-### 1. 206 [Reverse Linked List](https://leetcode.com/problems/reverse-linked-list/description/)
+### 1. 206 Reverse Linked List (https://leetcode.com/problems/reverse-linked-list/description/)
 
 |  Category  |  Difficulty   |                         Tags                          |
 | :--------: | :-----------: | :---------------------------------------------------: |
