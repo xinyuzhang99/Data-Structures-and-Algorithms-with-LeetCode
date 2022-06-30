@@ -1701,3 +1701,147 @@ lRUCache.get(4);    // return 4
     - 为什么要在链表中同时存储 key 和 val，而不是只存储 val: 
 
       在`put`函数中，当缓存容量已满，我们不仅仅要删除最后一个 `Node` 节点，还要把 `cache` 中映射到该节点的 `key` 同时删除，而这个 `key` 只能由 `Node` 得到。如果 `Node` 结构中只存储 `val`，那么我们就无法得知 `key` 是什么，就无法删除 `map` 中的键，造成错误。
+
+### 3. 23 [Merge k Sorted Lists](https://leetcode.com/problems/merge-k-sorted-lists/description/)
+
+|  Category  |  Difficulty   |                             Tags                             |
+| :--------: | :-----------: | :----------------------------------------------------------: |
+| algorithms | Hard (47.14%) | [`linked-list`](https://leetcode.com/tag/linked-list); [`divide-and-conquer`](https://leetcode.com/tag/divide-and-conquer); [`heap`](https://leetcode.com/tag/heap)c |
+
+You are given an array of `k` linked-lists `lists`, each linked-list is sorted in ascending order.
+
+*Merge all the linked-lists into one sorted linked-list and return it.*
+
+**Example 1:**
+
+```
+Input: lists = [[1,4,5],[1,3,4],[2,6]]
+Output: [1,1,2,3,4,4,5,6]
+Explanation: The linked-lists are:
+[
+  1->4->5,
+  1->3->4,
+  2->6
+]
+merging them into one sorted list:
+1->1->2->3->4->4->5->6
+```
+
+**Example 2:**
+
+```
+Input: lists = []
+Output: []
+```
+
+**Example 3:**
+
+```
+Input: lists = [[]]
+Output: []
+```
+
+- **Constraints:**
+
+  - `k == lists.length`
+
+  - `0 <= k <= 104`
+
+  - `0 <= lists[i].length <= 500`
+
+  - `-104 <= lists[i][j] <= 104`
+
+  - `lists[i]` is sorted in **ascending order**.
+
+  - The sum of `lists[i].length` will not exceed `104`.
+
+- **Solution**
+
+  - <u>Method 1: An updated version of "Merge Two Lists"</u>
+
+    --> Key: merge two lists again and again
+
+    - S1: check edge cases: whether `lists` is empty
+    - S2: merge two lists along the linked list array
+
+    ```python
+    def mergeKLists(self, lists: List[Optional[ListNode]]) -> Optional[ListNode]:
+      if not lists:
+        return
+      
+      while len(lists) > 1:
+        mergedList = []
+        for i in range(0, len(lists), 2):
+          l1 = lists[i]
+          l2 = lists[i + 1] if i + 1 < len(lists) else None
+          mergedList.append(self.mergeTwoLists(l1, l2))
+        lists = mergedList     # reduce the length by half
+      
+      return lists[0]  				 # now 'lists' has only one element: lists[0]
+    
+    def mergeTwoLists(self, l1, l2):
+        dummy = ListNode(-1)
+        cur = dummy
+        
+        while l1 and l2:
+          if l1.val <= l2.val:
+            cur.next = l1
+            l1 = l1.next
+          else:
+            cur.next = l2
+            l2 = l2.next
+          cur = cur.next
+       
+        if l1:
+          cur.next = l1
+        if l2:
+          cur.next = l2
+        return dummy.next
+    ```
+
+    Time Complexity: O(nlogk) --> 其中 `k` 是链表的条数，`N` 是这些链表的节点总数。
+
+    Space Complexity: O(k) --> for `mergedList` memory
+
+  - <u>Method 2: Heap</u>
+
+    --> Use min heap to order --> min-heap can extract the smallest elements between arrays
+
+    这道题是21. 合并两个有序链表的进阶题
+    https://leetcode.cn/problems/merge-two-sorted-lists/solution/shuang-zhi-zhen-by-shan-gui-tju-bz4g/
+    回忆21题的做法，是每次比较双指针所在节点的值的大小，那么在这里，其实就是要比较所有链表指针所在节点的值的大小，即找到这些节点的最小节点，这里引入一个最小堆来优化这个过程。用所有链表的头结点的值，初始化最小堆，然后每次，==【弹出最小值的节点，并把该节点指向的下一个节点，加入到最小堆里】==；重复【】内的过程。
+
+    ```python
+    import heapq
+    def mergeKLists(self, lists: List[Optional[ListNode]]) -> Optional[ListNode]:
+      if not lists:
+        return
+      
+      minHeap = []
+      heapq.heapify(minheap)
+      
+      # Initialize the heap: add the first k elements to the heap
+      for i in len(lists):
+        if lists[i]:
+          heapq.heappush(minheap, (lists[i].val, i, lists[i]))    # i is the index
+      
+      dummy = ListNode(-1)
+      cur = dummy.next
+      while minHeap:
+        minNode = heapq.heappop(minheap)[2]    # 易错！！注意[2]才是node
+        cur.next = minNode
+        if minNode.next:
+          heapq.heappush(minHeap, (minNode.next.val, i, minNode.next))
+        cur = cur.next
+      
+      return dummy.next
+    ```
+
+    - Time complexity: 优先队列 `minHeap` 中的元素个数最多是 `k`，所以一次 `heappush` 或者 `heappop` 方法的时间复杂度是 `O(logk)`；所有的链表节点都会被加入和弹出 `minHeap`，**所以算法整体的时间复杂度是 `O(Nlogk)`，其中 `k` 是链表的条数，`N` 是这些链表的节点总数**。
+
+      Space complexity: O(k) --> memory for heap, heap contains less than k elements
+
+    - <font color=red>**注意点：**</font>
+      - `heapq.heappush(minheap, (lists[i].val, i, lists[i]))`: The problem while adding `ListNode` objects as tasks is that the Tuple comparison breaks for (priority, task) pairs if the priorities are equal and the tasks do not have a default comparison order. The solution is to store entries as 3-element list including the priority, an entry count, and the task.
+        The entry count serves as a tie-breaker so that two tasks with the same priority are returned in the order they were added.
+        And since no two entry counts are the same, the tuple comparison will never attempt to directly compare two tasks.
