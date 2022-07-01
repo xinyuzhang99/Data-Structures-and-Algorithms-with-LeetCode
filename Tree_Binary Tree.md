@@ -2,7 +2,7 @@
 
 - 二叉树解题的思维模式分两类：
 
-  **1、是否可以通过遍历一遍二叉树得到答案**？如果可以，用一个 `traverse` 函数配合外部变量来实现，这叫**「遍历」**的思维模式。
+  **1、是否可以通过==遍历一遍二叉树==得到答案**？如果可以，用一个 `traverse` 函数配合外部变量来实现，这叫**「遍历」**的思维模式。
 
   **2、是否可以定义一个递归函数，通过子问题（子树）的答案推导出原问题的答案**？如果可以，写出这个递归函数的定义，并充分利用这个函数的返回值，这叫**「分解问题」**的思维模式。
 
@@ -66,7 +66,7 @@ Output: 2
 
 - **Solution**
 
-  - <u>Method 1: Recursion</u>
+  - <u>Method 1: Recursion --> Depth-first Search_</u>
 
     ```python
     # Definition for a binary tree node.
@@ -85,6 +85,10 @@ Output: 2
             right_height = self.maxDepth(root.right)
             return max(left_height, right_height) + 1  # 整棵树的最大深度等于左右子树的最多节点数取最大值加根节点
     ```
+    
+    - Time complexity: O(N) --> 其中 n 为二叉树节点的个数。每个节点在递归中只被遍历一次。
+    
+      Space complexity: O(Height) --> recursion function needs stack memory which depends on the height --> O(logN)
 
 ## 2. 144 [Binary Tree Preorder Traversal](https://leetcode.com/problems/binary-tree-preorder-traversal/description/)
 
@@ -214,9 +218,9 @@ Output: []
             return root
     ```
 
-    Time complexity:  O(N)
+    Time complexity:  O(N) --> 其中 N 为二叉树节点的数目。我们会遍历二叉树中的每一个节点，对每个节点而言，我们在常数时间内交换其两棵子树。
 
-    Space complexity: O(N)
+    Space complexity: O(N) 
 
   - <u>Method 2: Recursion</u>
 
@@ -239,7 +243,7 @@ Output: []
 
     Time complexity: O(N) --> 其中 N 为二叉树节点的数目。我们会遍历二叉树中的每一个节点，对每个节点而言，我们在常数时间内交换其两棵子树
 
-    Space complexity: O(N) --> ==stack memory!== 使用的空间由递归栈的深度决定，它等于当前节点在二叉树中的高度。在平均情况下，二叉树的高度与节点个数为对数关系，即O(logN)。而在最坏情况下，树形成链状，空间复杂度为O(N)。
+    Space complexity: O(N) --> ==stack memory!== 使用的空间由递归栈的==深度==决定，它等于当前节点在二叉树中的高度。在平均情况下，二叉树的高度与节点个数为对数关系，即O(logN)。而在最坏情况下，树形成链状，空间复杂度为O(N)。
 
 ## 4. 116 [Populating Next Right Pointers in Each Node](https://leetcode.com/problems/populating-next-right-pointers-in-each-node/description/)
 
@@ -395,9 +399,9 @@ Output: []
             traverse(root)
             return root 
     ```
-
+    
     Time complexity: O(N) --> each node is accessed once
-
+    
     Space complexity: O(N) --> stack memory
 
   - <font color=red>**<u>Method 4: Traversal with O(1) memory</u>**</font>
@@ -597,8 +601,8 @@ Output: 1
       left = depth(root.left)
       right = depth(root.right)
       
-      if (left + right > self.maxDiameter):   # left + right 为最大直径，如果直径大于已有答案，则进行更新
-        self.maxDiameter = left + right
+      # left + right 为最大直径，如果直径大于已有答案，则进行更新
+      self.maxDiameter = max(self.maxDiameter, left + right)
       return max(left, right) + 1							# return depth (not longest path!!)
     depth(root)
     return self.maxDiameter
