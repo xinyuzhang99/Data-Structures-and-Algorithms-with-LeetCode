@@ -304,4 +304,121 @@ Output: ["()"]
   ```
 
   - Time complexity: <font color=red>空缺！！</font>
-  - Space complexity: O(N)
+
+    Space complexity: O(N)
+
+## 4. 79 [Word Search](https://leetcode.com/problems/word-search/description/)
+
+|  Category  |   Difficulty    | Tags |
+| :--------: | :-------------: | :--: |
+| algorithms | Medium (39.75%) | 9896 |
+
+Given an `m x n` grid of characters `board` and a string `word`, return `true` *if* `word` *exists in the grid*.
+
+The word can be constructed from letters of sequentially adjacent cells, where adjacent cells are horizontally or vertically neighboring. The same letter cell may not be used more than once.
+
+**Example 1:**
+
+![img](https://assets.leetcode.com/uploads/2020/11/04/word2.jpg)
+
+```
+Input: board = [["A","B","C","E"],["S","F","C","S"],["A","D","E","E"]], word = "ABCCED"
+Output: true
+```
+
+**Example 2:**
+
+![img](https://assets.leetcode.com/uploads/2020/11/04/word-1.jpg)
+
+```
+Input: board = [["A","B","C","E"],["S","F","C","S"],["A","D","E","E"]], word = "SEE"
+Output: true
+```
+
+**Example 3:**
+
+![img](https://assets.leetcode.com/uploads/2020/10/15/word3.jpg)
+
+```
+Input: board = [["A","B","C","E"],["S","F","C","S"],["A","D","E","E"]], word = "ABCB"
+Output: false 
+```
+
+**Constraints:**
+
+- `m == board.length`
+- `n = board[i].length`
+- `1 <= m, n <= 6`
+- `1 <= word.length <= 15`
+- `board` and `word` consists of only lowercase and uppercase English letters.
+
+**Follow up:** Could you use search pruning to make your solution faster with a larger `board`?
+
+- **Thoughts**
+
+  - 从题目来看，这道题没有办法用efficient algorithm解决，只能使用brute-force，运用backtracking算法同时进行剪枝操作 (pruning) --> 有的选点是错的，选它就构建不出目标路径，不能继续选。要撤销这个选择，去尝试别的选择。
+
+  - <img src="https://pic.leetcode-cn.com/1599959074-dSSwlm-image.png" alt="image.png" style="zoom:50%;" />
+
+    以"SEE"为例，首先要选起点：遍历矩阵，找到起点S。
+
+    - 起点可能不止一个，基于其中一个S，看看能否找出剩下的"EE"路径。
+
+    - 下一个字符E有四个可选点：当前点的<font color=blue>**上、下、左、右**</font>。逐个尝试每一种选择。基于当前选择，为下一个字符选点，又有四种选择。
+
+    - 每到一个点做的事情是一样的。DFS 往下选点，构建路径。
+
+    - 当发现某个选择不对，不用继续选下去了，结束当前递归，考察别的选择。
+
+  - 递归关注**当前考察的点**，处理它，其他丢给递归子调用去做。
+
+    - 判断当前选择的点，本身是不是一个错的点。
+
+    - 剩下的字符能否找到路径，交给递归子调用去做。
+
+    如果当前点是错的，不用往下递归了，返回false。否则继续递归四个方向，为剩下的字符选点。
+
+    那么，哪些情况说明这是一个错的点：
+
+    - 当前的点，越出矩阵边界。`r/c < 0 or r/c >= row/col` 
+    - 当前的点，之前访问过，不满足「同一个单元格内的字母不允许被重复使用」。
+    - 当前的点，不是目标点，比如你想找 E，却来到了 D。
+
+- **Solution**
+
+  ```python
+  def exist(self, board: List[List[str]], word: str) -> bool:
+    row, col = len(board), len(board[0])
+    path = set()			# used path --> no repetitive letter cell
+    
+    def backtrack(r, c, i):						# i is the index of the word: 表示字符串word从第i个字符开始的后缀子串
+      if i == len(word):							# have found the last word
+        return True
+      if (r < 0 or c < 0 or
+          r >= row or c >= col or
+          board[r][c] != word[i] or
+          (r, c) in path):
+        return False
+      
+      path.add((r, c))
+      # 基于当前选择的点[row,col]，能否找到剩余字符的路径。
+      res = (backtrack(r + 1, c, i + 1) or
+             backtrack(r - 1, c, i + 1) or
+             backtrack(r, c + 1, i + 1) or
+             backtrack(r, c - 1, i + 1))
+      path.remove((r, c))
+      return res
+    
+    # backtrack every cell in the board
+    for r in range(row):				
+      for c in range(col):
+        if backtrack(r, c, 0):
+          return True
+    return False
+  ```
+
+  - Time complexity: $O(M \times N \times 4^{len(word)})$ --> $M\times N$是两个for循环的时间复杂度，在每一个循环里进行了backtrack操作；backtrack是递归的时间复杂度（递归算法的时间复杂度：==子问题个数 ^ 解决一个子问题的复杂度==），一个backtrack操作里会进行4次backtrack操作，解决一次backtrack操作需要进行`len(word)`的搜索，故为$O(M \times N \times 4^{len(word)})$ 
+
+    Space complexity: $O(M\times N)$ --> extra memory for path set which stores each cell of the board (in the worst case)
+
+  
