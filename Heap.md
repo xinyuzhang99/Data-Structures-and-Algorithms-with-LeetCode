@@ -679,3 +679,111 @@ A -> B -> C -> A -> D -> E -> A -> F -> G -> A -> idle -> idle -> A -> idle -> i
   Time complexity: $O(nlogn)$ --> 但由于题目说明task[i]一定是uppercase letter，所以一共是O(log26) --> O(Nlog26) = O(N) 
 
   Space complexity: $O(2 \times N) = O(N)$ --> build a heap to store most n values
+
+## 8. 295 [Find Median from Data Stream](https://leetcode.com/problems/find-median-from-data-stream/description/)
+
+|  Category  |  Difficulty   |                             Tags                             |
+| :--------: | :-----------: | :----------------------------------------------------------: |
+| algorithms | Hard (50.42%) | [`heap`](https://leetcode.com/tag/heap); [`design`](https://leetcode.com/tag/design) |
+
+The **median** is the middle value in an ordered integer list. If the size of the list is even, there is no middle value and the median is the mean of the two middle values.
+
+- For example, for `arr = [2,3,4]`, the median is `3`.
+- For example, for `arr = [2,3]`, the median is `(2 + 3) / 2 = 2.5`.
+
+Implement the MedianFinder class:
+
+- `MedianFinder()` initializes the `MedianFinder` object.
+- `void addNum(int num)` adds the integer `num` from the data stream to the data structure.
+- `double findMedian()` returns the median of all elements so far. Answers within `10-5` of the actual answer will be accepted.
+
+**Example 1:**
+
+```java
+Input
+["MedianFinder", "addNum", "addNum", "findMedian", "addNum", "findMedian"]
+[[], [1], [2], [], [3], []]
+Output
+[null, null, null, 1.5, null, 2.0]
+
+Explanation
+MedianFinder medianFinder = new MedianFinder();
+medianFinder.addNum(1);    // arr = [1]
+medianFinder.addNum(2);    // arr = [1, 2]
+medianFinder.findMedian(); // return 1.5 (i.e., (1 + 2) / 2)
+medianFinder.addNum(3);    // arr[1, 2, 3]
+medianFinder.findMedian(); // return 2.0
+```
+
+- **Constraints:**
+
+  - `-105 <= num <= 105`
+
+  - There will be at least one element in the data structure before calling `findMedian`.
+
+  - At most `5 * 104` calls will be made to `addNum` and `findMedian`. 
+
+- **Follow up:**
+
+  - If all integer numbers from the stream are in the range `[0, 100]`, how would you optimize your solution?
+
+  - If `99%` of all integer numbers from the stream are in the range `[0, 100]`, how would you optimize your solution?
+
+- **Thoughts**
+
+  - 看到求中位数的题目，首先想到的方法是将数组排序，如果数组长度是奇数，最中间的一个元素就是中位数，如果数组长度是偶数，最中间两个元素的平均数作为中位数。--> 然而如果数据规模非常巨大，排序所需时间复杂度过高
+
+  - **核心思路：使用两个优先级队列**
+
+    - 中位数是有序数组最中间的元素算出来的，我们可以把「有序数组」抽象成一个倒三角形，宽度可以视为元素的大小，那么这个倒三角的中部就是计算中位数的元素 --> 把这个大的倒三角形从正中间切成两半，变成一个小倒三角和一个梯形，这个小倒三角形相当于一个从小到大的有序数组，这个梯形相当于一个从大到小的有序数组。
+
+    - 梯形虽然是小顶堆，但其中的元素是较大的，我们称其为`large`，倒三角虽然是大顶堆，但是其中元素较小，我们称其为`small`。
+
+    - 梯形中的最小宽度要大于等于小倒三角的最大宽度，这样它俩才能拼成一个大的倒三角 --> **要维护`large`和`small`的元素个数之差不超过 1，还要维护`large`堆的堆顶元素要大于等于`small`堆的堆顶元素** --> 技巧：**想要往`large`里添加元素，不能直接添加，而是要先往`small`里添加，然后再把`small`的堆顶元素加到`large`中；向`small`中添加元素同理**
+
+      假设我们准备向`large`中插入元素：
+
+      如果插入的`num`小于`small`的堆顶元素，那么`num`就会留在`small`堆里，为了保证两个堆的元素数量之差不大于 1，作为交换，把`small`堆顶部的元素再插到`large`堆里。
+
+    <img src="https://mmbiz.qpic.cn/sz_mmbiz_jpg/gibkIz0MVqdEqmDektgFAZh0j0hW5oRYgWchxg0mXJDZI4ycjoM2BTBGesicmkmmg4VgnLA9YLcJM0EuicIy8aA7w/640?wx_fmt=jpeg&wxfrom=5&wx_lazy=1&wx_co=1" alt="Image" style="zoom:50%;" />
+
+- **Solution**
+
+  ```python
+  import heapq
+  class MedianFinder:
+  
+      # Build two heaps, `maxHeap for small values and `minHeap for large values
+      def __init__(self):
+          self.smallVal = []  # for maxHeap
+          self.largeVal = []  # for minHeap  
+          heapq.heapify(self.smallVal)
+          heapq.heapify(self.largeVal)
+  
+      # key: 两个堆中的元素数量之差不能超过 1 + large堆的堆顶元素要大于等于small堆的堆顶元素 --> 构成一个三角形
+      # S1: check which heap has less values
+      # S2: for the heap with less values, first add num to the other heap, then pop the other heap and add the value to the heap
+      def addNum(self, num: int) -> None:
+          if len(self.smallVal) <= len(self.largeVal):  # add value to the small heap
+              heapq.heappush(self.largeVal, num)
+              heapq.heappush(self.smallVal, -1 * heapq.heappop(self.largeVal))
+          else:
+              heapq.heappush(self.smallVal, -1 * num)
+              heapq.heappush(self.largeVal, -1 * heapq.heappop(self.smallVal))
+           
+      # S1: if length is even --> calculate the median with the two top values from the two heaps
+      # S2: if length is odd --> check which heap has a longer length; the longer one has the median on top
+      def findMedian(self) -> float:
+          nS = len(self.smallVal)
+          nL = len(self.largeVal)
+          if nS == nL:
+              return (-1 * self.smallVal[0] + self.largeVal[0]) / 2
+          elif nS > nL:
+              return -1 * self.smallVal[0]
+          elif nL > nS:
+              return self.largeVal[0]
+  ```
+
+  - Time complexity: $addNum$: O(logn)，其中 n 为累计添加的数的数量。$findMedian$: O(1)。
+
+    Space complexity: O(n) --> for heap
