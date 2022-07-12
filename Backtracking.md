@@ -2,6 +2,8 @@
 
 --> 回溯算法和DFS 算法非常类似，本质上就是一种暴力穷举算法，复杂度一般都很高。回溯算法和 DFS 算法的细微差别是：**回溯算法是在遍历「树枝」，DFS 算法是在遍历「节点」**
 
+--> 回溯是递归的副产品，只要有递归就会有回溯
+
 - 解决一个回溯问题，实际上就是一个决策树的遍历过程，站在回溯树的一个节点上，你只需要思考 3 个问题：
 
   1、路径 / 状态：也就是已经做出的选择。 --> 记录在path中
@@ -34,6 +36,26 @@
   **核心就是 for 循环里面的递归，在递归调用之前「做选择」，在递归调用之后「撤销选择」**
 
   <img src="https://labuladong.github.io/algo/images/backtracking/5.jpg" alt="img" style="zoom:50%;" />
+
+  <img src="https://img-blog.csdnimg.cn/20210130173631174.png" alt="回溯算法理论基础" style="zoom:50%;" />
+
+  ==**for循环可以理解是横向遍历，backtracking（递归）就是纵向遍历**==
+
+- 回溯法，一般可以解决如下几种问题：
+
+  - 组合问题：N个数里面按一定规则找出k个数的集合
+  - 切割问题：一个字符串按一定规则有几种切割方式
+  - 子集问题：一个N个数的集合里有多少符合条件的子集
+  - 排列问题：N个数按一定规则全排列，有几种排列方式
+  - 棋盘问题：N皇后，解数独等等
+
+- **排列/组合/子集问题**
+
+  --> **本质就是穷举所有解，而这些解呈现树形结构，所以合理使用回溯算法框架**
+
+  <img src="https://labuladong.github.io/algo/images/%e6%8e%92%e5%88%97%e7%bb%84%e5%90%88/1.jpeg" alt="img" style="zoom:50%;" />
+
+  <img src="https://labuladong.github.io/algo/images/%e6%8e%92%e5%88%97%e7%bb%84%e5%90%88/2.jpeg" alt="img" style="zoom:50%;" />
 
 ## 1. 46 [Permutations](https://leetcode.com/problems/permutations/description/)
 
@@ -421,4 +443,91 @@ Output: false
 
     Space complexity: $O(M\times N)$ --> extra memory for path set which stores each cell of the board (in the worst case)
 
-  
+
+## 5. 78 [Subsets](https://leetcode.com/problems/subsets/description/)
+
+|  Category  |   Difficulty    |                             Tags                             |
+| :--------: | :-------------: | :----------------------------------------------------------: |
+| algorithms | Medium (71.73%) | [`array`](https://leetcode.com/tag/array); [`backtracking`](https://leetcode.com/tag/backtracking); [`bit-manipulation`](https://leetcode.com/tag/bit-manipulation) |
+
+Given an integer array `nums` of **unique** elements, return *all possible subsets (the power set)*.
+
+The solution set **must not** contain duplicate subsets. Return the solution in **any order**.
+
+**Example 1:**
+
+```
+Input: nums = [1,2,3]
+Output: [[],[1],[2],[1,2],[3],[1,3],[2,3],[1,2,3]]
+```
+
+**Example 2:**
+
+```
+Input: nums = [0]
+Output: [[],[0]]
+```
+
+- **Constraints:**
+
+  - `1 <= nums.length <= 10`
+
+  - `-10 <= nums[i] <= 10`
+
+  - All the numbers of `nums` are **unique**.
+
+- **Thoughts**
+
+  - 由于子集是无序的，**取过的元素不会重复取，写回溯算法的时候，for就要从==startIndex==开始，而不是从0开始！**
+
+    <img src="https://camo.githubusercontent.com/3f67c171ede9807a17fdeaf91ac87e7813516ad272a3c4ac55ee292514ff2acf/68747470733a2f2f696d672d626c6f672e6373646e696d672e636e2f3230323031313233323034313334382e706e67" alt="78.子集" style="zoom:50%;" />
+
+    --> **遍历这个树的时候，把所有节点都记录下来，就是要求的子集集合**
+
+  - <u>回溯三部曲：</u>
+
+    - 递归函数参数：全局变量数组path为子集收集元素，二维数组result存放子集组合。（也可以放到递归函数参数里）；递归函数参数需要startIndex。
+
+      ```python
+      res = []
+      path = []
+      def backtrack(nums, start):
+      ```
+
+    - 递归终止条件：剩余集合为空的时候，就是叶子节点。--> startIndex已经大于数组的长度了，就终止了，因为没有元素可取了
+
+      ```python
+      if start >= len(nums):
+        return
+      ```
+
+      **其实可以不需要加终止条件，因为startIndex >= nums.size()，本层for循环本来也结束了**。
+
+    - 单层搜索逻辑：<font color=blue>**求取子集问题，不需要任何剪枝！因为子集就是要遍历整棵树**。</font>
+
+      ```python
+      for i in range(start, len(nums)):
+        path.append(nums[i])		# 子集收集元素
+        backtrack(nums, i + 1)	# 注意从i+1开始，元素不重复取
+        path.pop()							# 回溯
+      ```
+
+- **Solution**
+
+  ```python
+  def subsets(self, nums: List[int]) -> List[List[int]]:
+    res = []
+    path = []
+    def backtrack(nums, start):
+      res.append(path[:])
+      for i in range(start, len(nums)):
+        path.append(nums[i])
+        backtrack(nums, i + 1)
+        path.pop()
+    backtrack(nums, 0)
+    return res
+  ```
+
+  - Time complexity: $O(n \times 2^n)$: for each element, the element can be its own value or empty --> each element has two subsets --> total number of subsets: $2^n$; the length of subset may be up to $n$ --> total time complexity: $O(n \times 2^n)$
+
+    Space complexity: O(n) --> for `path` and stack memory for recursion
