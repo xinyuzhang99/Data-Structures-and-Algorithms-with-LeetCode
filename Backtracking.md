@@ -53,6 +53,8 @@
 
   --> **本质就是穷举所有解，而这些解呈现树形结构，所以合理使用回溯算法框架**
 
+  - **组合问题和子集问题是等价的** (Eg. 77, 78)
+
   <img src="https://labuladong.github.io/algo/images/%e6%8e%92%e5%88%97%e7%bb%84%e5%90%88/1.jpeg" alt="img" style="zoom:50%;" />
 
   <img src="https://labuladong.github.io/algo/images/%e6%8e%92%e5%88%97%e7%bb%84%e5%90%88/2.jpeg" alt="img" style="zoom:50%;" />
@@ -531,3 +533,229 @@ Output: [[],[0]]
   - Time complexity: $O(n \times 2^n)$: for each element, the element can be its own value or empty --> each element has two subsets --> total number of subsets: $2^n$; the length of subset may be up to $n$ --> total time complexity: $O(n \times 2^n)$
 
     Space complexity: O(n) --> for `path` and stack memory for recursion
+
+## 6. 77 [Combinations](https://leetcode.com/problems/combinations/description/)
+
+|  Category  |   Difficulty    |                          Tags                           |
+| :--------: | :-------------: | :-----------------------------------------------------: |
+| algorithms | Medium (64.24%) | [`backtracking`](https://leetcode.com/tag/backtracking) |
+
+Given two integers `n` and `k`, return *all possible combinations of* `k` *numbers out of the range* `[1, n]`.
+
+You may return the answer in **any order**.
+
+**Example 1:**
+
+```
+Input: n = 4, k = 2
+Output:
+[
+  [2,4],
+  [3,4],
+  [2,3],
+  [1,2],
+  [1,3],
+  [1,4],
+]
+```
+
+**Example 2:**
+
+```
+Input: n = 1, k = 1
+Output: [[1]]
+```
+
+- **Constraints:**
+
+  - `1 <= n <= 20`
+
+  - `1 <= k <= n`
+
+- **Thoughts**
+
+  - **组合和子集是一样的：大小为 `k` 的组合就是大小为 `k` 的子集** --> 题目是标准的组合问题，但我给你翻译一下就变成子集问题了：**给你输入一个数组 `nums = [1,2..,n]` 和一个正整数 `k`，请你生成所有大小为 `k` 的子集**。--> 只需修改78题的base case即可
+
+- **Solution**
+
+  ```python
+  def combine(self, n: int, k: int) -> List[List[int]]:
+    res = []
+    path = []
+    
+    def backtrack(start, n, k):
+      if len(path) == k:
+        res.append(path[:])
+      
+      for i in range(start, n + 1):
+        path.append(i)
+        backtrack(i + 1, n, k)
+        path.pop()
+    backtrack(0, n, k)
+    return res
+  ```
+
+  - Time complexity: 由于我们需要在 n 个元素选 k 个，所以the total number of combinations is $n \choose k$, and each combination has the length of k --> total time complexity: $O(k \times {n \choose k})$
+
+    Space complexity: $O(N + k) = O(N)$ --> O(N) is for the stack memory; O(k) is for the `path` array
+
+## 7. 90 [Subsets II](https://leetcode.com/problems/subsets-ii/description/)
+
+|  Category  |   Difficulty    |                             Tags                             |
+| :--------: | :-------------: | :----------------------------------------------------------: |
+| algorithms | Medium (53.52%) | [`array`](https://leetcode.com/tag/array); [`backtracking`](https://leetcode.com/tag/backtracking) |
+
+Given an integer array `nums` that may contain duplicates, return *all possible subsets (the power set)*.
+
+The solution set **must not** contain duplicate subsets. Return the solution in **any order**. 
+
+**Example 1:**
+
+```
+Input: nums = [1,2,2]
+Output: [[],[1],[1,2],[1,2,2],[2],[2,2]]
+```
+
+**Example 2:**
+
+```
+Input: nums = [0]
+Output: [[],[0]] 
+```
+
+- **Constraints:**
+
+  - `1 <= nums.length <= 10`
+
+  - `-10 <= nums[i] <= 10`
+
+- **Thoughts**
+
+  - 这道题与之前的区别在于输入的`nums`存在重复元素，按照之前的思路画出子集的树形结构，显然，两条值相同的相邻树枝会产生重复：
+
+    <img src="https://labuladong.github.io/algo/images/%e6%8e%92%e5%88%97%e7%bb%84%e5%90%88/8.jpeg" alt="img" style="zoom:50%;" />
+
+    所以我们需要进行剪枝，如果一个节点有多条值相同的树枝相邻，则只遍历第一条，剩下的都剪掉，不要去遍历：
+
+    <img src="https://labuladong.github.io/algo/images/%e6%8e%92%e5%88%97%e7%bb%84%e5%90%88/9.jpeg" alt="img" style="zoom:50%;" />
+
+    --> **体现在代码上，需要<font color=blue>先进行排序，让相同的元素靠在一起，如果发现 `nums[i] == nums[i-1]`，则跳过</font>** (类似3Sum; 4Sum题目去重步骤)
+
+- **Solution**
+
+  ```python
+  def subsetsWithDup(self, nums: List[int]) -> List[List[int]]:
+    res = []
+    path = []
+    nums.sort()				# 先排序，让相同的元素靠在一起，方便去重剪枝
+    
+    def backtrack(start, nums):
+      res.append(path[:])
+      for i in range(start, len(nums)):
+        # 剪枝逻辑，值相同的相邻树枝，只遍历第一条
+        if (i > start and nums[i] == nums[i - 1]):
+          continue
+        path.append(nums[i])
+        backtrack(i + 1, nums)
+        path.pop()
+    backtrack(0, nums)
+    return res
+  ```
+
+  - Time complexity: $O(NlogN + N \times 2^N) = O(N \times 2^N)$
+
+    Space complexity: $O(N)$
+
+## 8. 40 [Combination Sum II](https://leetcode.com/problems/combination-sum-ii/description/)
+
+|  Category  |   Difficulty    |                             Tags                             |
+| :--------: | :-------------: | :----------------------------------------------------------: |
+| algorithms | Medium (52.46%) | [`array`](https://leetcode.com/tag/array); [`backtracking`](https://leetcode.com/tag/backtracking) |
+
+Given a collection of candidate numbers (`candidates`) and a target number (`target`), find all unique combinations in `candidates` where the candidate numbers sum to `target`.
+
+Each number in `candidates` may only be used **once** in the combination.
+
+**Note:** The solution set must not contain duplicate combinations.
+
+**Example 1:**
+
+```
+Input: candidates = [10,1,2,7,6,1,5], target = 8
+Output: 
+[
+[1,1,6],
+[1,2,5],
+[1,7],
+[2,6]
+]
+```
+
+**Example 2:**
+
+```
+Input: candidates = [2,5,2,1,2], target = 5
+Output: 
+[
+[1,2,2],
+[5]
+]
+```
+
+- **Constraints:**
+
+  - `1 <= candidates.length <= 100`
+
+  - `1 <= candidates[i] <= 50`
+
+  - `1 <= target <= 30`
+
+- **Thoughts**
+
+  - 这是一个组合问题，其实换个问法就变成子集问题了：请你计算 `candidates` 中所有和为 `target` 的子集 --> 对比子集问题的解法，只要额外用一个 `pathSum` 变量记录回溯路径上的元素和，然后将 base case 改一改即可解决这道题
+
+  - 关键点：**集合（数组candidates）有重复元素，但还不能有重复的组合**（同90 [Subsets II](https://leetcode.com/problems/subsets-ii/description/)的去重步骤）
+
+    **所谓去重，其实就是使用过的元素不能重复选取** --> 组合问题可以抽象为树形结构，那么“使用过”在这个树形结构上是有两个维度的，一个维度是同一树枝上使用过，一个维度是同一树层上使用过
+
+    回看一下题目，元素在同一个组合内是可以重复的，怎么重复都没事，但两个组合不能相同。**所以我们要去重的是同一树层上的“使用过”，同一树枝上的都是一个组合里的元素，不用去重**。
+
+    <font color=red>**树层去重的话，需要对数组排序！树枝去重的话，使用`used`数组或者`startIndex`去重！**</font>
+
+    ![40.组合总和II](https://camo.githubusercontent.com/3e488c39460e69b34dc80f13189fb69b4c2dfeca214a4570f6eacc19e374b1e6/68747470733a2f2f696d672d626c6f672e6373646e696d672e636e2f32303230313132333230323733363338342e706e67)
+
+    ![40.组合总和II1](https://camo.githubusercontent.com/01a9f11f54f6742f343d6bd2ad528891610a70242361d3169e3684c90e72fe92/68747470733a2f2f696d672d626c6f672e6373646e696d672e636e2f32303230313132333230323831373937332e706e67)
+
+- **Solution**
+
+  ```python
+  def combinationSum2(self, candidates: List[int], target: int) -> List[List[int]]:
+          res = []
+          path = []
+          candidates.sort()  # 先排序，让相同的元素靠在一起
+  
+          def backtrack(start, candidates, target, pathSum):
+              if pathSum == target:
+                  res.append(path[:])
+              
+              # base case，超过目标和，直接结束 --> 否则会导致time limit exceeded
+              if pathSum > target:
+                  return
+              
+              for i in range(start, len(candidates)):
+                  if (i > start and candidates[i] == candidates[i - 1]):
+                      continue
+                  path.append(candidates[i])
+                  pathSum += candidates[i]
+                  backtrack(i + 1, candidates, target, pathSum)
+                  path.pop()
+                  pathSum -= candidates[i]
+          backtrack(0, candidates, target, 0)
+          return res
+  ```
+
+  - Time complexity: $O(NlogN + N \times 2^N) = O(N \times 2^N)$ 
+
+    <img src="/Users/xinyuzhang/Library/Application Support/typora-user-images/image-20220713183406152.png" alt="image-20220713183406152" style="zoom:50%;" />
+
+    Space complexity: $O(N)$
