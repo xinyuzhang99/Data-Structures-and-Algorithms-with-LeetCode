@@ -980,3 +980,187 @@ Output: []
   - Time complexity: $O(N \times 2^N) = O(N \times 2^N)$ 
 
     Space complexity: $O(N)$
+
+## 11. 131 [Palindrome Partitioning](https://leetcode.com/problems/palindrome-partitioning/description/)
+
+|  Category  |   Difficulty    |     Tags     |
+| :--------: | :-------------: | :----------: |
+| algorithms | Medium (59.82%) | backtracking |
+
+Given a string `s`, partition `s` such that ==every substring== of the partition is a **palindrome**. Return all possible palindrome partitioning of `s`.
+
+A **palindrome** string is a string that reads the same backward as forward.
+
+**Example 1:**
+
+```
+Input: s = "aab"
+Output: [["a","a","b"],["aa","b"]]
+```
+
+**Example 2:**
+
+```
+Input: s = "a"
+Output: [["a"]]
+```
+
+- **Constraints:**
+
+  - `1 <= s.length <= 16`
+
+  - `s` contains only lowercase English letters.
+
+- **Thoughts**
+
+  - 本题这涉及到两个关键问题：
+
+    1. 切割问题，有不同的切割方式
+    2. 判断回文
+
+  - **其实切割问题类似组合问题**。
+
+    例如对于字符串abcdef：
+
+    - 组合问题：选取一个a之后，在bcdef中再去选取第二个，选取b之后在cdef中在选组第三个.....。
+    - 切割问题：切割一个a之后，在bcdef中再去切割第二段，切割b之后在cdef中在切割第三段.....。
+
+    <img src="https://camo.githubusercontent.com/907a2a94961ed3e0c1b67469e6f51163ce7a044af822069f0983ceccf4c168a2/68747470733a2f2f636f64652d7468696e6b696e672e63646e2e626365626f732e636f6d2f706963732f3133312e2545352538382538362545352538392542322545352539422539452545362539362538372545342542382542322e6a7067" alt="131.分割回文串" style="zoom:50%;" />
+
+    递归用来纵向遍历，for循环用来横向遍历，切割线（就是图中的红线）切割到字符串的结尾位置，说明找到了一个切割方法。
+
+  - 回溯三部曲：
+
+    - <u>递归函数参数</u>: 
+
+      - 全局变量数组path存放切割后回文的子串，二维数组result存放结果集。 （这两个参数可以放到函数参数里）
+
+      - startIndex，因为切割过的地方，不能重复切割，和组合问题也是保持一致的。
+
+    - <u>递归函数终止条件: </u>从树形结构的图中可以看出：切割线切到了字符串最后面，说明找到了一种切割方法，此时就是本层递归的终止条件。
+
+      **那么在代码里什么是切割线呢？**
+
+      在处理组合问题的时候，递归参数需要传入startIndex，表示下一轮递归遍历的起始位置，这个<font color=blue>**startIndex就是切割线**</font>。
+
+    - <u>单层搜索的逻辑:</u>
+
+      在`for i in range(start, len(s))`循环中，我们 定义了起始位置startIndex，那么 <font color=blue>**[startIndex, i] 就是要截取的子串**</font>。
+
+      首先判断这个子串是不是回文，如果是回文，就加入在` path`中，path用来记录切割过的回文子串，如果不是则直接跳过。
+
+- **Solution**
+
+  ```python
+  def partition(self, s: str) -> List[List[str]]:
+    res = []
+    path = []
+    
+    def backtrack(start):
+      if start == len(s):				# 当切割线迭代至字符串末尾，说明找到一种切割方法
+        res.append(path[:])
+        return
+      
+      for i in range(start, len(s)):
+        temp = s[start:i+1]			# start是上一层已经确定了的分割线，i是这一层试图寻找的新分割线
+  
+        if temp == temp[::-1]:	# 判断被截取的这一段子串是否为回文串
+          path.append(temp)
+          backtrack(i + 1)			# 切割过的地方不能重复切割所以递归函数需要传入i + 1 --> 从下一处继续切割
+          path.pop()
+        else:
+          continue
+    backtrack(0)
+    return res 
+  ```
+
+  - Time complexity: $O(N \times 2^N) = O(N \times 2^N)$ 
+
+    Space complexity: $O(N)$
+
+## 12. 17 [Letter Combinations of a Phone Number](https://leetcode.com/problems/letter-combinations-of-a-phone-number/description/)
+
+|  Category  |   Difficulty    |                             Tags                             |
+| :--------: | :-------------: | :----------------------------------------------------------: |
+| algorithms | Medium (54.37%) | [`string`](https://leetcode.com/tag/string); [`backtracking`](https://leetcode.com/tag/backtracking) |
+
+Given a string containing digits from `2-9` inclusive, return all possible letter combinations that the number could represent. Return the answer in **any order**.
+
+A mapping of digits to letters (just like on the telephone buttons) is given below. Note that 1 does not map to any letters.
+
+<img src="https://assets.leetcode.com/uploads/2022/03/15/1200px-telephone-keypad2svg.png" alt="img" style="zoom:33%;" />
+
+
+
+**Example 1:**
+
+```
+Input: digits = "23"
+Output: ["ad","ae","af","bd","be","bf","cd","ce","cf"]
+```
+
+**Example 2:**
+
+```
+Input: digits = ""
+Output: []
+```
+
+**Example 3:**
+
+```
+Input: digits = "2"
+Output: ["a","b","c"] 
+```
+
+- **Constraints:**
+
+  - `0 <= digits.length <= 4`
+
+  - `digits[i]` is a digit in the range `['2', '9']`.
+
+- **Thoughts**
+
+  - 本题是一个标准的回溯问题，但是首先需要将数字和字母map --> 首先使用哈希表存储每个数字对应的所有可能的字母，然后进行回溯操作。
+  - 注意：输出的是字符串，所以在储存结果时要将`list`存储为字符串形式
+
+- **Solution**
+
+  ```python
+  def letterCombinations(self, digits: str) -> List[str]:
+          if not digits:
+              return 
+          
+          res = []
+          path = []
+          # build a hashmap to map each number with according characters
+          digitsToChar = { '2': 'abc',
+                           '3': 'def',
+                           '4': 'ghi',
+                           '5': 'jkl',
+                           '6': 'mno',
+                           '7': 'pqrs',
+                           '8': 'tuv',
+                           '9': 'wxyz'
+                          }
+          
+          def backtrack(i):
+              if i == len(digits):
+                  res.append(''.join(path))
+                  return
+              
+              for c in digitsToChar[digits[i]]:
+                  path.append(c)
+                  backtrack(i + 1)
+                  path.pop()
+          backtrack(0)
+          return res
+  ```
+
+  - Time complexity: $O((m + n) \times 3^m \times 4^n)$
+
+    <img src="/Users/xinyuzhang/Library/Application Support/typora-user-images/image-20220714184928937.png" alt="image-20220714184928937" style="zoom:50%;" />
+
+    Space complexity: $O(m+n)$
+
+    <img src="/Users/xinyuzhang/Library/Application Support/typora-user-images/image-20220714185032162.png" alt="image-20220714185032162" style="zoom:50%;" />
