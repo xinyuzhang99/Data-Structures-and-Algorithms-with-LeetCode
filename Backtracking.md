@@ -759,3 +759,224 @@ Output:
     <img src="/Users/xinyuzhang/Library/Application Support/typora-user-images/image-20220713183406152.png" alt="image-20220713183406152" style="zoom:50%;" />
 
     Space complexity: $O(N)$
+
+## 9. 47 [Permutations II](https://leetcode.com/problems/permutations-ii/description/)
+
+|  Category  |   Difficulty    |     Tags     |
+| :--------: | :-------------: | :----------: |
+| algorithms | Medium (55.49%) | backtracking |
+
+Given a collection of numbers, `nums`, that might contain duplicates, return *all possible unique permutations **in any order**.*
+
+**Example 1:**
+
+```
+Input: nums = [1,1,2]
+Output:
+[[1,1,2],
+ [1,2,1],
+ [2,1,1]]
+```
+
+**Example 2:**
+
+```
+Input: nums = [1,2,3]
+Output: [[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,1,2],[3,2,1]]
+```
+
+- **Constraints:**
+
+  - `1 <= nums.length <= 8`
+
+  - `-10 <= nums[i] <= 10`
+
+- **Thoughts**
+
+  - 这道题和前面的题目很接近，因为序列中包含了重复的数字，要求我们返回不重复的全排列 --> remove repetitive on each tree level（给树层去重）
+
+  - <font color=red>**难点！！：排列问题的剪枝逻辑，和子集/组合问题的剪枝逻辑略有不同：新增了 `!used[i - 1]` 的逻辑判断**</font>
+
+    为了方便研究，依然把相同的元素用上标 `'` 以示区别。
+
+    假设输入为 `nums = [1,2,2']`，标准的全排列算法会得出如下答案：
+
+    ```
+    [
+        [1,2,2'],[1,2',2],
+        [2,1,2'],[2,2',1],
+        [2',1,2],[2',2,1]
+    ]
+    ```
+
+    显然，这个结果存在重复，比如 `[1,2,2']` 和 `[1,2',2]` 应该只被算作同一个排列，但被算作了两个不同的排列。
+
+    所以现在的关键在于，如何设计剪枝逻辑，把这种重复去除掉？
+
+    **答案是，<font color=red>保证相同元素在排列中的相对位置保持不变</font>**。
+
+    比如说 `nums = [1,2,2']` 这个例子，我保持排列中 `2` 一直在 `2'` 前面。
+
+    这样的话，你从上面 6 个排列中只能挑出 3 个排列符合这个条件：
+
+    ```
+    [ [1,2,2'],[2,1,2'],[2,2',1] ]
+    ```
+
+    这也就是正确答案。进一步，如果 `nums = [1,2,2',2'']`，我只要保证重复元素 `2` 的相对位置固定，比如说 `2 -> 2' -> 2''`，也可以得到无重复的全排列结果。
+
+    **标准全排列算法之所以出现重复，是因为把相同元素形成的排列序列视为不同的序列，但实际上它们应该是相同的；而如果==固定相同元素形成的序列顺序，当然就避免了重复==**。
+
+    那么反映到代码上，你注意看这个剪枝逻辑：
+
+    ```java
+    // 新添加的剪枝逻辑，固定相同的元素在排列中的相对位置
+    if (i > 0 && nums[i] == nums[i - 1] && !used[i - 1]) {
+        // 如果前面的相邻相等元素没有用过，则跳过
+        continue;
+    }
+    // 选择 nums[i]
+    ```
+
+    **当出现重复元素时，比如输入 `nums = [1,2,2',2'']`，`2'` 只有在 `2` 已经被使用的情况下才会被选择，同理，`2''` 只有在 `2'` 已经被使用的情况下才会被选择，这就保证了相同元素在排列中的相对位置保证固定**。
+
+    如果你把上述剪枝逻辑中的 `!used[i - 1]` 改成 `used[i - 1]`，其实也可以通过所有测试用例，但效率会有所下降，这是为什么呢？--> 之所以这样修改不会产生错误，是因为这种写法相当于维护了 `2'' -> 2' -> 2` 的相对顺序，最终也可以实现去重的效果。但为什么这样写效率会下降呢？因为这个写法剪掉的树枝不够多。
+
+    <img src="https://labuladong.github.io/algo/images/%e6%8e%92%e5%88%97%e7%bb%84%e5%90%88/13.jpeg" alt="img" style="zoom:50%;" />
+
+    <img src="https://labuladong.github.io/algo/images/%e6%8e%92%e5%88%97%e7%bb%84%e5%90%88/14.jpeg" alt="img" style="zoom:50%;" />
+
+    --> `!used[i - 1]` 这种剪枝逻辑剪得干净利落，而 `used[i - 1]` 这种剪枝逻辑虽然也能得到无重结果，但它剪掉的树枝较少，存在的无效计算较多，所以效率会差一些
+
+  - ```
+    i > 0 && nums[i] == nums[i - 1] && !vis[i - 1]
+    ```
+
+    - 这句话可以翻译为 遇到相同的节点 要填后面的节点就一定先填过前面的节点 什么意思？ 假设三个1 分别为 1a 1b 1c 要想填1b 就一定之前填过1a 要想填过1c 就一定填过1b 那么三个1都被填充的顺序就一定为1a 1b 1c
+
+    - 同理可以把 !vis[i - 1]换成vis[i-1] 也能通过 此时意思就是要想填i 就必须没填过i-1 顺序就是1c 1b 1a
+
+    - 此外!vis[i - 1]会比vis[i-1] 快很多： 大家可以画个树状图，原因在于!vis[i - 1] 在遇到相同节点时，会一次性取出，而vis[i-1] 则是试错了前面所有的才找到对的
+
+- **Solution**
+
+  ```python
+  def permuteUnique(self, nums: List[int]) -> List[List[int]]:
+          nums.sort()
+          res = []
+          path = []
+          used = [False] * len(nums)
+  
+          def backtrack(nums):
+              if len(path) == len(nums):
+                  res.append(path[:])
+                  return
+              
+              for i in range(len(nums)):
+                  if used[i]:
+                      continue
+  
+                  # 新添加的剪枝逻辑，固定相同的元素在排列中的相对位置
+                  # !used[i - 1]: 如果前面的相邻相等元素没有用过，则跳过
+                  # *遇到相同的节点 要填后面的节点就一定先填过前面的节点* --> 假设三个1 分别为 1a 1b 1c 要想填1b 就一定之前填过1a 要想填过1c 就一定填过1b 那么三个1都被填充的顺序就一定为1a 1b 1c
+                  if (i > 0 and nums[i] == nums[i - 1] and not used[i - 1]):
+                      continue
+  
+                  path.append(nums[i])
+                  used[i] = True
+                  backtrack(nums)
+                  path.pop()
+                  used[i] = False
+  
+          backtrack(nums)
+          return res
+  ```
+
+  - Time complexity: the total number of permutations is $N!$, and each permutation has length N --> total time complexity: $O(N \times N!)$
+
+    Space complexity: O(N)
+
+## 10. 39 [Combination Sum](https://leetcode.com/problems/combination-sum/description/)
+
+|  Category  |   Difficulty    |                             Tags                             |
+| :--------: | :-------------: | :----------------------------------------------------------: |
+| algorithms | Medium (65.80%) | [`array`](https://leetcode.com/tag/array); [`backtracking`](https://leetcode.com/tag/backtracking) |
+
+Given an array of **distinct** integers `candidates` and a target integer `target`, return *a list of all **unique combinations** of* `candidates` *where the chosen numbers sum to* `target`*.* You may return the combinations in **any order**.
+
+The **same** number may be chosen from `candidates` an **unlimited number of times**. Two combinations are unique if the frequency of at least one of the chosen numbers is different.
+
+It is **guaranteed** that the number of unique combinations that sum up to `target` is less than `150` combinations for the given input.
+
+**Example 1:**
+
+```
+Input: candidates = [2,3,6,7], target = 7
+Output: [[2,2,3],[7]]
+Explanation:
+2 and 3 are candidates, and 2 + 2 + 3 = 7. Note that 2 can be used multiple times.
+7 is a candidate, and 7 = 7.
+These are the only two combinations.
+```
+
+**Example 2:**
+
+```
+Input: candidates = [2,3,5], target = 8
+Output: [[2,2,2,2],[2,3,3],[3,5]]
+```
+
+**Example 3:**
+
+```
+Input: candidates = [2], target = 1
+Output: []
+```
+
+- **Constraints:**
+
+  - `1 <= candidates.length <= 30`
+
+  - `1 <= candidates[i] <= 200`
+
+  - All elements of `candidates` are **distinct**.
+
+  - `1 <= target <= 500`
+
+- **Thoughts**
+
+  - 这道题和40. [Combination Sum II](https://leetcode.com/problems/combination-sum-ii/description/)的唯一区别在于数组内的元素可以无限取，不需要进行去重的步骤 --> 则去掉树层去重的步骤以及修改回溯算法的`startIndex`就可以了
+
+  - **对于组合问题，什么时候需要startIndex呢？**
+
+    如果是一个集合来求组合的话，就需要startIndex，例如：[77.组合](https://programmercarl.com/0077.组合.html)，[216.组合总和III](https://programmercarl.com/0216.组合总和III.html)。
+
+    如果是多个集合取组合，各个集合之间相互不影响，那么就不用startIndex，例如：[17.电话号码的字母组合](https://programmercarl.com/0017.电话号码的字母组合.html)
+
+- **Solution**
+
+  ```python
+  def combinationSum(self, candidates: List[int], target: int) -> List[List[int]]:
+          res = []
+          path = []
+  
+          def backtrack(start,  candidates, target, pathSum):
+              if pathSum == target:
+                  res.append(path[:])
+              
+              if pathSum > target:
+                  return
+              
+              for i in range(start, len(candidates)):
+                  path.append(candidates[i])
+                  pathSum += candidates[i]
+                  backtrack(i, candidates, target, pathSum)		# 不用i+1了，表示可以重复读取当前的数
+                  path.pop()
+                  pathSum -= candidates[i]
+          backtrack(0, candidates, target, 0)
+          return res
+  ```
+
+  - Time complexity: $O(N \times 2^N) = O(N \times 2^N)$ 
+
+    Space complexity: $O(N)$
