@@ -224,12 +224,12 @@ Output: [["Q"]]
     col = set()
     negDiag = set()   # (r - c) is a constant
     posDiag = set()   # (r + c) is a constant
-    board = [['.'] * n for _ in range(n)]   # Initialize the board
+    board = [['.'] * n for _ in range(n)]   # Initialize the board; !!注意是['.']而不是'.'
     
     res = []
     def backtrack(r):
       if r == n:
-        copy = [''.join(row) for row in board]
+        copy = [''.join(row) for row in board]  # the result shows each row --> concatenate each row into a string; row = len(board) 
         res.append(copy)
         return
       
