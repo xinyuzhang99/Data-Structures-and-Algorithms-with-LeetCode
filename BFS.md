@@ -308,6 +308,119 @@ Output: []
       return res
     ```
 
-    - Time complexity: O(N) --> traverse through each node in the tree, and each node is accessed once#
+    - Time complexity: O(N) --> traverse through each node in the tree, and each node is accessed once
 
       Space complexity: O(N) --> recursion needs stack memory
+
+## 4. 994 [Rotting Oranges](https://leetcode.com/problems/rotting-oranges/description/)
+
+|  Category  |   Difficulty    |                        Tags                         |
+| :--------: | :-------------: | :-------------------------------------------------: |
+| algorithms | Medium (51.78%) | [`hash-table`](https://leetcode.com/tag/hash-table) |
+
+You are given an `m x n` `grid` where each cell can have one of three values:
+
+- `0` representing an empty cell,
+- `1` representing a fresh orange, or
+- `2` representing a rotten orange.
+
+Every minute, any fresh orange that is **4-directionally adjacent** to a rotten orange becomes rotten.
+
+Return *the minimum number of minutes that must elapse until no cell has a fresh orange*. If *this is impossible, return* `-1`.
+
+**Example 1:**
+
+![img](https://assets.leetcode.com/uploads/2019/02/16/oranges.png)
+
+```
+Input: grid = [[2,1,1],[1,1,0],[0,1,1]]
+Output: 4
+```
+
+**Example 2:**
+
+```
+Input: grid = [[2,1,1],[0,1,1],[1,0,1]]
+Output: -1
+Explanation: The orange in the bottom left corner (row 2, column 0) is never rotten, because rotting only happens 4-directionally.
+```
+
+**Example 3:**
+
+```
+Input: grid = [[0,2]]
+Output: 0
+Explanation: Since there are already no fresh oranges at minute 0, the answer is just 0.
+```
+
+- **Constraints:**
+
+  - `m == grid.length`
+
+  - `n == grid[i].length`
+
+  - `1 <= m, n <= 10`
+
+  - `grid[i][j]` is `0`, `1`, or `2`.
+
+- **Thoughts**
+
+  - 由题目我们可以知道每分钟每个腐烂的橘子都会使上下左右相邻的新鲜橘子腐烂，这其实是一个**模拟广度优先搜索**的过程。所谓广度优先搜索，就是从起点出发，每次都尝试访问同一层的节点，如果同一层都访问完了，再访问下一层，最后广度优先搜索找到的路径就是从起点开始的最短合法路径。
+
+    回到题目中，假设图中只有一个腐烂的橘子，它每分钟向外拓展，腐烂上下左右相邻的新鲜橘子，那么下一分钟，就是这些被腐烂的橘子再向外拓展腐烂相邻的新鲜橘子，这与广度优先搜索的过程均一一对应，**上下左右相邻的新鲜橘子就是该腐烂橘子尝试访问的同一层的节点，路径长度就是新鲜橘子被腐烂的时间。**我们记录下每个新鲜橘子被腐烂的时间，最后如果单元格中没有新鲜橘子，腐烂所有新鲜橘子所必须经过的最小分钟数就是新鲜橘子被腐烂的时间的最大值。
+
+    - Cannot use DFS: two rotten oranges will rot fresh oranges simultaneously, however, DFS can only rot in order
+    - Use BFS: can run multiple sources at each time（多源广度优先搜索）观察到对于所有的腐烂橘子，其实它们**在广度优先搜索上是等价于同一层的节点的**
+
+  - 问题等价：everytime all rotten oranges are the nodes in the same level, and the adjacent oranges are in the next level
+
+  - <u>Procedures:</u>
+
+    - S1: Initialize the queue and variables
+    - S2: Prework: add initial rotten oranges to the queue; count the number of fresh oranges
+    - S3: at each time unit, pop all oranges in the queue and add next-rotten oranges ([r, c])
+    - S4: once the queue is empty, can stop
+    - S5: check if fresh orange == 0
+
+- **Solution**
+
+  ```python
+  from collections import deque
+  def orangesRotting(self, grid: List[List[int]]) -> int:
+    # S1
+    q = deque()
+    time, fresh = 0, 0
+    row, col = len(grid), len(grid[0])
+    
+    # S2
+    for r in range(row):
+      for c in range(col):
+        if grid[r][c] == 1:
+          fresh += 1
+        if grid[r][c] == 2:
+          q.append((r, c))
+    
+    dir = [[1, 0], [-1, 0], [0, 1], [0, -1]]
+    while q and fresh: 
+      for _ in range(len(q)):
+        r, c = q.popleft()
+        # find adjacent fresh oranges to make them rotten
+        for d in dir:
+          rNew, cNew = r + d[0], c + d[1]
+          # base case
+          if rNew < 0 or cNew < 0 or rNew >= row or cNew >= col:
+            continue
+          if grid[rNew][cNew] != 1:
+              continue
+          q.append((rNew, cNew))
+          grid[rNew][cNew] = 2
+          fresh -= 1
+      time += 1     		# 遍历完一层节点 = 此时已将所有可变的新鲜橙子变成腐烂橙子 --> time += 1			
+    return time if fresh == 0 else -1
+  ```
+
+  - Time complexity: O(nm) --> 进行一次广度优先搜索的时间
+
+    Space complexity: O(nm) --> for queue
+
+  - <font color=red>**注意点：** 图问题里设计到同一时刻或者多源的情况，用BFS解决！</font>
