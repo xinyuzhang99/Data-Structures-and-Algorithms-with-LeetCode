@@ -424,3 +424,102 @@ Explanation: Since there are already no fresh oranges at minute 0, the answer is
     Space complexity: O(nm) --> for queue
 
   - <font color=red>**注意点：** 图问题里设计到同一时刻或者多源的情况，用BFS解决！--> [Multi-source BFS]</font>
+
+## 5. 286 Walls and Gates
+
+Description
+
+You are given a m x n 2D grid initialized with these three possible values.
+
+```
+-1` - A wall or an obstacle.
+`0` - A gate.
+`INF` - Infinity means an empty room. We use the value `2^31 - 1 = 2147483647` to represent INF as you may assume that the distance to a gate is less than `2147483647`.
+Fill each empty room with the distance to its nearest gate. If it is impossible to reach a `Gate`, that room should remain filled with `INF
+```
+
+Example
+
+**Example1**
+
+```
+Input:
+[[2147483647,-1,0,2147483647],[2147483647,2147483647,2147483647,-1],[2147483647,-1,2147483647,-1],[0,-1,2147483647,2147483647]]
+Output:
+[[3,-1,0,1],[2,2,1,-1],[1,-1,2,-1],[0,-1,3,4]]
+
+Explanation:
+the 2D grid is:
+INF  -1  0  INF
+INF INF INF  -1
+INF  -1 INF  -1
+  0  -1 INF INF
+the answer is:
+  3  -1   0   1
+  2   2   1  -1
+  1  -1   2  -1
+  0  -1   3   4
+```
+
+**Example2**
+
+```
+Input:
+[[0,-1],[2147483647,2147483647]]
+Output:
+[[0,-1],[1,2]]
+```
+
+- **Thoughts**
+
+  - 题目是BFS问题的应用：走迷宫，有的格子是围墙不能走，从起点到终点的最短距离是多少？--> 与其使用DFS遍历每一个空房间找到每一个的最短距离，不如从所有gate出发，遍历周围的空房间 --> <font color=red> [Multi-source BFS]</font>
+
+  - S1: Check for base case --> if the array is empty
+
+    S2: Traverse through all cells and add all gates to the queue
+
+    S3: BFS --> at each time, pop the gate cell and make valid adjacent cells distance add 1
+
+    S4: After q is empty, return the changed rooms
+
+- **Solution**
+
+  ```python
+  def walls_and_gates(self, rooms: List[List[int]]):
+          # write your code here
+          if not rooms:
+              return rooms
+          row, col = len(rooms), len(rooms[0])
+          q = deque()
+          visited = set()
+  
+          for r in range(row):
+              for c in range(col):
+                  if rooms[r][c] == 0:
+                      q.append((r, c))
+                      visited.add((r, c))
+          
+          dir = [[1, 0], [-1, 0], [0, 1], [0, -1]]
+          dist = 1
+          while q:
+              for _ in range(len(q)):
+                  r, c = q.popleft()
+                  for d in dir:
+                      rNew = r + d[0]
+                      cNew = c + d[1]
+                      if rNew < 0 or cNew < 0 or rNew >= row or cNew >= col:
+                          continue
+                      if rooms[rNew][cNew] == -1 or (rNew, cNew) in visited:
+                          continue
+                      q.append((rNew, cNew))
+                      rooms[rNew][cNew] = dist
+                      visited.add((rNew, cNew))
+              dist += 1
+          return rooms
+  ```
+
+  - Time complexity: O(nm) --> 进行一次广度优先搜索的时间
+
+    Space complexity: O(nm) --> for queue
+
+  - <font color=red>**注意点：**</font>为了防止无限循环，添加一个`visited`的集合记录已经修改过的cell
