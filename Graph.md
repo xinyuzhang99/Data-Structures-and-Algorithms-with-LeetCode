@@ -75,6 +75,20 @@
     # 后序位置
   ```
 
+  ```python
+  result = []			# 保存符合条件的所有路径
+  path = []				# 起点到终点的路径
+  def dfs(参数):
+      if (终止条件):
+          存放结果
+          return
+  
+      for (选择：本节点所连接的其他节点):
+          处理节点
+          dfs(图，选择的节点) # 递归
+          回溯，撤销处理结果
+  ```
+
   - 图和多叉树最大的区别是，图是可能包含环的，你从图的某一个节点开始遍历，有可能走了一圈又回到这个节点，而树不会出现这种情况，从某个节点出发必然走到叶子节点，绝不可能回到它自身。
 
     所以，==如果图包含环，遍历框架就要一个 `visited` 数组进行辅助==：
@@ -869,3 +883,78 @@ Output: [["X"]]
   - Time complexity：$O(row \times col)$ --> two for-loops
 
     Space complexity: $O(row \times col)$ --> set memory + stack memory for recursion
+
+## 8. 797 [All Paths From Source to Target](https://leetcode.com/problems/all-paths-from-source-to-target/description/)
+
+|  Category  |   Difficulty    |                             Tags                             |
+| :--------: | :-------------: | :----------------------------------------------------------: |
+| algorithms | Medium (80.93%) | [`hash-table`](https://leetcode.com/tag/hash-table); [`math`](https://leetcode.com/tag/math) |
+
+Given a directed acyclic graph (**DAG**) of `n` nodes labeled from `0` to `n - 1`, find all possible paths from node `0` to node `n - 1` and return them in **any order**.
+
+The graph is given as follows: `graph[i]` is a list of all nodes you can visit from node `i` (i.e., there is a directed edge from node `i` to node `graph[i][j]`).
+
+**Example 1:**
+
+<img src="https://assets.leetcode.com/uploads/2020/09/28/all_1.jpg" alt="img" style="zoom:50%;" />
+
+```
+Input: graph = [[1,2],[3],[3],[]]
+Output: [[0,1,3],[0,2,3]]
+Explanation: There are two paths: 0 -> 1 -> 3 and 0 -> 2 -> 3.
+```
+
+**Example 2:**
+
+<img src="https://assets.leetcode.com/uploads/2020/09/28/all_2.jpg" alt="img" style="zoom:50%;" />
+
+```
+Input: graph = [[4,3,1],[3,2,4],[3],[4],[]]
+Output: [[0,4],[0,3,4],[0,1,3,4],[0,1,2,3,4],[0,1,4]]
+```
+
+- **Constraints:**
+
+  - `n == graph.length`
+
+  - `2 <= n <= 15`
+
+  - `0 <= graph[i][j] < n`
+
+  - `graph[i][j] != i` (i.e., there will be no self-loops).
+
+  - All the elements of `graph[i]` are **unique**.
+
+  - The input graph is **guaranteed** to be a **DAG**.
+
+- **Thoughts**
+
+  - 由于题目确定了该图不包含环，所以这道题可以用多叉树的dfs遍历解决 --> **以 `0` 为起点遍历图，同时记录遍历过的路径，当遍历到终点 (n - 1) 时将路径记录下来即可**
+  - 这道题和Backtracking笔记里的排列题和17 [Letter Combinations of a Phone Number](https://leetcode.com/problems/letter-combinations-of-a-phone-number/description/)接近。
+
+- **Solution**
+
+  ```python
+  def allPathsSourceTarget(self, graph: List[List[int]]) -> List[List[int]]:
+    res = []
+    path = []
+  
+    def dfs(node):          # node: the current node for traversal
+      # base case: 当目前遍历的节点为最后一个节点的时候，就找到了一条从出发点到终止点的路径
+      if node == len(graph) - 1: # 要求从节点0到节点n-1的路径并输出，所以是len(graph)-1
+        res.append(path[:])
+        return
+  
+      for i in range(len(graph[node])): # 遍历节点n连接的所有邻居节点
+        path.append(graph[node][i])
+        dfs(graph[node][i])
+        path.pop()
+  
+     path.append(0)           # 无论什么路径都是从0节点出发
+     dfs(0)                   # 开始遍历
+     return res
+  ```
+
+  - Time complexity：$O(n \times 2^n)$ --> each node has two conditions: in the path/not in the path, the total possible number of paths is $2^n$; the length of each path is n
+
+    Space complexity: $O(n)$ --> stack memory for recursion + path
