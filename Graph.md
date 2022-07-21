@@ -1,5 +1,110 @@
 # Graph
 
+- **图的逻辑结构和具体实现**
+
+  - <u>理论上</u>：一幅图是由**节点**和**边**构成的，逻辑结构如下：
+
+    <img src="https://labuladong.github.io/algo/images/%e5%9b%be/0.jpg" alt="img" style="zoom:50%;" />
+
+    ```python
+    # 图节点的逻辑结构
+    class Vertex {
+        id = 0
+        neighbors = []
+    } # 和多叉树节点几乎完全一样 --> 适用于树的 DFS/BFS 遍历算法，全部适用于图
+    ```
+  
+  - <u>实际上</u>：用**邻接表 [Adjacency List] 和邻接矩阵**来实现图
+  
+    <img src="https://labuladong.github.io/algo/images/%e5%9b%be/2.jpeg" alt="img" style="zoom:50%;" />
+  
+    - 邻接表很直观，我把每个节点 `x` 的邻居都存到一个列表里，然后把 `x` 和这个列表关联起来，这样就可以通过一个节点 `x` 找到它的所有相邻节点。<font color=blue>**[More common: use hashmap!]**</font>
+  
+      - Pros: 占用的空间少。邻接矩阵里面空着那么多位置，肯定需要更多的存储空间。
+  
+      - Cons: 邻接表无法快速判断两个节点是否相邻。比如说我想判断节点 `1` 是否和节点 `3` 相邻，我要去邻接表里 `1` 对应的邻居列表里查找 `3` 是否存在。但对于邻接矩阵就简单了，只要看看 `matrix[1][3]` 就知道了，效率高。
+  
+        --> 使用哪一种方式实现图，要看具体情况。
+  
+    - 邻接矩阵则是一个二维布尔数组，我们权且称为 `matrix`，如果节点 `x` 和 `y` 是相连的，那么就把 `matrix[x][y]` 设为 `true`（上图中绿色的方格代表 `true`）。如果想找节点 `x` 的邻居，去扫一圈 `matrix[x][..]` 就行了。
+  
+    ```java
+    // 邻接表
+    // graph[x] 存储 x 的所有邻居节点
+    List<Integer>[] graph;
+    
+    // 邻接矩阵
+    // matrix[x][y] 记录 x 是否有一条指向 y 的边
+    boolean[][] matrix;
+    ```
+  
+    - **有向加权图怎么实现**？
+  
+      如果是邻接表，我们不仅仅存储某个节点 `x` 的所有邻居节点，还存储 `x` 到每个邻居的权重，不就实现加权有向图了吗？
+  
+      如果是邻接矩阵，`matrix[x][y]` 不再是布尔值，而是一个 int 值，0 表示没有连接，其他值表示权重，不就变成加权有向图了吗？
+  
+      ```java
+      // 邻接表
+      // graph[x] 存储 x 的所有邻居节点以及对应的权重
+      List<int[]>[] graph;
+      
+      // 邻接矩阵
+      // matrix[x][y] 记录 x 指向 y 的边的权重，0 表示不相邻
+      int[][] matrix;
+      ```
+  
+    - **无向图怎么实现**？也很简单，所谓的「无向」，是不是等同于==「双向」==？
+  
+      --> 如果连接无向图中的节点 `x` 和 `y`，把 `matrix[x][y]` 和 `matrix[y][x]` 都变成 `true` 不就行了；邻接表也是类似的操作，在 `x` 的邻居列表里添加 `y`，同时在 `y` 的邻居列表里添加 `x`。
+  
+  - <u>Degree（度）</u>：在无向图中，「度」就是每个节点相连的边的条数；由于有向图的边有方向，所以有向图中每个节点「度」被细分为**入度**（indegree: 指向该节点的边数）和**出度**（outdegree：指向别的节点的边数）
+  
+
+- **图的遍历**
+
+  --> 参考多叉树的 DFS 遍历!
+
+  ```python
+  # 多叉树遍历框架
+  def dfs(root):
+    if not root: return
+  	# 前序位置
+  	for child in root.children:
+      dfs(child)
+    # 后序位置
+  ```
+
+  - 图和多叉树最大的区别是，图是可能包含环的，你从图的某一个节点开始遍历，有可能走了一圈又回到这个节点，而树不会出现这种情况，从某个节点出发必然走到叶子节点，绝不可能回到它自身。
+
+    所以，==如果图包含环，遍历框架就要一个 `visited` 数组进行辅助==：
+
+    ```python
+    # 记录被遍历过的节点 --> visited 数组就是防止递归重复遍历同一个节点进入死循环的
+    visited = set()		
+    # 记录从起点到当前节点的路径 --> 用于判断是否成环
+    path = []
+    
+    # 图遍历框架
+    def dfs(graph, s):
+      if s in visited: 
+        return
+      # 经过节点 s，标记为已遍历
+      visited.add(s)
+      # 做选择：标记节点 s 在路径上
+      path.append(s)
+      for neighbor in graph.neighbors:
+        dfs(graph, neighbor)
+      # 撤销选择：节点 s 离开路径
+      path.pop()
+    ```
+
+    - 这个 `Path` 数组的操作很像回溯算法中做「做选择」和「撤销选择」，区别在于位置：回溯算法的「做选择」和「撤销选择」在 for 循环里面，而对 `Path` 数组的操作在 for 循环外面。
+
+      区别：<u>*DFS 算法，关注点在节点*；*回溯算法，关注点在树枝*</u>
+
+    - 如果题目告诉你图中不含环，可以把 `visited` 数组都省掉，基本就是**多叉树的遍历**。
+
 - **岛屿系列题目**
 
   **岛屿系列题目的核心考点就是用 <u>DFS/BFS 算法遍历二维数组</u>**。--> 如果你把二维矩阵中的每一个位置看做一个节点，这个节点的上下左右四个位置就是相邻节点，那么整个矩阵就可以抽象成一幅网状的「图」结构。
@@ -552,6 +657,11 @@ Explanation: This an empty graph, it does not have any nodes.
 - **Solution**
 
   ```python
+  class Node:
+      def __init__(self, val = 0, neighbors = None):
+          self.val = val
+          self.neighbors = neighbors if neighbors is not None else []
+          
   def cloneGraph(self, node: 'Node') -> 'Node':
           if not node:
               return 
@@ -573,9 +683,9 @@ Explanation: This an empty graph, it does not have any nodes.
   
           return dfs(node)
   ```
-
+  
   - Time complexity：O(N) --> 其中 N 表示节点数量。深度优先搜索遍历图的过程中每个节点只会被访问一次。
-
+  
     Space complexity: O(N) --> 存储克隆节点和原节点的哈希表需要 O(N) 的空间，递归调用栈需要 O(H) 的空间，其中 H 是图的深度，经过放缩可以得到 O(H) = O(N)，因此总体空间复杂度为O(N)。
 
 ## 6. 417 [Pacific Atlantic Water Flow](https://leetcode.com/problems/pacific-atlantic-water-flow/description/)
