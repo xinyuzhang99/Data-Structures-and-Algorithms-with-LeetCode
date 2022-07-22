@@ -60,6 +60,19 @@
   
   - <u>Degree（度）</u>：在无向图中，「度」就是每个节点相连的边的条数；由于有向图的边有方向，所以有向图中每个节点「度」被细分为**入度**（indegree: 指向该节点的边数）和**出度**（outdegree：指向别的节点的边数）
   
+  - <u>建图：</u>
+  
+    ```python
+    from collections import defaultdict
+    class Graph:
+      def __init__(self, numberofVertices):
+            self.graph = defaultdict(list)
+            self.numberofVertices = numberofVertices
+        
+        def addEdge(self, vertex, edge):     # graph implementation: key: vertex; value: edge
+            self.graph[vertex].append(edge)
+    ```
+  
 
 - **图的遍历**
 
@@ -96,8 +109,8 @@
     ```python
     # 记录被遍历过的节点 --> visited 数组就是防止递归重复遍历同一个节点进入死循环的
     visited = set()		
-    # 记录从起点到当前节点的路径 --> 用于判断是否成环
-    path = []
+    # 记录从起点到当前节点的路径 --> 用于判断是否成环 [记录当前遍历路径]
+    path = set()
     
     # 图遍历框架
     def dfs(graph, s):
@@ -106,11 +119,11 @@
       # 经过节点 s，标记为已遍历
       visited.add(s)
       # 做选择：标记节点 s 在路径上
-      path.append(s)
+      path.add(s)
       for neighbor in graph.neighbors:
         dfs(graph, neighbor)
       # 撤销选择：节点 s 离开路径
-      path.pop()
+      path.remove(s)
     ```
 
     - 这个 `Path` 数组的操作很像回溯算法中做「做选择」和「撤销选择」，区别在于位置：回溯算法的「做选择」和「撤销选择」在 for 循环里面，而对 `Path` 数组的操作在 for 循环外面。
@@ -958,3 +971,180 @@ Output: [[0,4],[0,3,4],[0,1,3,4],[0,1,2,3,4],[0,1,4]]
   - Time complexity：$O(n \times 2^n)$ --> each node has two conditions: in the path/not in the path, the total possible number of paths is $2^n$; the length of each path is n
 
     Space complexity: $O(n)$ --> stack memory for recursion + path
+
+## 9. 207 [Course Schedule](https://leetcode.com/problems/course-schedule/description/)
+
+|  Category  |   Difficulty    |                             Tags                             |
+| :--------: | :-------------: | :----------------------------------------------------------: |
+| algorithms | Medium (45.08%) | [`depth-first-search`](https://leetcode.com/tag/depth-first-search); [`breadth-first-search`](https://leetcode.com/tag/breadth-first-search); [`graph`](https://leetcode.com/tag/graph); [`topological-sort`](https://leetcode.com/tag/topological-sort) |
+
+There are a total of `numCourses` courses you have to take, labeled from `0` to `numCourses - 1`. You are given an array `prerequisites` where `prerequisites[i] = [ai, bi]` indicates that you **must** take course `bi` first if you want to take course `ai`.
+
+- For example, the pair `[0, 1]`, indicates that to take course `0` you have to first take course `1`.
+
+Return `true` if you can finish all courses. Otherwise, return `false`.
+
+**Example 1:**
+
+```
+Input: numCourses = 2, prerequisites = [[1,0]]
+Output: true
+Explanation: There are a total of 2 courses to take. 
+To take course 1 you should have finished course 0. So it is possible.
+```
+
+**Example 2:**
+
+```
+Input: numCourses = 2, prerequisites = [[1,0],[0,1]]
+Output: false
+Explanation: There are a total of 2 courses to take. 
+To take course 1 you should have finished course 0, and to take course 0 you should also have finished course 1. So it is impossible.
+```
+
+- **Constraints:**
+
+  - `1 <= numCourses <= 2000`
+
+  - `0 <= prerequisites.length <= 5000`
+
+  - `prerequisites[i].length == 2`
+
+  - `0 <= ai, bi < numCourses`
+
+  - All the pairs prerequisites[i] are **unique**.
+
+- **Thoughts**
+
+  - This problem is equivalent to finding if a cycle exists in a directed graph. If a cycle exists, no topological ordering exists and therefore it will be impossible to take all courses. --> <font color=blue>**Topological Sort**</font>
+  - <u>Procedures:</u>
+    - S1: create a graph --> key: each course; value: prerequisites; finish mapping
+    - S2: create a visited set to track the nodes; create a path set to track the path (start on current node)
+    - S3: dfs --> base case: detect a loop 
+    - S4: conduct backtracking in graphs (each prerequisite is like a neighbor node)
+    - S5: run dfs on each course
+
+- **Solution**
+
+  ```python
+  from collections import defaultdict
+  def canFinish(self, numCourses: int, prerequisites: List[List[int]]) -> bool:
+    graph = defaultdict(list)
+    for course, pre in prerequisites:	# point from pre to course
+      graph[pre].append(course)
+    
+    visited = set()										# avoid visiting a node repeatedly	
+    path = set()											# check if the graph has a cycle
+    self.hasCycle = False
+    def dfs(pre):
+      if pre in visited or self.hasCycle:
+        return
+      if pre in path:
+        hasCycle = True
+      visited.add(pre)
+      path.add(pre)
+      for crs in graph[pre]:
+        dfs(crs)
+      path.remove(pre)								  
+    
+    # As not all nodes in the graph are connected --> treat every node as a start to use DFS
+    for pre in range(numCourses):     # O(V + E)
+      dfs(pre)
+    return not self.hasCycle
+  ```
+
+  - Time complexity：$O(V + E)$ --> V为先修课程的要求数，E为课程数
+
+    Space complexity: $O(V + E)$ --> the two lists created will insert all vertices and edges + stack memory for recursion (O(V))
+
+## 10. 210 [Course Schedule II](https://leetcode.com/problems/course-schedule-ii/description/)
+
+|  Category  |   Difficulty    |                             Tags                             |
+| :--------: | :-------------: | :----------------------------------------------------------: |
+| algorithms | Medium (46.74%) | [`depth-first-search`](https://leetcode.com/tag/depth-first-search); [`breadth-first-search`](https://leetcode.com/tag/breadth-first-search); [`graph`](https://leetcode.com/tag/graph); [`topological-sort`](https://leetcode.com/tag/topological-sort) |
+
+There are a total of `numCourses` courses you have to take, labeled from `0` to `numCourses - 1`. You are given an array `prerequisites` where `prerequisites[i] = [ai, bi]` indicates that you **must** take course `bi` first if you want to take course `ai`.
+
+- For example, the pair `[0, 1]`, indicates that to take course `0` you have to first take course `1`.
+
+Return *the ordering of courses you should take to finish all courses*. If there are many valid answers, return **any** of them. If it is impossible to finish all courses, return **an empty array**.
+
+**Example 1:**
+
+```
+Input: numCourses = 2, prerequisites = [[1,0]]
+Output: [0,1]
+Explanation: There are a total of 2 courses to take. To take course 1 you should have finished course 0. So the correct course order is [0,1].
+```
+
+**Example 2:**
+
+```
+Input: numCourses = 4, prerequisites = [[1,0],[2,0],[3,1],[3,2]]
+Output: [0,2,1,3]
+Explanation: There are a total of 4 courses to take. To take course 3 you should have finished both courses 1 and 2. Both courses 1 and 2 should be taken after you finished course 0.
+So one correct course order is [0,1,2,3]. Another correct ordering is [0,2,1,3].
+```
+
+**Example 3:**
+
+```
+Input: numCourses = 1, prerequisites = []
+Output: [0]
+```
+
+- **Constraints:**
+
+  - `1 <= numCourses <= 2000`
+
+  - `0 <= prerequisites.length <= numCourses * (numCourses - 1)`
+
+  - `prerequisites[i].length == 2`
+
+  - `0 <= ai, bi < numCourses`
+
+  - `ai != bi`
+
+  - All the pairs `[ai, bi]` are **distinct**.
+
+- **Thoughts**
+
+  - 这道题目和207 [Course Schedule]基本一样，区别在于207是判断是否有环，210是先判断是否有环，无环的话遍历图
+  - <font color=blue>**关键点：**</font>在topologial sort里按顺序遍历：`res.insert(0, pre)`
+
+- **Solution**
+
+  ```python
+  # main goal: traverse through a graph with no cycles
+  def findOrder(self, numCourses: int, prerequisites: List[List[int]]) -> List[int]:
+          graph = defaultdict(list)
+          for crs, pre in prerequisites:						
+              graph[pre].append(crs)
+          
+          visited = set()
+          path = set()
+          self.hasCycle = False
+          res = []
+          def dfs(pre):
+              if pre in path:
+                  self.hasCycle = True 
+              if pre in visited or self.hasCycle:
+                  return
+              visited.add(pre)
+              path.add(pre)
+              for course in graph[pre]:
+                  dfs(course)
+              res.insert(0, pre)
+              path.remove(pre)
+          
+          for node in range(numCourses):
+              dfs(node)
+          
+          if self.hasCycle:
+              return []
+          return res
+  ```
+
+  - Time complexity：$O(V + E)$ --> V为先修课程的要求数，E为课程数
+
+    Space complexity: $O(V + E)$ --> the two lists created will insert all vertices and edges + stack memory for recursion (O(V))
