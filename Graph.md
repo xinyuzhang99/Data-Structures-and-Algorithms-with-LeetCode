@@ -283,18 +283,19 @@
 
     - 主要 API `connected` 和 `union` 中的复杂度都是 `find` 函数造成的，所以说它们的复杂度和 `find` 一样。`find` 主要功能就是<font color=blue>**从某个节点向上遍历到树根**</font>，其时间复杂度就是树的高度。我们可能习惯性地认为树的高度就是 `logN`，但这并不一定。`logN` 的高度只存在于平衡二叉树，对于一般的树可能出现极端不平衡的情况，使得「树」几乎退化成「链表」，树的高度最坏情况下可能变成 `N`。--> `find` , `union` , `connected` 的时间复杂度都是 O(N)
 
-  - <u>平衡性优化</u>：  `union` 过程可能出现不平衡现象 --> 简单粗暴地把 `p` 所在的树接到 `q` 所在的树的根节点下面，那么这里就可能出现「头重脚轻」的不平衡状况
+  - <u>平衡性优化</u>：  `union` 过程可能出现不平衡现象 --> 简单粗暴地把 `p` 所在的树接到 `q` 所在的树的根节点下面，那么这里就可能出现「头重脚轻」的不平衡状况 <font color=blue>**[Quick Union]**</font>
 
     <img src="https://labuladong.github.io/algo/images/unionfind/7.jpg" alt="img" style="zoom:50%;" />
 
-    --> 长此以往，树可能生长得很不平衡。**我们其实是希望，小一些的树接到大一些的树下面，这样就能避免头重脚轻，更平衡一些**。解决方法是额外使用一个 `size` 数组，记录每棵树包含的节点数，我们不妨称为「重量」：
+    --> 长此以往，树可能生长得很不平衡。**我们其实是希望，小一些的树接到大一些的树下面，这样就能避免头重脚轻，更平衡一些**。解决方法是额外使用一个 `rank` 数组，记录每棵树包含的节点数，我们不妨称为「重量」：
 
     ```python
+    # [Quick union] 权重法
     def __init__(self, grid):
         row, col = len(grid), len(grid[0])
         n = row * col									# 构造函数，n 为图的节点总数
         self.parent = [-1] * n
-        self.size = [-1] * n
+        self.rank = [0] * n						# 记录每一组树的高度
         self.count = n
         for i in range(n):    				# initialization --> 父节点指针初始指向自己
           self.parent[i] = i
@@ -305,18 +306,18 @@
         rootY = self.find(y)
         if rootX != rootY:
           # 将两棵树合并为一棵, 小树接到大树下面，较平衡
-          if self.size[rootX] > self.size[rootY]:			# 此时Y是小树，将x所在的树接到y所在树的根节点下
+          if self.rank[rootX] > self.rank[rootY]:			# 此时Y是小树，将x所在的树接到y所在树的根节点下
             self.parent[rootY] = rootX
-            self.size[rootY] += self.size[rootX]
+            self.rank[rootY] += self.rank[rootX]
           else:																				# 此时X是小树
             self.parent[rootX] = rootY
-            self.size[rootX] += self.size[rootY]
+            self.rank[rootX] += self.rank[rootY]
           self.count -= 1							 # 两个分量合二为一
     ```
 
     这样，通过比较树的重量，就可以保证树的生长相对平衡，树的高度大致在 `logN` 这个数量级，极大提升执行效率。此时，`find` , `union` , `connected` 的时间复杂度都下降为 O(logN)，即便数据规模上亿，所需时间也非常少。
 
-  - <u>路径压缩</u>: 进一步压缩每棵树的高度，使树高始终保持为常数 --> 这样每个节点的父节点就是整棵树的根节点，`find` 就能以 O(1) 的时间找到某一节点的根节点，相应的，`connected` 和 `union` 复杂度都下降为 O(1)。
+  - <u>路径压缩</u>: 进一步压缩每棵树的高度，使树高始终保持为常数 --> 这样每个节点的父节点就是整棵树的根节点，`find` 就能以 O(1) 的时间找到某一节点的根节点，相应的，`connected` 和 `union` 复杂度都下降为 O(1)。<font color=blue>**[Quick Find]**</font>
 
     第一种方法：
 
@@ -334,6 +335,7 @@
         return x
     
     # 先找到根节点，然后把 x 到根节点之间的所有节点直接接到根节点下面
+    ## [Quick Find]
     def find(self, x):
         if x != self.parent[x]:
           self.parent[x] = self.find(self.parent[x])
@@ -347,10 +349,8 @@
       def __init__(self, grid):
         row, col = len(grid), len(grid[0])
         n = row * col									# 构造函数，n 为图的节点总数
-        self.parent = [-1] * n
         self.count = n								# number of connected components
-        for i in range(n):    				# initialization --> 父节点指针初始指向自己
-          self.parent[i] = i
+        parent = list(range(n))				# initialization --> 父节点指针初始指向自己
           
       # find the root of x
       def find(self, x):
@@ -1333,3 +1333,53 @@ Output: [0]
   - Time complexity：$O(V + E)$ --> V为先修课程的要求数，E为课程数
 
     Space complexity: $O(V + E)$ --> the two lists created will insert all vertices and edges + stack memory for recursion (O(V))
+
+## 11. [Number of Provinces](https://leetcode.com/problems/number-of-provinces/description/)
+
+|  Category  |   Difficulty    |                             Tags                             |
+| :--------: | :-------------: | :----------------------------------------------------------: |
+| algorithms | Medium (62.63%) | [`depth-first-search`](https://leetcode.com/tag/depth-first-search); [`union-find`](https://leetcode.com/tag/union-find) |
+
+There are `n` cities. Some of them are connected, while some are not. If city `a` is connected directly with city `b`, and city `b` is connected directly with city `c`, then city `a` is connected indirectly with city `c`.
+
+A **province** is a group of directly or indirectly connected cities and no other cities outside of the group.
+
+You are given an `n x n` matrix `isConnected` where `isConnected[i][j] = 1` if the `ith` city and the `jth` city are directly connected, and `isConnected[i][j] = 0` otherwise.
+
+Return *the total number of **provinces***.
+
+**Example 1:**
+
+![img](https://assets.leetcode.com/uploads/2020/12/24/graph1.jpg)
+
+```
+Input: isConnected = [[1,1,0],[1,1,0],[0,0,1]]
+Output: 2
+```
+
+**Example 2:**
+
+![img](https://assets.leetcode.com/uploads/2020/12/24/graph2.jpg)
+
+```
+Input: isConnected = [[1,0,0],[0,1,0],[0,0,1]]
+Output: 3
+```
+
+- **Constraints:**
+
+  - `1 <= n <= 200`
+
+  - `n == isConnected.length`
+
+  - `n == isConnected[i].length`
+
+  - `isConnected[i][j]` is `1` or `0`.
+
+  - `isConnected[i][i] == 1`
+
+  - `isConnected[i][j] == isConnected[j][i]`
+
+- **Thoughts**
+
+  
