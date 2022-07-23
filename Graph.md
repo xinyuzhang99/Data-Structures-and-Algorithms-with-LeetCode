@@ -199,6 +199,191 @@
       dfs(grid, r + d[0], c + d[1], visited)
   ```
 
+- **Union Find 并查集**
+
+  --> 主要是解决图论中「动态连通性」问题 (可以抽象成给一幅图连线)
+
+  - Union-Find 算法主要需要实现这几个 API：
+
+    ```python
+    class UF:
+      # 将 p 和 q 连接 --> 合并两个元素为同一个根节点 **
+      def union(p, q): 
+      # 判断 p 和 q 是否连通 
+      def connected(p, q):
+      # 返回图中有多少个连通分量 (Connected Component)
+      def count():
+      # 找到某个元素的根节点，返回根节点的值 **
+      def find(p):
+    ```
+
+    这里所说的「连通」是一种等价关系，也就是说具有如下三个性质：
+
+    1、自反性：节点 `p` 和 `p` 是连通的。
+
+    2、对称性：如果节点 `p` 和 `q` 连通，那么 `q` 和 `p` 也连通。
+
+    3、传递性：如果节点 `p` 和 `q` 连通，`q` 和 `r` 连通，那么 `p` 和 `r` 也连通。
+
+    判断这种「等价关系」非常实用，比如说编译器判断同一个变量的不同引用，比如社交网络中的朋友圈计算等等
+
+  - <u>基本思路：</u>使用森林（若干棵树）来表示图的动态连通性，用数组来具体实现这个森林
+
+    --> 我们设定树的每个节点有一个指针指向其父节点，如果是根节点的话，这个指针指向自己（也就是没有相互连通时）。
+
+    <img src="https://labuladong.github.io/algo/images/unionfind/3.jpg" alt="img" style="zoom:50%;" />
+
+    **如果某两个节点被连通，则让其中的（任意）一个节点的根节点接到另一个节点的根节点上**：
+
+    <img src="https://labuladong.github.io/algo/images/unionfind/4.jpg" alt="img" style="zoom:50%;" />
+
+    **这样，如果节点 `p` 和 `q` 连通的话，它们一定拥有相同的根节点**：
+
+    <img src="https://labuladong.github.io/algo/images/unionfind/5.jpg" alt="img" style="zoom:50%;" />
+
+    - 数组存放的是对应数的根节点，也代表对应的数: `root = [0, 1, 2, 3, 4, 5]`
+
+    ```python
+    class UnionFind:
+      def __init__(self, grid):
+        row, col = len(grid), len(grid[0])
+        n = row * col									# 构造函数，n 为图的节点总数
+        self.root = [-1] * n
+        self.count = n								# number of connected components
+        for i in range(n):    				# initialization --> 父节点指针初始指向自己
+          self.root[i] = i
+          
+      # find the root of x
+      def find(self, x):
+        # Original version
+        # while (self.root[x] != x):
+          # x = self.root[x]
+        # return x
+      
+      	# Optimized version
+        if x != self.root[x]:
+          self.root[x] = self.find(self.root[x])
+        return self.root[x]
+      
+      # S1: find the roots of the two nodes
+      # S2: if the roots are different, make x's root be y's root --> connect
+      def union(x, y):
+        rootX = self.find(x)
+        rootY = self.find(y)
+        if rootX != rootY:
+          # 将两棵树合并为一棵
+          self.root[rootX] = rootY	   # or: self.root[rootY] = rootX
+          self.count -= 1							 # 两个分量合二为一
+          
+      def connected(x, y):
+        rootX = self.find(x)
+        rootY = self.find(y)
+        return rootX == rootY
+    ```
+
+    - 主要 API `connected` 和 `union` 中的复杂度都是 `find` 函数造成的，所以说它们的复杂度和 `find` 一样。`find` 主要功能就是<font color=blue>**从某个节点向上遍历到树根**</font>，其时间复杂度就是树的高度。我们可能习惯性地认为树的高度就是 `logN`，但这并不一定。`logN` 的高度只存在于平衡二叉树，对于一般的树可能出现极端不平衡的情况，使得「树」几乎退化成「链表」，树的高度最坏情况下可能变成 `N`。--> `find` , `union` , `connected` 的时间复杂度都是 O(N)
+
+  - <u>平衡性优化</u>：  `union` 过程可能出现不平衡现象 --> 简单粗暴地把 `p` 所在的树接到 `q` 所在的树的根节点下面，那么这里就可能出现「头重脚轻」的不平衡状况
+
+    <img src="https://labuladong.github.io/algo/images/unionfind/7.jpg" alt="img" style="zoom:50%;" />
+
+    --> 长此以往，树可能生长得很不平衡。**我们其实是希望，小一些的树接到大一些的树下面，这样就能避免头重脚轻，更平衡一些**。解决方法是额外使用一个 `size` 数组，记录每棵树包含的节点数，我们不妨称为「重量」：
+
+    ```python
+    def __init__(self, grid):
+        row, col = len(grid), len(grid[0])
+        n = row * col									# 构造函数，n 为图的节点总数
+        self.root = [-1] * n
+        self.size = [-1] * n
+        self.count = n
+        for i in range(n):    				# initialization --> 父节点指针初始指向自己
+          self.root[i] = i
+          self.size[i] = 1						# 最初每棵树只有一个节点，重量应该初始化为1
+    
+    def union(x, y):
+        rootX = self.find(x)
+        rootY = self.find(y)
+        if rootX != rootY:
+          # 将两棵树合并为一棵, 小树接到大树下面，较平衡
+          if self.size[rootX] > self.size[rootY]:			# 此时Y是小树，将x所在的树接到y所在树的根节点下
+            self.root[rootY] = rootX
+            self.size[rootY] += self.size[rootX]
+          else:																				# 此时X是小树
+            self.root[rootX] = rootY
+            self.size[rootX] += self.size[rootY]
+          self.count -= 1							 # 两个分量合二为一
+    ```
+
+    这样，通过比较树的重量，就可以保证树的生长相对平衡，树的高度大致在 `logN` 这个数量级，极大提升执行效率。此时，`find` , `union` , `connected` 的时间复杂度都下降为 O(logN)，即便数据规模上亿，所需时间也非常少。
+
+  - <u>路径压缩</u>: 进一步压缩每棵树的高度，使树高始终保持为常数 --> 这样每个节点的父节点就是整棵树的根节点，`find` 就能以 O(1) 的时间找到某一节点的根节点，相应的，`connected` 和 `union` 复杂度都下降为 O(1)。
+
+    第一种方法：
+
+    <img src="https://labuladong.github.io/algo/images/unionfind/9.gif" alt="img" style="zoom:50%;" />
+
+    第二种方法：
+
+    <img src="https://labuladong.github.io/algo/images/unionfind/10.jpeg" alt="img" style="zoom:50%;" />
+
+    ```python
+    def find(self, x):
+        while (self.root[x] != x):
+          self.root[x] = self.root[self.root[x]]			# 路径压缩：每次 while 循环都会把一对儿父子节点改到同一层，这样每次调用 find 函数向树根遍历的同时，顺手就将树高缩短了
+          x = self.root[x]
+        return x
+    
+    # 先找到根节点，然后把 x 到根节点之间的所有节点直接接到根节点下面
+    def find(self, x):
+        if x != self.root[x]:
+          self.root[x] = self.find(self.root[x])
+        return self.root[x]
+    ```
+
+  - <u>Summary Coding Template:</u>
+
+    ```python
+    class UnionFind:
+      def __init__(self, grid):
+        row, col = len(grid), len(grid[0])
+        n = row * col									# 构造函数，n 为图的节点总数
+        self.root = [-1] * n
+        self.count = n
+        for i in range(n):    				# initialization --> 父节点指针初始指向自己
+          self.root[i] = i
+          
+      # find the root of x
+      def find(self, x):
+        if x != self.root[x]:
+          self.root[x] = self.find(self.root[x])
+        return self.root[x]
+      
+      # S1: find the roots of the two nodes
+      # S2: if the roots are different, make x's root be y's root --> connect
+      def union(x, y):
+        rootX = self.find(x)
+        rootY = self.find(y)
+        if rootX != rootY:
+          # 将两棵树合并为一棵
+          self.root[rootX] = rootY	   # or: self.root[rootY] = rootX
+          self.count -= 1							 # 两个分量合二为一
+          
+      def connected(x, y):
+        rootX = self.find(x)
+        rootY = self.find(y)
+        return rootX == rootY
+    ```
+
+    - 构造函数初始化数据结构需要 O(N) 的时间和空间复杂度；连通两个节点 `union`、判断两个节点的连通性 `connected`、计算连通分量 `count` 所需的时间复杂度均为 O(1)。
+
+    - 总结一下我们优化算法的过程：
+
+      1、用 `root` 数组记录每个节点的父节点，相当于指向父节点的指针，所以 `root` 数组内实际存储着一个森林（若干棵多叉树）。
+
+      2、用 `size` 数组记录着每棵树的重量，目的是让 `union` 后树依然拥有平衡性，保证各个 API 时间复杂度为 O(logN)，而不会退化成链表影响操作效率。
+
+      3、在 `find` 函数中进行路径压缩，保证任意树的高度保持在常数，使得各个 API 时间复杂度为 O(1)。使用了路径压缩之后，可以不使用 `size` 数组的平衡优化。
+
 ## 1. 200 [Number of Islands](https://leetcode.com/problems/number-of-islands/description/)
 
 |  Category  |   Difficulty    |                             Tags                             |
