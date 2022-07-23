@@ -248,22 +248,22 @@
       def __init__(self, grid):
         row, col = len(grid), len(grid[0])
         n = row * col									# 构造函数，n 为图的节点总数
-        self.root = [-1] * n
+        self.parent = [-1] * n
         self.count = n								# number of connected components
         for i in range(n):    				# initialization --> 父节点指针初始指向自己
-          self.root[i] = i
+          self.parent[i] = i
           
       # find the root of x
       def find(self, x):
         # Original version
-        # while (self.root[x] != x):
-          # x = self.root[x]
+        # while (self.parent[x] != x):
+          # x = self.parent[x]
         # return x
       
       	# Optimized version
-        if x != self.root[x]:
-          self.root[x] = self.find(self.root[x])
-        return self.root[x]
+        if x != self.parent[x]:
+          self.parent[x] = self.find(self.parent[x])
+        return self.parent[x]
       
       # S1: find the roots of the two nodes
       # S2: if the roots are different, make x's root be y's root --> connect
@@ -272,7 +272,7 @@
         rootY = self.find(y)
         if rootX != rootY:
           # 将两棵树合并为一棵
-          self.root[rootX] = rootY	   # or: self.root[rootY] = rootX
+          self.parent[rootX] = rootY	   # or: self.root[rootY] = rootX
           self.count -= 1							 # 两个分量合二为一
           
       def connected(x, y):
@@ -293,11 +293,11 @@
     def __init__(self, grid):
         row, col = len(grid), len(grid[0])
         n = row * col									# 构造函数，n 为图的节点总数
-        self.root = [-1] * n
+        self.parent = [-1] * n
         self.size = [-1] * n
         self.count = n
         for i in range(n):    				# initialization --> 父节点指针初始指向自己
-          self.root[i] = i
+          self.parent[i] = i
           self.size[i] = 1						# 最初每棵树只有一个节点，重量应该初始化为1
     
     def union(x, y):
@@ -306,10 +306,10 @@
         if rootX != rootY:
           # 将两棵树合并为一棵, 小树接到大树下面，较平衡
           if self.size[rootX] > self.size[rootY]:			# 此时Y是小树，将x所在的树接到y所在树的根节点下
-            self.root[rootY] = rootX
+            self.parent[rootY] = rootX
             self.size[rootY] += self.size[rootX]
           else:																				# 此时X是小树
-            self.root[rootX] = rootY
+            self.parent[rootX] = rootY
             self.size[rootX] += self.size[rootY]
           self.count -= 1							 # 两个分量合二为一
     ```
@@ -328,16 +328,16 @@
 
     ```python
     def find(self, x):
-        while (self.root[x] != x):
-          self.root[x] = self.root[self.root[x]]			# 路径压缩：每次 while 循环都会把一对儿父子节点改到同一层，这样每次调用 find 函数向树根遍历的同时，顺手就将树高缩短了
-          x = self.root[x]
+        while (self.parent[x] != x):
+          self.parent[x] = self.parent[self.parent[x]]			# 路径压缩：每次 while 循环都会把一对儿父子节点改到同一层，这样每次调用 find 函数向树根遍历的同时，顺手就将树高缩短了
+          x = self.parent[x]
         return x
     
     # 先找到根节点，然后把 x 到根节点之间的所有节点直接接到根节点下面
     def find(self, x):
-        if x != self.root[x]:
-          self.root[x] = self.find(self.root[x])
-        return self.root[x]
+        if x != self.parent[x]:
+          self.parent[x] = self.find(self.parent[x])
+        return self.parent[x]
     ```
 
   - <u>Summary Coding Template:</u>
@@ -347,16 +347,16 @@
       def __init__(self, grid):
         row, col = len(grid), len(grid[0])
         n = row * col									# 构造函数，n 为图的节点总数
-        self.root = [-1] * n
-        self.count = n
+        self.parent = [-1] * n
+        self.count = n								# number of connected components
         for i in range(n):    				# initialization --> 父节点指针初始指向自己
-          self.root[i] = i
+          self.parent[i] = i
           
       # find the root of x
       def find(self, x):
-        if x != self.root[x]:
-          self.root[x] = self.find(self.root[x])
-        return self.root[x]
+        if x != self.parent[x]:
+          self.parent[x] = self.find(self.parent[x])
+        return self.parent[x]
       
       # S1: find the roots of the two nodes
       # S2: if the roots are different, make x's root be y's root --> connect
@@ -365,7 +365,7 @@
         rootY = self.find(y)
         if rootX != rootY:
           # 将两棵树合并为一棵
-          self.root[rootX] = rootY	   # or: self.root[rootY] = rootX
+          self.parent[rootX] = rootY	   # or: self.root[rootY] = rootX
           self.count -= 1							 # 两个分量合二为一
           
       def connected(x, y):
