@@ -523,3 +523,106 @@ Output:
     Space complexity: O(nm) --> for queue
 
   - <font color=red>**注意点：**</font>为了防止无限循环，添加一个`visited`的集合记录已经修改过的cell
+
+## 6. 127 [Word Ladder](https://leetcode.com/problems/word-ladder/description/)
+
+|  Category  |  Difficulty   |                             Tags                             |
+| :--------: | :-----------: | :----------------------------------------------------------: |
+| algorithms | Hard (35.59%) | [`breadth-first-search`](https://leetcode.com/tag/breadth-first-search) |
+
+A **transformation sequence** from word `beginWord` to word `endWord` using a dictionary `wordList` is a sequence of words `beginWord -> s1 -> s2 -> ... -> sk` such that:
+
+- Every adjacent pair of words differs by a single letter.
+- Every `si` for `1 <= i <= k` is in `wordList`. Note that `beginWord` does not need to be in `wordList`.
+- `sk == endWord`
+
+Given two words, `beginWord` and `endWord`, and a dictionary `wordList`, return *the **number of words** in the ==**shortest transformation sequence**== from* `beginWord` *to* `endWord`*, or* `0` *if no such sequence exists.* 
+
+**Example 1:**
+
+```
+Input: beginWord = "hit", endWord = "cog", wordList = ["hot","dot","dog","lot","log","cog"]
+Output: 5
+Explanation: One shortest transformation sequence is "hit" -> "hot" -> "dot" -> "dog" -> cog", which is 5 words long.
+```
+
+**Example 2:**
+
+```
+Input: beginWord = "hit", endWord = "cog", wordList = ["hot","dot","dog","lot","log"]
+Output: 0
+Explanation: The endWord "cog" is not in wordList, therefore there is no valid transformation sequence.
+```
+
+- **Constraints:**
+
+  - `1 <= beginWord.length <= 10`
+
+  - `endWord.length == beginWord.length`
+
+  - `1 <= wordList.length <= 5000`
+
+  - `wordList[i].length == beginWord.length`
+
+  - `beginWord`, `endWord`, and `wordList[i]` consist of lowercase English letters.
+
+  - `beginWord != endWord`
+
+  - All the words in `wordList` are **unique**.
+
+- **Thoughts**
+
+  - 从题目中的"the shortest transformation sequence"可以看出，这道题实际是求从`beginWord`变化至`endWord`的最短路径 --> 使用BFS算法 --> 但是本题并没有直截了当的给出图的模型，因此我们需要把它抽象成图的模型。
+
+    我们可以把每个单词都抽象为一个点，如果两个单词可以只改变一个字母进行转换，那么说明他们之间有一条双向边。因此我们只需要把满足转换条件的点相连，就形成了一张图。基于该图，我们以 beginWord 为图的起点，以 endWord 为终点进行广度优先搜索，寻找 beginWord 到 endWord 的最短路径。
+
+    <img src="https://assets.leetcode-cn.com/solution-static/127/1.png" alt="fig1" style="zoom: 33%;" />
+
+  - 将题目抽象成图的模型后，可以看出，对于`beginWord`，满足成为下一个条件的单词为下一层，直到最后
+  - <font color=blue>**关键点：如何将下一层的选择表示出来，即如何选出只有一个字母不相同的单词**</font> --> 建立哈希表：key为单词的pattern, value为符合pattern的单词
+  - <u>Procedures:</u>
+    - S1: check for base cases
+    - S2: build an adjacency list --> {pattern: [list of words]} eg. {'*ot': [hot, dot, lot]}
+    - S3: BFS: for each character, check its pattern and the list of words --> find neighbors
+    - S4: if neighbor is a possible choice, add it to the queue
+
+- **Solution**
+
+  ```python
+  from collections import defaultdict, deque
+  def ladderLength(self, beginWord: str, endWord: str, wordList: List[str]) -> int:
+    # S1: check for base cases
+    if endWord not in wordList:
+      return 0
+    
+    # S2: build an adjacency list --> {pattern: [list of words]} eg. {'*ot': [hot, dot, lot]}
+    neighbors = defaultdict(list)
+    for word in wordList:
+      for i in range(len(word)):		# the character to remove and replace with '*' --> O(n * m)
+        pattern = word[:i] + '*' + word[i+1:]    # during slicing, to create a new substring: O(m)
+        neighbors[pattern].append(word)
+    # Time complexity: O(n * m * m)
+    
+    # S3: BFS: for each character, check its pattern and the list of words --> find neighbors
+    q = deque([beginWord])
+    visited = set([beginWord])
+    res = 1													# res starts with 1 (beginWord)
+    while q:	
+      for i in range(len(q)):				# for each layer 
+        word = q.popleft()
+        if word == endWord:
+          return res
+        for j in range(len(word)):	# O(m)
+          pattern = word[:i] + '*' + word[i+1:]
+          # S4: if neighbor is a possible choice, add it to the queue
+          for neighbor in neighbors[pattern]:	
+            if neighbor not in visited:
+              visited.add(neighbor)
+              q.append(neighbor)		# add the next word into the queue
+       res += 1
+     return 0												# if not find a valid path after the loop exists, return 0
+  ```
+
+  - Time complexity: $O(n \times m^2)$ --> Suppose there are n words in total and the average length is m --> $O(n \times m)$ is the total number of patterns; during slicing, to create a new substring: O(m)
+
+    Space complexity: $O(n \times m^2)$ --> Suppose there are n words in total and the average length is m --> $O(n \times m)$ is the total number of patterns;  for each pattern, the average length is m
