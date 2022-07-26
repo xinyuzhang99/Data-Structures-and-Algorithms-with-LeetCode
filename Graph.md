@@ -227,6 +227,10 @@
 
     判断这种「等价关系」非常实用，比如说编译器判断同一个变量的不同引用，比如社交网络中的朋友圈计算等等
 
+    - 并查集可以解决什么问题呢？
+
+      主要就是集合问题，两个节点在不在一个集合，也可以将两个节点添加到一个集合中
+
   - <u>基本思路：</u>使用森林（若干棵树）来表示图的动态连通性，用数组来具体实现这个森林
 
     --> 我们设定树的每个节点有一个指针指向其父节点，如果是根节点的话，这个指针指向自己（也就是没有相互连通时）。
@@ -295,7 +299,7 @@
         row, col = len(grid), len(grid[0])
         n = row * col									# 构造函数，n 为图的节点总数
         self.parent = [-1] * n
-        self.rank = [0] * n						# 记录每一组树的高度
+        self.rank = [1] * n						# 记录每一组树的高度
         self.count = n
         for i in range(n):    				# initialization --> 父节点指针初始指向自己
           self.parent[i] = i
@@ -352,12 +356,14 @@
         self.count = n								# number of connected components
         parent = list(range(n))				# initialization --> 父节点指针初始指向自己
           
+      # [Quick find]: path compression --> flatten the tree
       # find the root of x
       def find(self, x):
         if x != self.parent[x]:
           self.parent[x] = self.find(self.parent[x])
         return self.parent[x]
       
+      # [Quick union --> union by rank]
       # S1: find the roots of the two nodes
       # S2: if the roots are different, make x's root be y's root --> connect
       def union(x, y):
@@ -373,6 +379,8 @@
         rootY = self.find(y)
         return rootX == rootY
     ```
+
+    - <img src="/Users/xinyuzhang/Library/Application Support/typora-user-images/image-20220725155049695.png" alt="image-20220725155049695" style="zoom:50%;" />
 
     - 构造函数初始化数据结构需要 O(N) 的时间和空间复杂度；连通两个节点 `union`、判断两个节点的连通性 `connected`、计算连通分量 `count` 所需的时间复杂度均为 O(1)。
 
@@ -1334,7 +1342,7 @@ Output: [0]
 
     Space complexity: $O(V + E)$ --> the two lists created will insert all vertices and edges + stack memory for recursion (O(V))
 
-## 11. [Number of Provinces](https://leetcode.com/problems/number-of-provinces/description/)
+## 11. 547 [Number of Provinces](https://leetcode.com/problems/number-of-provinces/description/)
 
 |  Category  |   Difficulty    |                             Tags                             |
 | :--------: | :-------------: | :----------------------------------------------------------: |
@@ -1380,6 +1388,246 @@ Output: 3
 
   - `isConnected[i][j] == isConnected[j][i]`
 
+- **Solution**
+
+  - <u>Method 1: Union-find</u> 
+
+    - n 个城市和它们之间的相连关系看成图，城市是图中的节点，相连关系是图中的边，给定的矩阵 $\textit{isConnected}$ 即为图的邻接矩阵，省份即为图中的连通分量。province: cities connect together (have a common root) --> 使用并查集 (Union-find!)
+
+      Goal: return the number of connected components
+
+    - S1: initialize the graph and all components
+
+      S2: write find and union functions to connect all edges in the input
+
+    ```python
+    def findCircleNum(self, isConnected: List[List[int]]) -> int:
+            n = len(isConnected)
+            self.count = n       # number of collected components
+            self.rank = [1] * n
+            parent = list(range(n))
+            
+            # find the root of current node
+            # Quick find
+            def find(node):
+                if parent[node] != node:
+                    parent[node] = find(parent[node])
+                return parent[node]
+            
+            def union(node1, node2):
+                root1 = find(node1)
+                root2 = find(node2)
+                # if root1 != root2:
+                #     parent[root1] = root2
+                #     self.count -= 1
+                if root1 != root2:
+                    if self.rank[root1] < self.rank[root2]:
+                        parent[root1] = root2
+                        self.rank[root1] += self.rank[root2]
+                    else:
+                        parent[root2] = root1
+                        self.rank[root2] += self.rank[root1]
+                    self.count -= 1
+        
+            # connect based on the input
+            for i in range(n):
+                for j in range(i + 1, n):
+                    if isConnected[i][j] == 1:
+                        union(i, j)
+            return self.count
+    ```
+
+    - Time complexity: 
+
+      - n is the number of cities and traverse through each element in `isConnected` --> $O(n^2)$
+      - For each `union` function, need to implement `find` twice and `union` once --> in total, at most $2n^2$ `find` + $n^2$ `union` --> $O(2n^2log(n^2)) = O(n^2logn)$ 
+
+      Space complexity: O(n)
+
+   - <u>Method 2: DFS</u>
+
+     - 深度优先搜索的思路是很直观的。遍历所有城市，对于每个城市，如果该城市尚未被访问过，则从该城市开始深度优先搜索，通过矩阵 $\textit{isConnected}$ 得到与该城市直接相连的城市有哪些，这些城市和该城市属于同一个连通分量，然后对这些城市继续深度优先搜索，直到同一个连通分量的所有城市都被访问到，即可得到一个省份。遍历完全部城市以后，即可得到连通分量的总数，即省份的总数。
+
+       ```python
+       def findCircleNum(self, isConnected: List[List[int]]) -> int:
+               n = len(isConnected)
+               visited = set()
+               province = 0
+       
+               def dfs(i):
+                   for j in range(n):
+                       if isConnected[i][j] == 1 and j not in visited:
+                           visited.add(j)
+                           dfs(j)
+       
+               for i in range(n):
+                   if i not in visited:
+                       dfs(i)
+                       province += 1
+               return province
+       ```
+
+       - Time complexity：$O(n^2)$ --> 其中 n 是城市的数量。需要遍历矩阵 n 中的每个元素。
+
+         Space complexity: $O(n)$ --> `visited` set and stack memory for recursion
+
+## 12. 684 [Redundant Connection](https://leetcode.com/problems/redundant-connection/description/)
+
+|  Category  |   Difficulty    |                             Tags                             |
+| :--------: | :-------------: | :----------------------------------------------------------: |
+| algorithms | Medium (61.26%) | [`tree`](https://leetcode.com/tag/tree); [`union-find`](https://leetcode.com/tag/union-find); [`graph`](https://leetcode.com/tag/graph) |
+
+In this problem, a tree is an **undirected graph** that is ==connected== and has no cycles.
+
+You are given a graph that started as a tree with `n` nodes labeled from `1` to `n`, with one additional edge added. The added edge has two **different** vertices chosen from `1` to `n`, and was not an edge that already existed. The graph is represented as an array `edges` of length `n` where `edges[i] = [ai, bi]` indicates that there is an edge between nodes `ai` and `bi` in the graph.
+
+Return *an edge that can be removed so that the resulting graph is a tree of* `n` *nodes*. If there are multiple answers, return the answer that occurs last in the input. 
+
+**Example 1:**
+
+<img src="https://assets.leetcode.com/uploads/2021/05/02/reduntant1-1-graph.jpg" alt="img" style="zoom: 67%;" />
+
+```
+Input: edges = [[1,2],[1,3],[2,3]]
+Output: [2,3]
+```
+
+**Example 2:**
+
+<img src="https://assets.leetcode.com/uploads/2021/05/02/reduntant1-2-graph.jpg" alt="img" style="zoom:67%;" />
+
+```
+Input: edges = [[1,2],[2,3],[3,4],[1,4],[1,5]]
+Output: [1,4]
+```
+
+- **Constraints:**
+
+  - `n == edges.length`
+
+  - `3 <= n <= 1000`
+
+  - `edges[i].length == 2`
+
+  - `1 <= ai < bi <= edges.length`
+
+  - `ai != bi`
+
+  - There are no repeated edges.
+
+  - The given graph is connected.
+
 - **Thoughts**
 
+  - 在图的问题中看到`connected` --> 想到并查集方法！
+
+  - 可以通过并查集寻找附加的边。初始时，每个节点都属于不同的连通分量。遍历每一条边，判断这条边连接的两个顶点是否属于相同的连通分量。
+
+    - 如果两个顶点属于不同的连通分量，则说明在遍历到当前的边之前，这两个顶点之间不连通，因此当前的边不会导致环出现，合并这两个顶点的连通分量。
+
+    - 如果两个顶点属于相同的连通分量，则说明在遍历到当前的边之前，这两个顶点之间已经连通，因此当前的边导致环出现，为附加的边，将当前的边作为答案返回。
+
+- **Solution**
+
+  ```python
+  def findRedundantConnection(self, edges: List[List[int]]) -> List[int]:
+          n = len(edges)
+          parent = list(range(n + 1))
+          rank = [1] * (n + 1)
   
+          # path compression
+          def find(node):
+              if node != parent[node]:
+                  parent[node] = find(parent[node])
+              return parent[node]
+          
+          # union by rank
+          def union(node1, node2):
+              root1 = find(node1)
+              root2 = find(node2)
+              # parent[root1] = root2
+              if root1 != root2:
+                  if rank[root1] <= rank[root2]:      # root1 is the smaller tree
+                      parent[root1] = root2           # connect root2 to root1
+                      rank[root1] += rank[root2]
+                  else:
+                      parent[root2] = root1
+                      rank[root2] += rank[root1]
+  
+          for node1, node2 in edges:          
+              if find(node1) != find(node2):
+                  union(node1, node2)
+              else: 
+                  return [node1, node2]
+          return []
+  ```
+
+  - Time complexity: 
+
+    - If not use fast-union, only use fast-find: $O(nlogn)$ --> 其中 n 是图中的节点个数。需要遍历图中的 n 条边，对于每条边，需要对两个节点查找祖先，如果两个节点的祖先不同则需要进行合并，需要进行 2 次查找和最多 1 次合并。一共需要进行 2n 次查找和最多 n 次合并，因此总时间复杂度是 $O(2n \log n)=O(n \log n)$。
+    - If use fast-union and fast-find: $O(n \alpha (n))$ --> $\alpha$ is the inverse of Ackermanns function where $\alpha (n)$ can be considered as a really small constant --> $\approx O(n)$
+
+    Space complexity: O(n) by `parent` and `rank`
+
+## 13. LeetCode 261 / LintCode 178 Graph Valid Tree
+
+`Algorithms Medium Accepted Rate35%`
+
+**Description**
+
+Given `n` nodes labeled from `0` to `n - 1` and a list of `undirected` edges (each edge is a pair of nodes), write a function to check whether these edges make up a valid tree.
+
+You can assume that no duplicate edges will appear in edges. Since all edges are `undirected`, `[0, 1]` is the same as `[1, 0]` and thus will not appear together in edges.
+
+Example
+
+**Example 1:**
+
+```
+Input: n = 5 edges = [[0, 1], [0, 2], [0, 3], [1, 4]]
+Output: true.
+```
+
+**Example 2:**
+
+```
+Input: n = 5 edges = [[0, 1], [1, 2], [2, 3], [1, 3], [1, 4]]
+Output: false.
+```
+
+- **Thoughts**
+
+  - 和684. Redundant Connection题目很类似，可以使用union-find算法模板
+  - Valid tree: have no cycles + <font color=red>**len(edges) should equal to (n - 1)!**</font> --> 由于题目同时给了 $n$ 和 $edges$，所以要考虑到两者比较关系对结果的影响
+
+- **Solution**
+
+  ```python
+  def valid_tree(self, n: int, edges: List[List[int]]) -> bool:
+          # write your code here
+          if len(edges) != n - 1:
+              return False
+  
+          parent = list(range(n))
+  
+          def find(node):
+              if node != parent[node]:
+                  parent[node] = find(parent[node])
+              return parent[node]
+          
+          def union(node1, node2):
+              root1 = find(node1)
+              root2 = find(node2)
+              parent[root1] = root2
+          
+          for node1, node2 in edges:
+              if find(node1) != find(node2):
+                  union(node1, node2)
+              else:
+                  return False
+          return True
+  ```
+
+  - Time complexity: $O(2nlogn) = O(nlogn)$
+
+    Space complexity: O(n) by `parent` 
