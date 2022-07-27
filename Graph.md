@@ -1236,7 +1236,7 @@ To take course 1 you should have finished course 0, and to take course 0 you sho
         hasCycle = True
       visited.add(pre)
       path.add(pre)
-      for crs in graph[pre]:
+      for crs in graph[pre]:					# for each course, conduct dfs
         dfs(crs)
       path.remove(pre)								  
     
@@ -1631,3 +1631,99 @@ Output: false.
   - Time complexity: $O(2nlogn) = O(nlogn)$
 
     Space complexity: O(n) by `parent` 
+
+## 14. 332 [Reconstruct Itinerary](https://leetcode.com/problems/reconstruct-itinerary/description/)
+
+|  Category  |  Difficulty   |                             Tags                             |
+| :--------: | :-----------: | :----------------------------------------------------------: |
+| algorithms | Hard (40.27%) | [`depth-first-search`](https://leetcode.com/tag/depth-first-search); [`graph`](https://leetcode.com/tag/graph) |
+
+You are given a list of airline `tickets` where `tickets[i] = [fromi, toi]` represent the departure and the arrival airports of one flight. Reconstruct the itinerary in order and return it.
+
+All of the tickets belong to a man who departs from `"JFK"`, thus, the itinerary must begin with `"JFK"`. If there are multiple valid itineraries, you should return the itinerary that has the smallest lexical order when read as a single string.
+
+- For example, the itinerary `["JFK", "LGA"]` has a smaller lexical order than `["JFK", "LGB"]`.
+
+You may assume all tickets form at least one valid itinerary. You must use all the tickets once and only once. 
+
+**Example 1:**
+
+![img](https://assets.leetcode.com/uploads/2021/03/14/itinerary1-graph.jpg)
+
+```
+Input: tickets = [["MUC","LHR"],["JFK","MUC"],["SFO","SJC"],["LHR","SFO"]]
+Output: ["JFK","MUC","LHR","SFO","SJC"]
+```
+
+**Example 2:**
+
+![img](https://assets.leetcode.com/uploads/2021/03/14/itinerary2-graph.jpg)
+
+```
+Input: tickets = [["JFK","SFO"],["JFK","ATL"],["SFO","ATL"],["ATL","JFK"],["ATL","SFO"]]
+Output: ["JFK","ATL","JFK","SFO","ATL","SFO"]
+Explanation: Another possible reconstruction is ["JFK","SFO","ATL","JFK","ATL","SFO"] but it is larger in lexical order.
+```
+
+- **Constraints:**
+
+  - `1 <= tickets.length <= 300`
+
+  - `tickets[i].length == 2`
+
+  - `fromi.length == 3`
+
+  - `toi.length == 3`
+
+  - `fromi` and `toi` consist of uppercase English letters.
+
+  - `fromi != toi`
+
+- **Thoughts**
+
+  - 这道题的飞行具有dependency --> topological sort --> 只是topological sort里每个点只能走一次, 但是这里可以走回头路, 所以只有在所有边都用完的情况下才放进结果数组里面.
+
+  - Idea: 从JFK开始尝试全部可能的路径，返回第一个用完ticket的路径
+
+    - 把input转换为图的结构并以lexical顺序排序: build a hashmap/adjacency list {from: to} based on lexical order (sorted)
+
+    - 在构造的图上从JFK开始dfs, remove掉访问过的边，backtrack时再加回来
+
+      <img src="https://camo.githubusercontent.com/97fc71990118675e1736bf595445afc0e4593fa13d02ea9a85df16151c8df01f/68747470733a2f2f696d672d626c6f672e6373646e696d672e636e2f323032303131313531383036353535352e706e67" alt="332.重新安排行程1" style="zoom:50%;" />
+
+- **Solution**
+
+  ```python
+  from collections import defaultdict
+  def findItinerary(self, tickets: List[List[str]]) -> List[str]:
+          ticketMap = defaultdict(list)
+          tickets.sort()
+          for dep, arr in tickets:
+              ticketMap[dep].append(arr)
+          '''
+          tickets_dict里面的内容是这样的
+           {'JFK': ['SFO', 'ATL'], 'SFO': ['ATL'], 'ATL': ['JFK', 'SFO']})
+          '''
+          
+          res = ['JFK']   # JFK is the start
+          def dfs(cur):
+              if len(res) == len(tickets) + 1: # find a valid itenary
+                  return True
+              
+              arrival = list(ticketMap[cur])   # the list of ticket arrivals
+              for arr in arrival:
+                  ticketMap[cur].pop(0)        # use this ticket (from cur to arr)
+                  res.append(arr)
+                  if dfs(arr):								 # backtrack
+                      return res
+                  res.pop()
+                  ticketMap[cur].append(arr)
+              return False
+          
+          dfs('JFK')
+          return res
+  ```
+
+  - Time complexity: $O(nlogn + n + n!)$; $O(n!)$: dfs时，从一个机场出发最多有n张票可用，到达一个新地点后还有(n-1)张票可以用 --> $n!$
+
+    Space complexity: O(n)--> create a ticketMap
