@@ -252,10 +252,11 @@
       def __init__(self, grid):
         row, col = len(grid), len(grid[0])
         n = row * col									# 构造函数，n 为图的节点总数
-        self.parent = [-1] * n
         self.count = n								# number of connected components
-        for i in range(n):    				# initialization --> 父节点指针初始指向自己
-          self.parent[i] = i
+        # self.parent = [-1] * n
+        # for i in range(n):    				# initialization --> 父节点指针初始指向自己
+          # self.parent[i] = i
+        self.parent = list(range(n))
           
       # find the root of x
       def find(self, x):
