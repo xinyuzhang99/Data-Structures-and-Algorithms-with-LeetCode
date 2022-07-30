@@ -82,4 +82,12 @@ Explanation: F(4) = F(3) + F(2) = 2 + 1 = 3.
 
   - <u>Method 2: Dynamic Programming</u>
 
-    **<font color=red>空缺！！</font>**
+    假设n = 20，递归树如下：
+    
+    <img src="https://labuladong.github.io/algo/images/%e5%8a%a8%e6%80%81%e8%a7%84%e5%88%92%e8%af%a6%e8%a7%a3%e8%bf%9b%e9%98%b6/1.jpg" alt="img" style="zoom:50%;" />
+    
+    观察递归树，很明显发现了递归算法低效的原因：存在大量重复计算，比如 `f(18)` 被计算了两次，而且你可以看到，以 `f(18)` 为根的这个递归树体量巨大，多算一遍，会耗费巨大的时间。更何况，还不止 `f(18)` 这一个节点被重复计算，所以这个算法及其低效。
+    
+    --> 使用带备忘录的递归解法
+    
+    <img src="https://labuladong.github.io/algo/images/%e5%8a%a8%e6%80%81%e8%a7%84%e5%88%92%e8%af%a6%e8%a7%a3%e8%bf%9b%e9%98%b6/2.jpg" alt="img" style="zoom:50%;" />
