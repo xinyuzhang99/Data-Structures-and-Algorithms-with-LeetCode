@@ -2,9 +2,33 @@
 
 **动态规划问题的一般形式就是求<font color=red>最值</font>**; **求解动态规划的核心问题是<font color=red>穷举</font>**。
 
-穷举所有可行解其实并不是一件容易的事，需要你熟练掌握递归思维，只有列出**正确的「状态转移方程」**，才能正确地穷举。而且，你需要判断算法问题是否**具备「最优子结构」(Optimal Substructure)**，是否能够通过子问题的最值得到原问题的最值。另外，动态规划问题**存在「重叠子问题」(Overlapping Subproblem)**，如果暴力穷举的话效率会很低，所以需要你使用*<u>「备忘录」或者「DP table」</u>*来优化穷举过程，避免不必要的计算。
+穷举所有可行解其实并不是一件容易的事，需要你熟练掌握递归思维，只有列出**正确的「状态转移方程」**，才能正确地穷举。而且，你需要判断算法问题是否**具备「最优子结构」(Optimal Substructure)**，是否能够通过子问题的最值得到原问题的最值 (**要符合「最优子结构」，子问题间必须互相<font color=red>独立</font>**)。另外，动态规划问题**存在「重叠子问题」(Overlapping Subproblem)**，如果暴力穷举的话效率会很低，所以需要你使用*<u>「备忘录」或者「DP table」</u>*来优化穷举过程，避免不必要的计算。
 
 ==[重叠子问题、最优子结构、状态转移方程]==就是动态规划三要素！
+
+求解过程：==[初始状态、终止状态、状态转移方程式]== --> 动态规划：通过方程式求出初始状态到终止状态中所有中间状态的值（存到一个数组里） ，以此求得终止状态
+
+- **动态规划五步骤: Definition --> Function formula --> Initialization --> Traversal Order --> Example**
+
+  1. 确定dp数组（dp table）以及下标的含义
+  2. 确定递推公式
+  3. dp数组如何初始化
+  4. 确定遍历顺序
+  5. 举例推导dp数组
+
+- **动态规划debug: 找问题的最好方式就是把dp数组打印出来，看看究竟是不是按照自己思路推导的！**
+
+  --> **写代码之前一定要把状态转移在dp数组的上具体情况模拟一遍，心中有数，确定最后推出的是想要的结果**。然后再写代码，如果代码没通过就打印dp数组，看看是不是和自己预先推导的哪里不一样。如果打印出来和自己预先模拟推导是一样的，那么就是自己的递归公式、初始化或者遍历顺序有问题了。如果和自己预先模拟推导的不一样，那么就是代码实现细节有问题。
+
+- **Example**
+
+  机器人从 (0, 0)走到终点，求一共有多少路径
+
+  ![IMG_904E053C688A-1](/Users/xinyuzhang/Downloads/IMG_904E053C688A-1.jpeg)
+
+  - 方程式：F(r, c) = F(r-1, c) + F(r, c-1)
+  - 初始状态：F(0, 0) = 1
+  - 终止状态：到达最后一个格子
 
 - 「状态转移方程」这个名词，实际上就是描述问题结构的数学形式（直接代表着暴力解法）:
 
@@ -95,3 +119,330 @@ for 状态1 in 状态1的所有取值：
     ```
 
     这一般是动态规划问题的最后一步优化，如果我们发现<font color=blue>**每次状态转移只需要 DP table 中的一部分**</font>，那么可以尝试缩小 DP table 的大小，只记录必要的数据，从而降低空间复杂度。--> <font color=blue>**一般来说是把一个二维的 DP table 压缩成一维，即把空间复杂度从 $O(n^2)$ 压缩到 $O(n)$**</font>
+
+- **应用：**
+
+  1. <u>计数</u>：有多少种方式/方法（机器人从左上角到右下角有多少条路径）
+  2. <u>求最值</u>：最大值/最小值（机器人从左到右路径的最大数字和）
+  3. <u>求存在性</u>：是否存在某种可能（是否存在机器人从左到右的路径）
+
+- **题型总结：**
+
+  <img src="https://camo.githubusercontent.com/624ae48228610285917d87d92baba28f9e2132199c3e266dbfb82f59acccf302/68747470733a2f2f636f64652d7468696e6b696e672e63646e2e626365626f732e636f6d2f706963732fe58aa8e68081e8a784e588922de680bbe7bb93e5a4a7e7bab2312e6a7067" alt="img" style="zoom: 33%;" />
+
+## 1. 322 [Coin Change](https://leetcode.com/problems/coin-change/description/)
+
+|  Category  |   Difficulty    |                             Tags                             |
+| :--------: | :-------------: | :----------------------------------------------------------: |
+| algorithms | Medium (40.64%) | [`dynamic-programming`](https://leetcode.com/tag/dynamic-programming) |
+
+You are given an integer array `coins` representing coins of different denominations and an integer `amount` representing a total amount of money.
+
+Return *the fewest number of coins that you need to make up that amount*. If that amount of money cannot be made up by any combination of the coins, return `-1`.
+
+You may assume that you have an infinite number of each kind of coin.
+
+**Example 1:**
+
+```
+Input: coins = [1,2,5], amount = 11
+Output: 3
+Explanation: 11 = 5 + 5 + 1
+```
+
+**Example 2:**
+
+```
+Input: coins = [2], amount = 3
+Output: -1
+```
+
+**Example 3:**
+
+```
+Input: coins = [1], amount = 0
+Output: 0
+```
+
+- **Constraints:**
+
+  - `1 <= coins.length <= 12`
+
+  - `1 <= coins[i] <= 231 - 1`
+
+  - `0 <= amount <= 104`
+
+- **Thoughts**
+
+  - Follow the five procedures of dynamic programming:
+
+    1. 确定dp数组以及下标的含义：**dp[j]：凑足总额为j所需钱币的最少个数为dp[j]**
+
+    2. 确定递推公式：`dp[j] = min(dp[j - coins[i]] + 1, dp[j])` --> 前提：`j - coins[i] >= 0`
+
+    3. dp数组如何初始化
+
+       首先凑足总金额为0所需钱币的个数一定是0，那么dp[0] = 0；
+
+       其他下标对应的数值呢？考虑到递推公式的特性，dp[j]必须初始化为一个最大的数，否则就会在`min(dp[j - coins[i]] + 1, dp[j])`比较的过程中被初始值覆盖。--> 下标非0的元素都是应该是最大值
+
+    4. 确定遍历顺序
+
+       本题求钱币最小个数，**那么钱币有顺序和没有顺序都可以，都不影响钱币的最小个数**。所以本题并不强调集合是组合还是排列。
+
+       **如果求组合数就是外层for循环遍历物品，内层for遍历背包**。
+
+       **如果求排列数就是外层for遍历背包，内层for循环遍历物品**。
+
+    5. 举例推导dp数组
+
+       以输入：coins = [1, 2, 5], amount = 5为例
+
+       <img src="https://camo.githubusercontent.com/1f86436773a97d299934ccae62025735d7c68958d4313139c75a88dcd2b6fc22/68747470733a2f2f696d672d626c6f672e6373646e696d672e636e2f32303231303230313131313833333930362e6a7067" alt="322.零钱兑换" style="zoom:50%;" />
+
+       --> dp[amount]为最终结果
+
+- **Solution**
+
+  ```python
+  class Solution:
+      # dynamic programming: optimized substructures + overlapping subproblems
+      # initial state: dp[0] = 0
+      # end state: i = amount
+      # formula: dp[i] = 1 + dp[i - coin] and find the minimum
+      def coinChange(self, coins: List[int], amount: int) -> int:
+          dp = [float('inf')] * (amount + 1)   # the maximum length of dp：[0, amount]
+          dp[0] = 0
+  
+          for i in range(1, amount + 1):
+              for c in coins:
+                  if i - c >= 0:
+                      dp[i] = min(dp[i], 1 + dp[i - c])
+          return dp[amount] if dp[amount] != float('inf') else -1
+  ```
+
+  - Time complexity: $O(amount \times len(coins))$ 
+
+    Space complexity: $O(amount + 1)$
+
+## 2. 70 [Climbing Stairs](https://leetcode.com/problems/climbing-stairs/description/)
+
+|  Category  |  Difficulty   |                             Tags                             |
+| :--------: | :-----------: | :----------------------------------------------------------: |
+| algorithms | Easy (51.14%) | [`dynamic-programming`](https://leetcode.com/tag/dynamic-programming) |
+
+You are climbing a staircase. It takes `n` steps to reach the top.
+
+Each time you can either climb `1` or `2` steps. In how many distinct ways can you climb to the top?
+
+**Example 1:**
+
+```
+Input: n = 2
+Output: 2
+Explanation: There are two ways to climb to the top.
+1. 1 step + 1 step
+2. 2 steps
+```
+
+**Example 2:**
+
+```
+Input: n = 3
+Output: 3
+Explanation: There are three ways to climb to the top.
+1. 1 step + 1 step + 1 step
+2. 1 step + 2 steps
+3. 2 steps + 1 step
+```
+
+- **Constraints:**
+  - `1 <= n <= 45`
+- **Thoughts**
+  - 根据动态规划五个步骤：确定dp数组以及下标的含义 --> 确定递推公式 --> dp数组如何初始化 --> 确定遍历顺序 --> 举例推导dp数组
+
+- **Solution**
+
+  ```python
+  def climbStairs(self, n: int) -> int:
+    if n == 1:									# 因为下面直接对dp[2]操作了，防止空指针
+      return 1
+  
+    dp = [0] * (n + 1)
+    dp[1], dp[2] = 1, 2	
+  
+    for i in range(3, n + 1):
+      dp[i] = dp[i - 1] + dp[i - 2]
+    return dp[n]
+  ```
+
+  - Time complexity: O(N)
+
+    Space complexity: O(N)
+
+  - <font color=red>**优化：减少空间复杂度，不用数组而是动态改变数值**</font>
+
+    ```python
+    def climbStairs(self, n: int) -> int:
+      if n == 1:									# 因为下面直接对dp[2]操作了，防止空指针
+        return 1
+    
+      dp1, dp2 = 1, 2	
+    
+      for i in range(3, n + 1):
+        temp = dp1 + dp2
+        dp1 = dp2
+        dp2 = temp
+      return dp2
+    ```
+
+    - Time complexity: O(N)
+
+      Space complexity: O(1)
+
+  - **<font color=red>拓展：</font>**
+
+    这道题目还可以继续深化，就是一步一个台阶，两个台阶，三个台阶，直到 m个台阶，有多少种方法爬到n阶楼顶。
+
+    ```python
+    def climbStairs(self, n: int) -> int:
+      dp = [0] * (n + 1)
+      dp[0] = 1
+    
+      for i in range(n):
+        for j in range(m):
+          if i - j >= 0:
+            dp[i] += dp[i - j]
+      return dp[n]
+    ```
+
+    --> convert to 2-D dynamic programming (similar to 62. [Unique Paths](https://leetcode.com/problems/unique-paths/description/))
+
+## 3. 746 [Min Cost Climbing Stairs](https://leetcode.com/problems/min-cost-climbing-stairs/description/)
+
+|  Category  |  Difficulty   |                  Tags                   |
+| :--------: | :-----------: | :-------------------------------------: |
+| algorithms | Easy (59.05%) | [`trie`](https://leetcode.com/tag/trie) |
+
+You are given an integer array `cost` where `cost[i]` is the cost of `ith` step on a staircase. Once you pay the cost, you can either climb one or two steps.
+
+You can either start from the step with index `0`, or the step with index `1`.
+
+Return *the minimum cost to reach the top of the floor*.
+
+**Example 1:**
+
+```
+Input: cost = [10,15,20]
+Output: 15
+Explanation: You will start at index 1.
+- Pay 15 and climb two steps to reach the top.
+The total cost is 15.
+```
+
+**Example 2:**
+
+```
+Input: cost = [1,100,1,1,1,100,1,1,100,1]
+Output: 6
+Explanation: You will start at index 0.
+- Pay 1 and climb two steps to reach index 2.
+- Pay 1 and climb two steps to reach index 4.
+- Pay 1 and climb two steps to reach index 6.
+- Pay 1 and climb one step to reach index 7.
+- Pay 1 and climb two steps to reach index 9.
+- Pay 1 and climb one step to reach the top.
+The total cost is 6. 
+```
+
+- **Constraints:**
+
+  - `2 <= cost.length <= 1000`
+
+  - `0 <= cost[i] <= 999`
+
+- **Thoughts**
+
+  根据动态规划的五个步骤：procedure: definition; function; initialization; traversal order; example
+
+  - definition: dp[i]: the minimum cost to climb to the top starting from the ith staircase. --> 表示将正整数 i 拆分成至少两个正整数的和之后，这些正整数的最大乘积
+  - function: dp[i] = cost[i] + min(dp[i-1], dp[i-2])  
+  - initialization: dp[0] = cost[0], dp[1] = cost[1]; dp[n] = 0
+  - example: 得出return smaller number of dp[-1], dp[-2]
+
+- **Solution**
+
+  ```python
+  def minCostClimbingStairs(self, cost: List[int]) -> int:
+    n = len(cost)
+    dp = [float('inf')] * n
+  
+    dp[0] = cost[0]
+    dp[1] = cost[1]
+    for i in range(2, n):
+      dp[i] = cost[i] + min(dp[i-1], dp[i-2])  
+    return min(dp[-1], dp[-2])
+  ```
+
+  - Time complexity: O(N)
+
+    Space complexity: O(N)
+
+## 4. 343 [Integer Break](https://leetcode.com/problems/integer-break/description/)
+
+|  Category  |   Difficulty    |                             Tags                             |
+| :--------: | :-------------: | :----------------------------------------------------------: |
+| algorithms | Medium (54.27%) | [`math`](https://leetcode.com/tag/math); [`dynamic-programming`](https://leetcode.com/tag/dynamic-programming) |
+
+Given an integer `n`, break it into the sum of `k` **positive integers**, where `k >= 2`, and maximize the product of those integers.
+
+Return *the maximum product you can get*.
+
+**Example 1:**
+
+```
+Input: n = 2
+Output: 1
+Explanation: 2 = 1 + 1, 1 × 1 = 1.
+```
+
+**Example 2:**
+
+```
+Input: n = 10
+Output: 36
+Explanation: 10 = 3 + 3 + 4, 3 × 3 × 4 = 36.
+```
+
+- **Constraints:**
+
+  - `2 <= n <= 58`
+
+- **Thoughts**
+
+  - 根据动态规划的五个步骤：procedure: definition; function; initialization; traversal order; example
+
+    - definition: dp[i]: the maximum product when integer is n
+    - function: valid val: [1, i]; `dp[i] = max(dp[i], val * dp[i - val], val * (i - val))`
+    - initialization: dp[2] = 1
+
+  - <font color=blue>**关键点：确定状态转移过程 --> 整数拆分有两种方案：拆成两个整数相加；拆成多个整数相加**</font>
+
+    <img src="/Users/xinyuzhang/Library/Application Support/typora-user-images/image-20220731190456346.png" alt="image-20220731190456346" style="zoom:50%;" />
+
+- **Solution**
+
+  ```python
+  def integerBreak(self, n: int) -> int:
+    dp = [0] * (n + 1)
+    dp[2] = 1
+  
+    for i in range(3, n + 1):
+      for val in range(1, i - 1):
+        dp[i] = max(dp[i], val * dp[i - val], val * (i - val))
+    return dp[n]
+  ```
+
+  - Time complexity: $O(N^2)$
+
+    Space complexity: O(N)
