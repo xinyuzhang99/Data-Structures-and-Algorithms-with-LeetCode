@@ -1,6 +1,6 @@
 # 2-D Dynamic Programming
 
-- **01背包问题🎒**
+- **01背包问题🎒 (0-1 Knapsack Problem)**
 
   ![416.分割等和子集1](https://img-blog.csdnimg.cn/20210117171307407.png)
 
@@ -89,26 +89,17 @@
 
     - ```python
       def test_2D_bag_problem1(bag_size, weight, value) -> int: 
-      	rows, cols = len(weight), bag_size + 1
-      	dp = [[0 for _ in range(cols)] for _ in range(rows)]
-          
-      	# 初始化dp数组. 
-      	for i in range(rows): 
-      		dp[i][0] = 0
-      	first_item_weight, first_item_value = weight[0], value[0]
-      	for j in range(1, cols): 	
-      		if first_item_weight <= j: 
-      			dp[0][j] = first_item_value
+      	dp = [[0] * (bagweight + 1) for i in range(len(weight))]
+      	for j in range(weight[0], bagweight + 1):
+        	dp[0][j] = value[0]
       
       	# 更新dp数组: 先遍历物品, 再遍历背包. 
-      	for i in range(1, len(weight)): 
-      		cur_weight, cur_val = weight[i], value[i]
-      		for j in range(1, cols): 
-      			if cur_weight > j: 					# 说明背包装不下当前物品. 
-      				dp[i][j] = dp[i - 1][j]  # 所以不装当前物品. 
-      			else: 
-      				# 定义dp数组: dp[i][j] 前i个物品里，放进容量为j的背包，价值总和最大是多少。
-      				dp[i][j] = max(dp[i - 1][j], dp[i - 1][j - cur_weight]+ cur_val)
+      	for i in range(1, len(weight)):		  # 遍历物品; 从1开始，因为dp[x][0]已经为0了
+        	for j in range(bagweight + 1):				# 遍历背包容量
+          	if j < weight[i]:								# weight[i]:i物品的重量
+            	dp[i][j] = dp[i - 1][j]				# 物品重量大于背包重量，物品放不进去 --> 不放物品
+          	else:
+            	dp[i][j] = max(dp[i - 1][j], dp[i - 1][j - weight[i]] + value[i])
       ```
 
   - <u>一维dp数组（滚动数组）</u>
@@ -188,22 +179,18 @@
        <img src="https://img-blog.csdnimg.cn/20210110103614769.png" alt="动态规划-背包问题9" style="zoom:50%;" />
 
     ```python
+    # weight = [1, 3, 4]
+    # value = [15, 20, 30]
+    # bag_weight = 4
     def test_1D_bag_problem():
-        weight = [1, 3, 4]
-        value = [15, 20, 30]
-        bag_weight = 4
         # 初始化: 全为0
         dp = [0] * (bag_weight + 1)
     
         # 先遍历物品, 再遍历背包容量
         for i in range(len(weight)):
-            for j in range(bag_weight, weight[i] - 1, -1):
+            for j in range(bag_weight, weight[i] - 1, -1):    #背包重量: [weight[i], bag_weight]
                 # 递归公式
                 dp[j] = max(dp[j], dp[j - weight[i]] + value[i])
-    
-        print(dp)
-    
-    test_1_wei_bag_problem()
     ```
 
 ## 1. 62 [Unique Paths](https://leetcode.com/problems/unique-paths/description/)
@@ -354,3 +341,103 @@ Output: 1
   - Time complexity: $O(mn)$
 
     Space complexity: $O(mn)$
+
+## 3. 416 [Partition Equal Subset Sum](https://leetcode.com/problems/partition-equal-subset-sum/description/)
+
+|  Category  |   Difficulty    |                             Tags                             |
+| :--------: | :-------------: | :----------------------------------------------------------: |
+| algorithms | Medium (46.47%) | [`dynamic-programming`](https://leetcode.com/tag/dynamic-programming) |
+
+Given a **non-empty** array `nums` containing **only positive integers**, find if the array can be partitioned into two subsets such that the sum of elements in both subsets is equal. 
+
+**Example 1:**
+
+```
+Input: nums = [1,5,11,5]
+Output: true
+Explanation: The array can be partitioned as [1, 5, 5] and [11].
+```
+
+**Example 2:**
+
+```
+Input: nums = [1,2,3,5]
+Output: false
+Explanation: The array cannot be partitioned into equal sum subsets.
+```
+
+- **Constraints:**
+
+  - `1 <= nums.length <= 200`
+
+  - `1 <= nums[i] <= 100`
+
+- **Thoughts**
+
+  - 这道题目是要找是否可以将这个数组分割成两个子集，使得两个子集的元素和相等。那么只要找到集合里能够出现 sum // 2 的子集总和，就算是可以分割成两个相同元素和子集了。
+
+    那么来一一对应一下本题，看看使用背包问题如何来解决。**只有确定了如下四点，才能把01背包问题套到本题上来。**
+
+    - 背包的体积为sum / 2
+    - 背包要放入的商品（集合里的元素）重量为 元素的数值，价值也为元素的数值
+    - 背包如果正好装满，说明找到了总和为 sum / 2 的子集。
+    - 背包中每一个元素是不可重复放入。
+
+  - 动规五部曲分析如下：
+
+    - definition: dp[j]: 容量为j的背包，所背的物品价值可以最大为dp[j]
+    - function: dp[j] = max[dp[j], dp[j - nums[i]] + nums[i]]
+    - initialization: dp[0] = 0
+    - traversal order: 物品遍历的for循环放在外层，遍历背包的for循环放在内层，且内层for循环倒序遍历
+    - return: dp[j]的数值一定是小于等于j的。如果dp[j] == j说明，集合中的子集总和正好可以凑成总和j
+
+- **Solution**
+
+  - <u>Method 1: Dynamic Programming (01 Knapsack Problem)</u>
+
+    ```python
+    def canPartition(self, nums: List[int]) -> bool:
+      # 和为奇数时，不可能划分成两个和相等的集合
+      if sum(nums) % 2 == 1:
+        return False
+    
+      target = sum(nums) // 2
+      ## Optimization
+      # if target in nums:
+        # return True
+      dp = [0] * (target + 1)
+      for i in range(len(nums)):
+        for j in range(target, nums[i] - 1, -1):  # bagweight: [nums[i], target]
+          dp[j] = max(dp[j], dp[j - nums[i]] + nums[i])
+    
+      return dp[target] == target	# 看集合中的元素是否可以正好凑成总和target
+    ```
+
+    - Time complexity: $O(n \times target/sum(nums))$ --> 其中 n 是数组的长度，$\textit{target}$是整个数组的元素和的一半。需要计算出所有的状态，每个状态在进行转移时的时间复杂度为O(1)。
+
+      Space complexity: $O(target)$
+
+  - <u>Method 2: use set and calculate all possible sums</u>
+
+    ```python
+    def canPartition(self, nums: List[int]) -> bool:
+      # 和为奇数时，不可能划分成两个和相等的集合
+      # edge case: the sum(nums) is odd --> cannot be split equally
+      if sum(nums) % 2 == 1:
+        return False
+    
+      ## Important!!: Items of a set in python are immutable (unchangeable) and set size cannot be changed during iteration
+      dp = set()
+      dp.add(0)
+      target = sum(nums) // 2
+      for n in nums:
+        nextDP = set(dp)
+        for val in dp:
+          nextDP.add(n + val)
+          dp = nextDP
+      return True if target in dp else False 
+    ```
+
+    - Time complexity: $O(n \times target/sum(nums))$ 
+
+      Space complexity: $O(target)$
