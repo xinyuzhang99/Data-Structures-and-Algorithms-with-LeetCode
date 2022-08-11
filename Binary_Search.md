@@ -81,7 +81,7 @@
       # 检查索引是否出界
       if (r < 0 or nums[r] != target):
         return -1
-      return l
+      return r
     ```
 
     当 `target` 比所有元素都小时，`right` 会被减到 -1，所以需要在最后防止越界：
