@@ -28,13 +28,13 @@
 
     1. 确定dp数组以及下标的含义
 
-       对于背包问题，有一种写法， 是使用二维数组，即**`dp[i][j]` 表示从下标为[0-i]的物品里任意取，放进容量为j的背包，价值总和最大是多少**。
+       对于背包问题，有一种写法， 是使用二维数组，即**`dp[i][j]` 表示从下标为[0-i]的物品里任意取，放进容量为j的背包，价值总和最大是多少**。 --> 根据这个定义，我们想求的最终答案就是 `dp[n][w]`
 
        <img src="https://img-blog.csdnimg.cn/20210110103003361.png" alt="动态规划-背包问题1" style="zoom:50%;" />
 
     2. 确定递推公式
 
-       再回顾一下`dp[i][j]`的含义：从下标为[0-i]的物品里任意取，放进容量为j的背包，价值总和最大是多少。
+       再回顾一下`dp[i][j]`的含义：对于前 `i` 个物品，当前背包的容量为 `j`，这种情况下可以装的最大价值是 `dp[i][j]`。
 
        那么可以有两个方向推出来`dp[i][j]`，
 
@@ -95,7 +95,7 @@
       
       	# 更新dp数组: 先遍历物品, 再遍历背包. 
       	for i in range(1, len(weight)):		  # 遍历物品; 从1开始，因为dp[x][0]已经为0了
-        	for j in range(bagweight + 1):				# 遍历背包容量
+        	for j in range(bagweight + 1):		# 遍历背包容量
           	if j < weight[i]:								# weight[i]:i物品的重量
             	dp[i][j] = dp[i - 1][j]				# 物品重量大于背包重量，物品放不进去 --> 不放物品
           	else:
@@ -104,11 +104,7 @@
 
   - <u>一维dp数组（滚动数组）</u>
 
-    对于背包问题其实状态都是可以压缩的。
-
-    在使用二维数组的时候，递推公式：`dp[i][j] = max(dp[i - 1][j], dp[i - 1][j - weight[i]] + value[i])`
-
-    **其实可以发现如果把dp[i - 1]那一层拷贝到dp[i]上，表达式完全可以是：`dp[i][j] = max(dp[i][j], dp[i][j - weight[i]] + value[i])`**
+    对于背包问题其实空间是可以压缩的。在使用二维数组的时候，递推公式：`dp[i][j] = max(dp[i - 1][j], dp[i - 1][j - weight[i]] + value[i])` **其实可以发现如果把dp[i - 1]那一层拷贝到dp[i]上，表达式完全可以是：`dp[i][j] = max(dp[i][j], dp[i][j - weight[i]] + value[i])`**
 
     **--> 与其把dp[i - 1]这一层拷贝到dp[i]上，不如只用一个一维数组了**，只用dp[j]（一维数组，也可以理解是一个滚动数组）。这就是滚动数组的由来，需要满足的条件是==上一层可以重复利用，直接拷贝到当前层==。
 
@@ -137,9 +133,9 @@
          for j in range(bagweight, weight[i] - 1, -1):		# 遍历背包容量
            dp[j] = max(dp[j], dp[j - weight[i]] + value[i])
        ```
-
+    
        - 二维dp遍历的时候，背包容量是从小到大，而一维dp遍历的时候，背包是从大到小。
-
+    
          --> <font color=blue>**倒序遍历是为了保证物品i只被放入一次！**</font>。但如果一旦正序遍历了，那么物品0就会被重复加入多次！
 
          举一个例子：物品0的重量weight[0] = 1，价值value[0] = 15
@@ -374,23 +370,20 @@ Explanation: The array cannot be partitioned into equal sum subsets.
 
 - **Thoughts**
 
+  <font color=blue>**[子集划分问题是一个典型的背包问题！]**</font>
+
   - 这道题目是要找是否可以将这个数组分割成两个子集，使得两个子集的元素和相等。那么只要找到集合里能够出现 sum // 2 的子集总和，就算是可以分割成两个相同元素和子集了。
 
-    那么来一一对应一下本题，看看使用背包问题如何来解决。**只有确定了如下四点，才能把01背包问题套到本题上来。**
-
-    - 背包的体积为sum / 2
-    - 背包要放入的商品（集合里的元素）重量为 元素的数值，价值也为元素的数值
-    - 背包如果正好装满，说明找到了总和为 sum / 2 的子集。
-    - 背包中每一个元素是不可重复放入。
-
+    我们可以先对集合求和，得出 `sum`，把问题转化为背包问题：**给一个可装载重量为 `sum / 2` 的背包和 `N` 个物品，每个物品的重量为 `nums[i]`。现在让你装物品，是否存在一种装法，能够恰好将背包装满**？
+  
   - 动规五部曲分析如下：
-
+  
     - definition: dp[j]: 容量为j的背包，所背的物品价值可以最大为dp[j]
-    - function: dp[j] = max[dp[j], dp[j - nums[i]] + nums[i]]
+    - function: dp[j] = max[dp[j], dp[j - nums[i]] + nums[i]]; return `dp[sum//2] = dp[target]` 
     - initialization: dp[0] = 0
     - traversal order: 物品遍历的for循环放在外层，遍历背包的for循环放在内层，且内层for循环倒序遍历
     - return: dp[j]的数值一定是小于等于j的。如果dp[j] == j说明，集合中的子集总和正好可以凑成总和j
-
+  
 - **Solution**
 
   - <u>Method 1: Dynamic Programming (01 Knapsack Problem)</u>
@@ -417,6 +410,8 @@ Explanation: The array cannot be partitioned into equal sum subsets.
 
       Space complexity: $O(target)$
 
+    - <font color=red>**关键点：需要注意的是 `j` 应该从后往前反向遍历，因为每个物品（或者说数字）只能用一次，以免之前的结果影响其他的结果**</font>
+
   - <u>Method 2: use set and calculate all possible sums</u>
 
     ```python
@@ -434,7 +429,7 @@ Explanation: The array cannot be partitioned into equal sum subsets.
         nextDP = set(dp)
         for val in dp:
           nextDP.add(n + val)
-          dp = nextDP
+        dp = nextDP
       return True if target in dp else False 
     ```
 
