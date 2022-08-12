@@ -436,3 +436,211 @@ Explanation: The array cannot be partitioned into equal sum subsets.
     - Time complexity: $O(n \times target/sum(nums))$ 
 
       Space complexity: $O(target)$
+
+## 4. 1049 [Last Stone Weight II](https://leetcode.com/problems/last-stone-weight-ii/description/)
+
+|  Category  |    Difficult    |                             Tags                             |
+| :--------: | :-------------: | :----------------------------------------------------------: |
+| algorithms | Medium (51.30%) | [`array`](https://leetcode.com/tag/array); [`greedy`](https://leetcode.com/tag/greedy) |
+
+You are given an array of integers `stones` where `stones[i]` is the weight of the `ith` stone.
+
+We are playing a game with the stones. On each turn, we choose any two stones and smash them together. Suppose the stones have weights `x` and `y` with `x <= y`. The result of this smash is:
+
+- If `x == y`, both stones are destroyed, and
+- If `x != y`, the stone of weight `x` is destroyed, and the stone of weight `y` has new weight `y - x`.
+
+At the end of the game, there is **at most one** stone left.
+
+Return *the smallest possible weight of the left stone*. If there are no stones left, return `0`.
+
+**Example 1:**
+
+```
+Input: stones = [2,7,4,1,8,1]
+Output: 1
+Explanation:
+We can combine 2 and 4 to get 2, so the array converts to [2,7,1,8,1] then,
+we can combine 7 and 8 to get 1, so the array converts to [2,1,1,1] then,
+we can combine 2 and 1 to get 1, so the array converts to [1,1,1] then,
+we can combine 1 and 1 to get 0, so the array converts to [1], then that's the optimal value.
+```
+
+**Example 2:**
+
+```
+Input: stones = [31,26,33,21,40]
+Output: 5
+```
+
+- **Constraints:**
+
+  - `1 <= stones.length <= 30`
+
+  - `1 <= stones[i] <= 100`
+
+- **Thoughts**
+
+  - 这道题目和1046. [Last Stone Weight](https://leetcode.com/problems/last-stone-weight/description/) 的区别在于：
+
+    - 1046要求每次取出最重的两块石头smash，所以考虑用最大堆解决
+    - 1049对每次smash的石头没有特殊要求，但是要使得最后的一块石头重量最小
+
+  - 我们可以将石子划分为两个堆（正号堆/负号堆）：将每次操作中「重量较大」的石子放到「正号堆」，代表在这次操作中该石子重量在「最终运算结果」中应用 + 运算符；将每次操作中「重量较少/相等」的石子放到「负号堆」，代表在这次操作中该石子重量在「最终运算结果」中应用 − 运算符
+
+    --> <font color=blue>**[任意选i块石头，使得他们的重量趋近于总重量的一半，因为这样和另一半抵消的差值就是最小的 --> 尽量让石头分成重量相同的两堆，相撞之后剩下的石头最小，这样就化解成01背包问题了]**</font>
+
+  - 遵循动态规划五个步骤
+
+    - Definition: dp[j]: 容量为j的背包
+
+    - Function: 01 Knapsack: dp[j] = max(dp[j], dp[j - weight[i]] + value[i]) 
+
+      ​				  formula: dp[j] = max(dp[j], dp[j - stones[i]] + stones[i]) -->  (dp[j - stones[i]]为 容量为j - stones[i]的背包最大所背重量)
+
+      ​				 --> <font color=red>最后一堆石头总重量为`dp[target]`，另一堆为`sum - dp[target]`，两堆石子重量之差即为相撞后最小的石头重量 --> **在计算target的时候，target = sum // 2 因为是向下取整，所以sum - dp[target] 一定是大于等于dp[target]的** --> 为`sum - dp[target] - dp[target]`</font>
+
+    - Initialization: dp[j] = 0, length = length of target (half of all possible weights)
+    - Traversal order: 遍历背包时使用倒序遍历
+
+- **Solution**
+
+  ```python
+  def lastStoneWeightII(self, stones: List[int]) -> int:
+    total = sum(stones)
+    target = total // 2
+    dp = [0] * (target + 1)
+    
+    # first traverse through all items and then through all bag weights
+    for i in range(len(stones)):
+      for j in range(target, nums[i] - 1, -1):
+        dp[j] = max(dp[j], dp[j - stones[i]] + stones[i])
+    return total - 2 * dp[target]
+  ```
+
+  - Time complexity: $O(n \times target)$ 
+
+    Space complexity: $O(target)$
+
+  - 在分析了题目并确定这是背包问题时，可发现本题和416 [Partition Equal Subset Sum]的解法几乎一样，只是最后对`dp[target]`的处理方式不同 --> 416相当于是求背包是否正好装满，而本题是求背包最多能装多少
+  - 不用考虑是否最后会留下石头，如果最后没有石头留下，则假设堆里有一个重量为0的石头即可
+
+## 5. [Target Sum](https://leetcode.com/problems/target-sum/description/)
+
+|  Category  |   Difficulty    |                             Tags                             |
+| :--------: | :-------------: | :----------------------------------------------------------: |
+| algorithms | Medium (45.41%) | [`dynamic-programming`](https://leetcode.com/tag/dynamic-programming); [`depth-first-search`](https://leetcode.com/tag/depth-first-search) |
+
+You are given an integer array `nums` and an integer `target`.
+
+You want to build an **expression** out of nums by adding one of the symbols `'+'` and `'-'` before each integer in nums and then concatenate all the integers.
+
+- For example, if `nums = [2, 1]`, you can add a `'+'` before `2` and a `'-'` before `1` and concatenate them to build the expression `"+2-1"`.
+
+Return the number of different **expressions** that you can build, which evaluates to `target`. 
+
+**Example 1:**
+
+```
+Input: nums = [1,1,1,1,1], target = 3
+Output: 5
+Explanation: There are 5 ways to assign symbols to make the sum of nums be target 3.
+-1 + 1 + 1 + 1 + 1 = 3
++1 - 1 + 1 + 1 + 1 = 3
++1 + 1 - 1 + 1 + 1 = 3
++1 + 1 + 1 - 1 + 1 = 3
++1 + 1 + 1 + 1 - 1 = 3
+```
+
+**Example 2:**
+
+```
+Input: nums = [1], target = 1
+Output: 1
+```
+
+- **Constraints:**
+
+  - `1 <= nums.length <= 20`
+
+  - `0 <= nums[i] <= 1000`
+
+  - `0 <= sum(nums[i]) <= 1000`
+
+  - `-1000 <= target <= 1000`
+
+- **Solution**
+
+  - <u>Method 1: Backtracking</u> (Brute-force)
+
+    <img src="/Users/xinyuzhang/Library/Application Support/typora-user-images/image-20220812021424524.png" alt="image-20220812021424524" style="zoom: 20%;" />
+
+    这道题目满足标准的回溯题目条件，**对于每个数字 `nums[i]`，我们可以选择给一个正号 `+` 或者一个负号 `-`**，然后利用回溯模板穷举出来所有可能的结果，数一数到底有几种组合能够凑出 `target` 
+
+    回溯过程中维护一个计数器 ，当遇到一种表达式的结果等于目标数 $\textit{target}$时，将计数器的值加 1。
+
+    ```python
+    def findTargetSumWays(self, nums: List[int], target: int) -> int:
+      n = len(nums)
+      self.res = 0
+      
+      def backtrack(i, total):   # index
+        if i == n and total == target:
+          self.res += 1
+          return
+        
+        if i < n:
+          # +1
+          total += nums[i]
+          backtrack(i + 1, total)
+          total -= nums[i]
+    
+          # -1
+          total -= nums[i]
+          backtrack(i + 1, total)
+          total += nums[i]
+      backtrack(0, 0)
+      return self.res
+    ```
+
+    - Time complexity: $O(2^n)$ --> 回溯需要遍历所有不同的表达式，共有$2^n$种不同的表达式，每种表达式计算结果需要O(1)的时间，因此总时间复杂度为 $O(2^n)$ --> very low efficiency
+
+      Space complexity: $O(n)$ --> stack memory for recursion function
+
+  - <u>Method 2: Dynamic Programming with Memoziation</u>
+
+    --> 从上面的decision tree可以看出，在回溯的过程中有可能存在多个重叠子问题影响计算效率 --> 使用一个memo记录对于每一个 `(index, total)` pair所包含的`number of expressions` --> `memo[(i, total)] = dp(i + 1, total + nums[i]) + dp(i + 1, total - nums[i])`
+
+    ```python
+    def findTargetSumWays(self, nums: List[int], target: int) -> int:
+      memo = {}
+      
+      def dp(i, total):
+        if i == len(nums):
+          return 1 if total == target else 0
+        if (i, total) in memo:
+          return memo[(i, total)]
+        
+        memo[(i, total)] = dp(i + 1, total + nums[i]) + dp(i + 1, total - nums[i])
+      	return memo[(i, total)]
+      return dp(0, 0)
+    ```
+
+    Time complexity: $O(n * total)$
+
+    Space complexity: $O(n)$ 
+
+  - <u>==Method 3: 0-1 Knapsack Problem==</u>
+
+    - 分析题目可知，该题目和1049. [Last Stone Weight II ](https://leetcode.com/problems/last-stone-weight-ii/description/)十分相似，都是分别将正号 `+` 或者负号 `-`分成两堆 --> 这个问题可以转化为一个子集划分问题，而子集划分问题又是一个典型的背包问题
+
+      首先，如果我们把 `nums` 划分成两个子集 `A` 和 `B`，分别代表分配 `+` 的数和分配 `-` 的数，那么他们和 `target` 存在如下关系：
+
+      ```python
+      sum(A) - sum(B) = target
+      sum(A) = target + sum(B)
+      sum(A) + sum(A) = target + sum(B) + sum(A)
+      2 * sum(A) = target + sum(nums)
+      ```
+
+      综上，可以推出 `sum(A) = (target + sum(nums)) / 2`，也就是把原问题转化成：**`nums` 中存在几个子集 `A`，使得 `A` 中元素的和为 `(target + sum(nums)) / 2`**？
