@@ -525,7 +525,7 @@ Output: 5
   - 在分析了题目并确定这是背包问题时，可发现本题和416 [Partition Equal Subset Sum]的解法几乎一样，只是最后对`dp[target]`的处理方式不同 --> 416相当于是求背包是否正好装满，而本题是求背包最多能装多少
   - 不用考虑是否最后会留下石头，如果最后没有石头留下，则假设堆里有一个重量为0的石头即可
 
-## 5. 494 [Target Sum](https://leetcode.com/problems/target-sum/description/)
+## 5. 494 Add [Target Sum](https://leetcode.com/problems/target-sum/description/)
 
 |  Category  |   Difficulty    |                             Tags                             |
 | :--------: | :-------------: | :----------------------------------------------------------: |
