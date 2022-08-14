@@ -1,6 +1,6 @@
 # 2-D Dynamic Programming
 
-- **01背包问题🎒 (0-1 Knapsack Problem)**
+- ==**01背包问题🎒 (0-1 Knapsack Problem)**==
 
   ![416.分割等和子集1](https://img-blog.csdnimg.cn/20210117171307407.png)
 
@@ -108,6 +108,10 @@
 
     **--> 与其把dp[i - 1]这一层拷贝到dp[i]上，不如只用一个一维数组了**，只用dp[j]（一维数组，也可以理解是一个滚动数组）。这就是滚动数组的由来，需要满足的条件是==上一层可以重复利用，直接拷贝到当前层==。
 
+    <img src="https://labuladong.github.io/algo/images/%e7%8a%b6%e6%80%81%e5%8e%8b%e7%bc%a9/1.jpeg" alt="img" style="zoom: 33%;" />
+
+    <img src="https://labuladong.github.io/algo/images/%e7%8a%b6%e6%80%81%e5%8e%8b%e7%bc%a9/2.jpeg" alt="img" style="zoom:33%;" />
+
     <img src="https://pic.leetcode-cn.com/1622938646-fiOLSL-image.png" alt="image.png" style="zoom:33%;" />
 
     1. 确定dp数组的定义
@@ -129,13 +133,13 @@
        dp[j]表示：容量为j的背包，所背的物品价值可以最大为dp[j]，那么dp[0]就应该是0，因为背包容量为0所背的物品的最大价值就是0。假设物品价值都是大于0的，所以dp数组初始化的时候，都初始为0就可以了
 
     4. 一维dp数组遍历顺序
-
+    
        ```python
        for i in range(len(weight)):		  # 遍历物品; 从1开始，因为dp[0]已经为0了
          for j in range(bagweight, weight[i] - 1, -1):		# 遍历背包容量
            dp[j] = max(dp[j], dp[j - weight[i]] + value[i])
        ```
-    
+
        - 二维dp遍历的时候，背包容量是从小到大，而一维dp遍历的时候，背包是从大到小。
 
          --> <font color=blue>**倒序遍历是为了保证物品i只被放入一次！**</font>。但如果一旦正序遍历了，那么物品0就会被重复加入多次！
@@ -175,7 +179,7 @@
     5. 举例推导dp数组
 
        <img src="https://img-blog.csdnimg.cn/20210110103614769.png" alt="动态规划-背包问题9" style="zoom:50%;" />
-
+    
     ```python
     # weight = [1, 3, 4]
     # value = [15, 20, 30]
@@ -190,6 +194,19 @@
                 # 递归公式
                 dp[j] = max(dp[j], dp[j - weight[i]] + value[i])
     ```
+
+- ==**完全背包问题🎒 (Complete Knapsack Problem)**==
+
+  有N件物品和一个最多能背重量为W的背包。第i件物品的重量是weight[i]，得到的价值是value[i] 。**每件物品都有无限个（也就是可以放入背包多次）**，求解将哪些物品装入背包里物品价值总和最大。--> <font color=blue>**完全背包和01背包问题唯一不同的地方就是，每种物品有无限件，在代码里体现在遍历顺序上的不同**。</font>
+
+  01背包内嵌的循环是从大到小遍历，为了保证每个物品仅被添加一次。而完全背包的物品是可以添加多次的，所以要从小到大去遍历，即：
+
+  ```python
+  # 先遍历物品，再遍历背包
+  for i in range(len(weight)):
+    for j in range(weight[i], bagweight + 1):
+      dp[j] = max(dp[j], dp[j - weight[i]] + value[i])
+  ```
 
 ## 1. 62 [Unique Paths](https://leetcode.com/problems/unique-paths/description/)
 
@@ -771,3 +788,87 @@ Explanation: The largest subset is {"0", "1"}, so the answer is 2.
   - Time complexity: $O(len(strs) * m * n)$
 
     Space complexity: $O(m * n)$ 
+
+## 7. 518 [Coin Change 2](https://leetcode.com/problems/coin-change-2/description/)
+
+|  Category  |   Difficulty    |                     Tags                      |
+| :--------: | :-------------: | :-------------------------------------------: |
+| algorithms | Medium (57.79%) | [`Unknown`](https://leetcode.com/tag/Unknown) |
+
+You are given an integer array `coins` representing coins of different denominations and an integer `amount` representing a total amount of money.
+
+Return *the number of combinations that make up that amount*. If that amount of money cannot be made up by any combination of the coins, return `0`.
+
+You may assume that you have an infinite number of each kind of coin.
+
+The answer is **guaranteed** to fit into a signed **32-bit** integer.
+
+**Example 1:**
+
+```
+Input: amount = 5, coins = [1,2,5]
+Output: 4
+Explanation: there are four ways to make up the amount:
+5=5
+5=2+2+1
+5=2+1+1+1
+5=1+1+1+1+1
+```
+
+**Example 2:**
+
+```
+Input: amount = 3, coins = [2]
+Output: 0
+Explanation: the amount of 3 cannot be made up just with coins of 2.
+```
+
+**Example 3:**
+
+```
+Input: amount = 10, coins = [10]
+Output: 1
+```
+
+- **Constraints:**
+
+  - `1 <= coins.length <= 300`
+
+  - `1 <= coins[i] <= 5000`
+
+  - All the values of `coins` are **unique**.
+
+  - `0 <= amount <= 5000`
+
+- **Thoughts**
+
+  遵循动态规划五部曲：
+
+  - definition: dp[j]: number of combinations to make amout j
+
+  - function: 如果没使用这个面值的硬币，凑出面额 j 的方法数 dp[j] 应该等于 dp[j]，继承之前的结果
+
+    ​                如果使用这个面值的硬币，那么就应该关注如何凑出金额 j - coins[i-1]
+
+    --> `dp[j] = dp[j] + dp[j - coins[i]]` 将两种情况的数量相加（一共应该是n中方法）
+
+  - initialization: dp[0] = 1 --> <font color=red>初始化为0大小的背包, 当然是不装任何东西了, 就是1种方法</font>
+
+  - traversal order: both in order
+
+- **Solution**
+
+  ```python
+  def change(self, amount: int, coins: List[int]) -> int:
+    dp = [0] * (amount + 1)
+    dp[0] = 1
+  
+    for i in range(len(coins)):
+      for j in range(coins[i], amount + 1):
+        dp[j] = dp[j] + dp[j - coins[i]]
+    return dp[amount]
+  ```
+
+  - Time complexity: $O(n \times amount)$
+
+    Space complexity: $O(amount)$ 
