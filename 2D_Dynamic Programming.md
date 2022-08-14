@@ -108,6 +108,8 @@
 
     **--> 与其把dp[i - 1]这一层拷贝到dp[i]上，不如只用一个一维数组了**，只用dp[j]（一维数组，也可以理解是一个滚动数组）。这就是滚动数组的由来，需要满足的条件是==上一层可以重复利用，直接拷贝到当前层==。
 
+    <img src="https://pic.leetcode-cn.com/1622938646-fiOLSL-image.png" alt="image.png" style="zoom:33%;" />
+
     1. 确定dp数组的定义
 
        在一维dp数组中，dp[j]表示：一维dp数组的递推公式最大为dp[j]。
@@ -135,7 +137,7 @@
        ```
     
        - 二维dp遍历的时候，背包容量是从小到大，而一维dp遍历的时候，背包是从大到小。
-    
+
          --> <font color=blue>**倒序遍历是为了保证物品i只被放入一次！**</font>。但如果一旦正序遍历了，那么物品0就会被重复加入多次！
 
          举一个例子：物品0的重量weight[0] = 1，价值value[0] = 15
@@ -684,6 +686,88 @@ Output: 1
       return dp[target_new]
     ```
 
-    - Time complexity: $O(n * target_new)$
+    - Time complexity: $O(n * targetNew)$
 
-      Space complexity: $O(target_new)$ 
+      Space complexity: $O(targetNew)$ 
+
+## 6. 474 [Ones and Zeroes](https://leetcode.com/problems/ones-and-zeroes/description/)
+
+|  Category  |   Difficulty    |                             Tags                             |
+| :--------: | :-------------: | :----------------------------------------------------------: |
+| algorithms | Medium (46.52%) | [`dynamic-programming`](https://leetcode.com/tag/dynamic-programming) |
+
+You are given an array of binary strings `strs` and two integers `m` and `n`.
+
+Return *the size of the largest subset of `strs` such that there are **at most*** `m` `0`*'s and* `n` `1`*'s in the subset*.
+
+A set `x` is a **subset** of a set `y` if all elements of `x` are also elements of `y`.
+
+**Example 1:**
+
+```
+Input: strs = ["10","0001","111001","1","0"], m = 5, n = 3
+Output: 4
+Explanation: The largest subset with at most 5 0's and 3 1's is {"10", "0001", "1", "0"}, so the answer is 4.
+Other valid but smaller subsets include {"0001", "1"} and {"10", "1", "0"}.
+{"111001"} is an invalid subset because it contains 4 1's, greater than the maximum of 3.
+```
+
+**Example 2:**
+
+```
+Input: strs = ["10","0","1"], m = 1, n = 1
+Output: 2
+Explanation: The largest subset is {"0", "1"}, so the answer is 2.
+```
+
+- **Constraints:**
+
+  - `1 <= strs.length <= 600`
+
+  - `1 <= strs[i].length <= 100`
+
+  - `strs[i]` consists only of digits `'0'` and `'1'`.
+
+  - `1 <= m, n <= 100`
+
+- **Thoughts**
+
+  - 这道题和经典的背包问题非常相似，但是和经典的背包问题只有一种容量不同，这道题有两种容量，即选取的字符串子集中的 0 和 1 的数量上限。--> 即本题的背包重量有两维，需要同时考虑m和n；每一个元素（即字符串）都只有一个，所以该题为01背包问题
+
+  - 遵循动态规划五部曲：
+
+    - definition: `dp[i][j]`: the size of the largest subset with i 0's and j 1's
+
+    - function: at each time, the object of the backpack is a string --> add the string --> add `zeroNum` 0's and `oneNum` 1's
+
+      --> `dp[i][j] = max(dp[i][j], dp[i-zeroNum][j-oneNum] + 1)` + <font color=blue>[记得在遍历物品是记录每一个字符串0和1的数量]</font>font>
+
+    - initialization: as each cell means the size --> `dp[i][j]` = 0
+
+    - traversal order: 1. traverse object(each string) in order 2. traverse the two backpacks in reverse order
+
+- **Solution**
+
+  ```python
+  def findMaxForm(self, strs: List[str], m: int, n: int) -> int:
+          dp = [[0] * (n + 1) for _ in range(m + 1)]
+  
+          for s in strs:
+              # for each string, count the number of 0 and 1
+              zeroNum, oneNum = 0, 0
+              for char in s:
+                  if char == '0':
+                      zeroNum += 1
+                  else:
+                      oneNum += 1
+              
+              for i in range(m, zeroNum - 1, -1): # i: [zeroNum, m]
+                  for j in range(n, oneNum - 1, -1):
+                      dp[i][j] = max(dp[i][j], dp[i - zeroNum][j - oneNum] + 1)
+          
+          return dp[m][n]
+  ```
+
+  - Time complexity: $O(len(strs) * m * n)$
+
+    Space complexity: $O(m * n)$ 
