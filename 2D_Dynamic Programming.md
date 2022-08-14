@@ -644,3 +644,46 @@ Output: 1
       ```
 
       综上，可以推出 `sum(A) = (target + sum(nums)) / 2`，也就是把原问题转化成：**`nums` 中存在几个子集 `A`，使得 `A` 中元素的和为 `(target + sum(nums)) / 2`**？
+
+      <font color=blue>**[Edge Cases]: **`(target + sum(nums)) / 2`如果为奇数，则此时无法找到方案，方案数为0; 2. 如果`abs(target) > sum(nums)`, 则即使全为正号或全为负号也无法构成target --> 这两种情况是edge cases!</font> --> 
+
+    - 遵循动态规划五个步骤:
+
+      - Definition：dp[j] 表示：填满j（包括j）这么大容积的包，有dp[j]种方法
+
+      - Function: 
+
+        如果不把 `nums[i]` 算入子集，**或者说你不把这第 `i` 个物品装入背包**，那么恰好装满背包的方法数就取决于上一个状态 `dp[i-1][j]`，继承之前的结果。
+
+        如果把 `nums[i]` 算入子集，**或者说你把这第 `i` 个物品装入了背包**，那么只要看前 `i - 1` 个物品有几种方法可以装满 `j - nums[i-1]` 的重量就行了，所以取决于状态 `dp[i-1][j-nums[i-1]]`。
+
+        例如：dp[j]，j 为5，
+
+        - 已经有一个1（nums[i]） 的话，有 dp[4]种方法 凑成 dp[5]。
+        - 已经有一个2（nums[i]） 的话，有 dp[3]种方法 凑成 dp[5]。
+        - 已经有一个3（nums[i]） 的话，有 dp[2]中方法 凑成 dp[5]
+        - 已经有一个4（nums[i]） 的话，有 dp[1]中方法 凑成 dp[5]
+        - 已经有一个5 （nums[i]）的话，有 dp[0]中方法 凑成 dp[5]
+
+        --> 公式：`dp[j] += dp[j - nums[i]]`
+
+    ```python
+    def findTargetSumWays(self, nums: List[int], target: int) -> int:
+      total = sum(nums)
+      # edge case
+      if abs(target) > total or (target + total) % 2 == 1:
+        return 0
+    
+      target_new = (target + total) // 2
+      dp = [0] * (target_new + 1)
+      dp[0] = 1
+    
+      for i in range(len(nums)):                      # 遍历所有物品
+        for j in range(target_new, nums[i] - 1, -1):  # 遍历背包
+          dp[j] += dp[j - nums[i]] # dp[j]: not add nums[i]; dp[j-nums[i]]: add nums[i] into the backpack
+      return dp[target_new]
+    ```
+
+    - Time complexity: $O(n * target_new)$
+
+      Space complexity: $O(target_new)$ 
