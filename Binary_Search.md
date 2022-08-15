@@ -389,7 +389,7 @@ Output: false
   ```python
   class Solution:
       def searchMatrix(self, matrix: List[List[int]], target: int) -> bool:
-          # S1: convert the 2D matrix to 1D array
+          # S1: suppose there is an original 1D array and convert to 2D array: x = index//col; y = index%col
           # S2: apply binary search to find the target value   
   
           if (matrix is None or len(matrix) == 0):
@@ -463,6 +463,10 @@ Output: 23
 
   - 由于吃香蕉的速度和是否可以在规定时间内吃掉所有香蕉之间存在单调性，因此可以使用二分查找的方法得到最小速度 k。
   - 这道题的重点是确定吃香蕉的速度范围 --> 由于每小时都要吃香蕉，即每小时至少吃 1 个香蕉，因此二分查找的下界是 1；由于每小时最多吃一堆香蕉，即每小时吃的香蕉数目不会超过最多的一堆中的香蕉数目，因此二分查找的上界是最多的一堆中的香蕉数目 `max(piles)`。
+  - <u>Procedures:</u>
+    - For each speed, count the total hour for Koko eating all bananas
+    - If the total hour satisfies the condition (<= h), set the result to be the minimum of current speed k and the previous res; As the current k satisfies the condition, decrease the speed to the left portion--> check to see if can find a smaller k --> `r = k - 1`
+    - Not satisfy the condition --> increase speed to the right portion `l = k + 1`
 
 - **Solution**
 
@@ -566,7 +570,7 @@ Output: -1
         if nums[l] <= target < nums[m]:   # target is in the left portion 
           r = m - 1             # search in the left portion
         else:
-          l + m + 1             # search in the right portion
+          l = m + 1             # search in the right portion
       else:                     # right portion是有序数组 --> nums[m] <= target <= nums[r]
         if nums[m] < target <= nums[r]:
           l = m + 1             # search in the right portion
@@ -627,9 +631,13 @@ timeMap.get("foo", 5);         // return "bar2"
 - **Thoughts**
 
   - 为实现 `get` 操作，我们需要用一个哈希表存储 `set` 操作传入的数据。具体地，哈希表的键为字符串 `key`，值为一个二元组列表，二元组中存储的是时间戳 `timestamp` 和值 `value`。
+  
+  
+    - 关键点：由于set 操作中的时间戳都是严格递增的，因此二元组列表中保存的时间戳也是严格递增的 --> sorted array --> binary search
+  
+    - We use hash map to lookup ordered `{timestamp, value}` pairs by key in O(1). Then, we use binary search to find the value with a timestamp less or equal than the requested one.
+  
 
-
-  - 关键点：由于set 操作中的时间戳都是严格递增的，因此二元组列表中保存的时间戳也是严格递增的 --> sorted array --> binary search
 
 - **Solution**
 
