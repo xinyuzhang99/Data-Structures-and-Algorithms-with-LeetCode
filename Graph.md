@@ -311,27 +311,28 @@
         rootY = self.find(y)
         if rootX != rootY:
           # 将两棵树合并为一棵, 小树接到大树下面，较平衡
-          if self.rank[rootX] > self.rank[rootY]:			# 此时Y是小树，将x所在的树接到y所在树的根节点下
+          if self.rank[rootX] > self.rank[rootY]:			# 此时Y是小树，将y所在的小树接到x所在大树的根节点下
             self.parent[rootY] = rootX
-            self.rank[rootY] += self.rank[rootX]
+            self.rank[rootX] += self.rank[rootY]
           else:																				# 此时X是小树
             self.parent[rootX] = rootY
-            self.rank[rootX] += self.rank[rootY]
+            self.rank[rootY] += self.rank[rootX]
           self.count -= 1							 # 两个分量合二为一
     ```
 
     这样，通过比较树的重量，就可以保证树的生长相对平衡，树的高度大致在 `logN` 这个数量级，极大提升执行效率。此时，`find` , `union` , `connected` 的时间复杂度都下降为 O(logN)，即便数据规模上亿，所需时间也非常少。
 
-  - <u>路径压缩</u>: 进一步压缩每棵树的高度，使树高始终保持为常数 --> 这样每个节点的父节点就是整棵树的根节点，`find` 就能以 O(1) 的时间找到某一节点的根节点，相应的，`connected` 和 `union` 复杂度都下降为 O(1)。<font color=blue>**[Quick Find]**</font>
+    - <u>路径压缩</u>: 进一步压缩每棵树的高度，使树高始终保持为常数 --> 这样每个节点的父节点就是整棵树的根节点，`find` 就能以 O(1) 的时间找到某一节点的根节点，相应的，`connected` 和 `union` 复杂度都下降为 $O(\alpha(n))$。<font color=blue>**[Quick Find]**</font>
 
+  
     第一种方法：
-
+  
     <img src="https://labuladong.github.io/algo/images/unionfind/9.gif" alt="img" style="zoom:50%;" />
-
+  
     第二种方法：
-
+  
     <img src="https://labuladong.github.io/algo/images/unionfind/10.jpeg" alt="img" style="zoom:50%;" />
-
+  
     ```python
     def find(self, x):
         while (self.parent[x] != x):
@@ -346,9 +347,9 @@
           self.parent[x] = self.find(self.parent[x])
         return self.parent[x]
     ```
-
+  
   - <u>Summary Coding Template:</u>
-
+  
     ```python
     class UnionFind:
       def __init__(self, grid):
@@ -380,17 +381,17 @@
         rootY = self.find(y)
         return rootX == rootY
     ```
-
+  
     - <img src="/Users/xinyuzhang/Library/Application Support/typora-user-images/image-20220725155049695.png" alt="image-20220725155049695" style="zoom:50%;" />
-
+  
     - 构造函数初始化数据结构需要 O(N) 的时间和空间复杂度；连通两个节点 `union`、判断两个节点的连通性 `connected`、计算连通分量 `count` 所需的时间复杂度均为 O(1)。
-
+  
     - 总结一下我们优化算法的过程：
-
+  
       1、用 `root` 数组记录每个节点的父节点，相当于指向父节点的指针，所以 `root` 数组内实际存储着一个森林（若干棵多叉树）。
-
+  
       2、用 `size` 数组记录着每棵树的重量，目的是让 `union` 后树依然拥有平衡性，保证各个 API 时间复杂度为 O(logN)，而不会退化成链表影响操作效率。
-
+  
       3、在 `find` 函数中进行路径压缩，保证任意树的高度保持在常数，使得各个 API 时间复杂度为 O(1)。使用了路径压缩之后，可以不使用 `size` 数组的平衡优化。
 
 ## 1. 200 [Number of Islands](https://leetcode.com/problems/number-of-islands/description/)
