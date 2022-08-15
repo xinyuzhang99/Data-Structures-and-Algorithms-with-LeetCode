@@ -73,7 +73,6 @@
             self.graph[vertex].append(edge)
     ```
   
-
 - **图的遍历**
 
   --> 参考多叉树的 DFS 遍历!
@@ -157,6 +156,7 @@
   # 二维矩阵遍历框架
   # Version 1: cannot change the original values in the grid
   dir = [[1, 0], [-1, 0], [0, 1], [0, -1]]
+  visited = set()
   def dfs(grid, r, c, visited):
     m = len(grid)									# row
     n = len(grid[0])							# column
