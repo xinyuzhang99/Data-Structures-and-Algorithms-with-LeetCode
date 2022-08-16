@@ -1164,3 +1164,89 @@ Output: ["a","b","c"]
     Space complexity: $O(m+n)$
 
     <img src="/Users/xinyuzhang/Library/Application Support/typora-user-images/image-20220714185032162.png" alt="image-20220714185032162" style="zoom:50%;" />
+
+## 13. 140 [Word Break II](https://leetcode.com/problems/word-break-ii/description/)
+
+|  Category  |  Difficulty   |                             Tags                             |
+| :--------: | :-----------: | :----------------------------------------------------------: |
+| algorithms | Hard (42.40%) | [`dynamic-programming`](https://leetcode.com/tag/dynamic-programming); [`backtracking`](https://leetcode.com/tag/backtracking) |
+
+Given a string `s` and a dictionary of strings `wordDict`, add spaces in `s` to construct a sentence where each word is a valid dictionary word. Return all such possible sentences in **any order**.
+
+**Note** that the same word in the dictionary may be reused multiple times in the segmentation.
+
+**Example 1:**
+
+```
+Input: s = "catsanddog", wordDict = ["cat","cats","and","sand","dog"]
+Output: ["cats and dog","cat sand dog"]
+```
+
+**Example 2:**
+
+```
+Input: s = "pineapplepenapple", wordDict = ["apple","pen","applepen","pine","pineapple"]
+Output: ["pine apple pen apple","pineapple pen apple","pine applepen apple"]
+Explanation: Note that you are allowed to reuse a dictionary word.
+```
+
+**Example 3:**
+
+```
+Input: s = "catsandog", wordDict = ["cats","dog","sand","and","cat"]
+Output: []
+```
+
+- **Constraints:**
+
+  - `1 <= s.length <= 20`
+
+  - `1 <= wordDict.length <= 1000`
+
+  - `1 <= wordDict[i].length <= 10`
+
+  - `s` and `wordDict[i]` consist of only lowercase English letters.
+
+  - All the strings of `wordDict` are **unique**.
+
+- **Thoughts**
+
+  - 这道题目和11. 131 [Palindrome Partitioning](https://leetcode.com/problems/palindrome-partitioning/description/)很类似，都是切割字符串，解法基本一致
+
+  - 每次写「回溯」题目时，就要思考三个问题：
+
+    - **路径**：已经做出的选择 --> 每一步从 `wordDict` 中选择的单词集合
+    - **选择列表**：当前可以做的选择 --> `wordDict` 中的单词集合
+    - **结束条件**：到达决策树底层，无法再做选择的条件 --> 把 `s` 全部遍历完之后就可以结束      
+
+  - 本题是「力扣」第 139 题 单词拆分 的追问题目;如果问「一个问题的所有的具体解」，一般而言使用回溯算法完成。
+
+    <font color=red>**动态规划求是否有解、回溯算法求所有具体解!!**</font>
+
+- **Solution**
+
+  ```python
+  def wordBreak(self, s: str, wordDict: List[str]) -> List[str]:
+    res = []
+    path = []
+  
+    def backtrack(start):
+      if start == len(s):
+        res.append(' '.join(path[:]))
+        return
+  
+      for i in range(start, len(s)):
+        temp = s[start:i+1]						# 当前字符串[start:i]
+        if temp not in wordDict:
+          continue
+        else:
+          path.append(temp)
+          backtrack(start + len(temp))
+          path.pop()
+     backtrack(0)
+     return res
+  ```
+
+  - Time complexity: $O(N \times 2^N) = O(N \times 2^N)$  --> there are in total $2^N$ possible situations and each word has an average length N
+
+    Space complexity: $O(2 * N)$
