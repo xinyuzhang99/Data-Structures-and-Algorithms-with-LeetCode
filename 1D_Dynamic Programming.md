@@ -4,11 +4,11 @@
 
 穷举所有可行解其实并不是一件容易的事，需要你熟练掌握递归思维，只有列出**正确的「状态转移方程」**，才能正确地穷举。而且，你需要判断算法问题是否**具备「最优子结构」(Optimal Substructure)**，是否能够通过子问题的最值得到原问题的最值 (**要符合「最优子结构」，子问题间必须互相<font color=red>独立</font>**)。另外，动态规划问题**存在「重叠子问题」(Overlapping Subproblem)**，如果暴力穷举的话效率会很低，所以需要你使用*<u>「备忘录」或者「DP table」</u>*来优化穷举过程，避免不必要的计算。
 
-==[重叠子问题、最优子结构、状态转移方程]==就是动态规划三要素！
+==[重叠子问题、最优子结构、状态转移方程 (State Transition Equation)]==就是动态规划三要素！
 
 求解过程：==[初始状态、终止状态、状态转移方程式]== --> 动态规划：通过方程式求出初始状态到终止状态中所有中间状态的值（存到一个数组里） ，以此求得终止状态
 
-- **动态规划五步骤: Definition --> Function formula --> Initialization --> Traversal Order --> Example**
+- **动态规划五步骤: Definition --> Equation --> Initialization --> Traversal Order --> Example**
 
   1. 确定dp数组（dp table）以及下标的含义
   2. 确定递推公式
@@ -35,24 +35,26 @@
   <img src="https://labuladong.github.io/algo/images/%e5%8a%a8%e6%80%81%e8%a7%84%e5%88%92%e8%af%a6%e8%a7%a3%e8%bf%9b%e9%98%b6/fib.png" alt="img" style="zoom: 50%;" />
 
   状态转移方程思维框架：**明确 base case -> 明确「状态」-> 明确「选择」 -> 定义 `dp` 数组/函数的含义**。
-
-```python
-# 自顶向下递归的动态规划: Top-Down with Memoization
-def dp(状态1, 状态2, ...):
-    for 选择 in 所有可能的选择:
-        # 此时的状态已经因为做了选择而改变
-        result = 求最值(result, dp(状态1, 状态2, ...))
-    return result
-
-# 自底向上迭代的动态规划: Bottom-Up with Tabulations
-# 初始化 base case
-dp[0][0][...] = base case
-# 进行状态转移
-for 状态1 in 状态1的所有取值：
-    for 状态2 in 状态2的所有取值：
-        for ...
-            dp[状态1][状态2][...] = 求最值(选择1，选择2...)
-```
+  
+  ```python
+  # 自顶向下递归的动态规划: Top-Down with Memoization
+  def dp(状态1, 状态2, ...):
+      for 选择 in 所有可能的选择:
+          # 此时的状态已经因为做了选择而改变
+          result = 求最值(result, dp(状态1, 状态2, ...))
+      return result
+  
+  # 自底向上迭代的动态规划: Bottom-Up with Tabulations
+  # 初始化 base case
+  dp[0][0][...] = base case
+  # 进行状态转移
+  for 状态1 in 状态1的所有取值：
+      for 状态2 in 状态2的所有取值：
+          for ...
+              dp[状态1][状态2][...] = 求最值(选择1，选择2...)
+  ```
+  
+  - 在01背包问题中，**状态有两个，就是「背包的容量」和「可选择的物品」**； 选择也有两个，**「装进背包」或者「不装进背包」**
 
 - **带备忘录自顶向下的递归解法 (Top-Down with Memoization)**
 
@@ -305,6 +307,7 @@ Explanation: There are three ways to climb to the top.
     这道题目还可以继续深化，就是一步一个台阶，两个台阶，三个台阶，直到 m个台阶，有多少种方法爬到n阶楼顶。
 
     ```python
+    # Complete Knapsack 完全背包
     def climbStairs(self, n: int) -> int:
       dp = [0] * (n + 1)
       dp[0] = 1
@@ -315,7 +318,7 @@ Explanation: There are three ways to climb to the top.
             dp[i] += dp[i - j]
       return dp[n]
     ```
-
+    
     --> convert to 2-D dynamic programming (similar to 62. [Unique Paths](https://leetcode.com/problems/unique-paths/description/))
 
 ## 3. 746 [Min Cost Climbing Stairs](https://leetcode.com/problems/min-cost-climbing-stairs/description/)
@@ -420,7 +423,7 @@ Explanation: 10 = 3 + 3 + 4, 3 × 3 × 4 = 36.
 
 - **Thoughts**
 
-  - 根据动态规划的五个步骤：procedure: definition; function; initialization; traversal order; example
+  - 根据动态规划的五个步骤：definition; function; initialization; traversal order; example
 
     - definition: dp[i]: the maximum product when integer is n
     - function: valid val: [1, i]; `dp[i] = max(dp[i], val * dp[i - val], val * (i - val))`
@@ -446,3 +449,176 @@ Explanation: 10 = 3 + 3 + 4, 3 × 3 × 4 = 36.
   - Time complexity: $O(N^2)$
 
     Space complexity: O(N)
+
+## 4. 96 [Unique Binary Search Trees](https://leetcode.com/problems/unique-binary-search-trees/description/)
+
+|  Category  |   Difficulty    |                             Tags                             |
+| :--------: | :-------------: | :----------------------------------------------------------: |
+| algorithms | Medium (58.43%) | [`dynamic-programming`](https://leetcode.com/tag/dynamic-programming); [`tree`](https://leetcode.com/tag/tree) |
+
+Given an integer `n`, return *the number of structurally unique **BST'**s (binary search trees) which has exactly* `n` *nodes of unique values from* `1` *to* `n`.
+
+**Example 1:**
+
+<img src="https://assets.leetcode.com/uploads/2021/01/18/uniquebstn3.jpg" alt="img" style="zoom:50%;" />
+
+```
+Input: n = 3
+Output: 5
+```
+
+**Example 2:**
+
+```
+Input: n = 1
+Output: 1
+```
+
+- **Constraints:**
+
+  - `1 <= n <= 19`
+
+- **Thoughts**
+
+  - 根据题目举例。比如给算法输入`n = 5`，也就是说用`{1,2,3,4,5}`这些数字去构造 BST。首先，这棵 BST 的根节点总共有几种情况？显然有 5 种情况对吧，因为每个数字都可以作为根节点。比如说我们固定`3`作为根节点，这个前提下能有几种不同的 BST 呢？根据 BST 的特性，根节点的左子树都比根节点的值小，右子树的值都比根节点的值大。所以如果固定`3`作为根节点，左子树节点就是`{1,2}`的组合，右子树就是`{4,5}`的组合。
+
+    --> **左子树的组合数和右子树的组合数乘积**就是`3`作为根节点时的 BST 个数。
+
+    <img src="https://img-blog.csdnimg.cn/20210107093226241.png" alt="96.不同的二叉搜索树2" style="zoom: 33%;" />
+
+    --> 对于[1, n]的每一个值，将每一个值都定为根节点，再将每一个根节点能产生的BST数量相加，最后即为答案
+
+    <font color=blue>**[关键点]需要举例，画图，分析，才能找到递推的关系，由此想到以动态规划的方法解决**</font>
+
+  - 根据动态规划的五个步骤：definition; function; initialization; traversal order; example
+    - definition: dp[i]: the number of BST with nodes [1, i]
+    - function: dp[i] += dp[j - 1] * dp[i - j]; return dp[n] 
+    - initialization: dp[0] = 1 --> 从定义上来讲，空节点也是一棵二叉树，也是一棵二叉搜索树，这是可以说得通的。从递归公式上来讲，`dp[以j为头结点左子树节点数量] * dp[以j为头结点右子树节点数量] `中以j为头结点左子树节点数量为0，也需要`dp[以j为头结点左子树节点数量] = 1`， 否则乘法的结果就都变成0了。所以初始化dp[0] = 1
+
+- **Solution**
+
+  ```python
+  def numTrees(self, n: int) -> int:
+    if n == 1 or n == 2:
+      return n
+  
+    dp = [0] * (n + 1)
+    dp[0] = 1
+    for i in range(1, n + 1):
+      for j in range(1, i+ 1):
+        dp[i] += dp[j - 1] * dp[i - j]
+    return dp[n]
+  ```
+
+  - Time complexity: $O(N^2)$
+
+    Space complexity: O(N)
+
+## 5. 139 [Word Break](https://leetcode.com/problems/word-break/description/)
+
+|  Category  |   Difficulty    |        Tags         |
+| :--------: | :-------------: | :-----------------: |
+| algorithms | Medium (44.66%) | dynamic-programming |
+
+Given a string `s` and a dictionary of strings `wordDict`, return `true` if `s` can be segmented into a space-separated sequence of one or more dictionary words.
+
+**Note** that the same word in the dictionary may be reused multiple times in the segmentation. 
+
+**Example 1:**
+
+```
+Input: s = "leetcode", wordDict = ["leet","code"]
+Output: true
+Explanation: Return true because "leetcode" can be segmented as "leet code".
+```
+
+**Example 2:**
+
+```
+Input: s = "applepenapple", wordDict = ["apple","pen"]
+Output: true
+Explanation: Return true because "applepenapple" can be segmented as "apple pen apple".
+Note that you are allowed to reuse a dictionary word.
+```
+
+**Example 3:**
+
+```
+Input: s = "catsandog", wordDict = ["cats","dog","sand","and","cat"]
+Output: false
+```
+
+- **Constraints:**
+
+  - `1 <= s.length <= 300`
+
+  - `1 <= wordDict.length <= 1000`
+
+  - `1 <= wordDict[i].length <= 20`
+
+  - `s` and `wordDict[i]` consist of only lowercase English letters.
+
+  - All the strings of `wordDict` are **unique**.
+
+- **Thoughts**
+
+  - 这道题目和<u>Backtracking.md</u>里的131.[Palindrome Partitioning](https://leetcode.com/problems/palindrome-partitioning/description/)很类似，就是枚举字符串所有的分割情况。139是枚举分割后的所有子串，判断是否回文；本道是枚举分割所有字符串，判断是否在字典里出现过。然而使用枚举分割进行回溯，时间复杂度为$O(2^n)$ --> 每一个单词都有两个状态（切割和不切割）--> 使用动态规划！
+
+  - 单词就是物品，字符串s就是背包，单词能否组成字符串s，就是问物品能不能把背包装满。拆分时可以重复使用字典中的单词，说明就是一个完全背包！
+
+    s 串能否分解为单词表的单词（前 s.length 个字符的 s 串能否分解为单词表单词）--> 将大问题分解为规模小一点的子问题：
+
+    - 前 i 个字符的子串，能否分解成单词
+    - 剩余子串，是否为单个单词。
+
+  - 遵循动态规划5个步骤：
+
+    - Definition：`dp[i]`：长度为`i`的`s[0:i-1]`子串是否能拆分成单词。题目求:`dp[s.length]`
+
+      ![image.png](https://pic.leetcode-cn.com/70b0957d0086f43cd56b9e311e03deed4e9a77be0ae40ccbaa2f2b006d7caeb5-image.png)
+
+    - Equation: 我们用指针 j 去划分s[0:i] 子串，s[0:i] 子串对应 dp[i+1] ，它是否为 true（s[0:i]能否 break），取决于两点：
+
+      - 它的<u>前缀子串</u> s[0:j-1] 的 dp[j]，是否为 true。
+      - 剩余子串 s[j:i]，是否是单词表的单词
+
+      --> if([j, i] 这个区间的子串出现在字典里 && dp[j]是true) 那么 dp[i] = true
+
+      <img src="https://pic.leetcode-cn.com/bcef185f09c72fb525855bd56155f4658793d86b0dc4f3de31cace6bd9398c5b-image.png" alt="image.png" style="zoom: 33%;" />
+
+    - Initialization: 最开始dp数列的值均为`False`; base case 为`dp[0] = true`。即，长度为 0 的`s[0:-1]`**能**拆分成单词表单词。这看似荒谬，但这**只是为了**让边界情况也能套用状态转移方程，而已。
+
+- **Solution**
+
+  ```python
+  def wordBreak(self, s: str, wordDict: List[str]) -> bool:
+          dp = [False] * (len(s) + 1)
+          dp[0] = True
+  
+          for i in range(1, len(s) + 1):
+              for j in range(i):
+                  # Further Optimization
+                  # 如果发现dp[i] == true ，直接break
+                	if dp[i] == True:
+                    break
+                  # 如果dp[j] == false，dp[i]没有为 true 的可能，continue，考察下一个 j
+                  if dp[j] == False:
+                    continue
+                    
+                  word = s[j: i]# s[j:i]
+                  if dp[j] and word in wordDict:
+                      dp[i] = True
+                      break     # dp[i] = true了，i长度的子串已经可以拆成单词了，不需要j继续划分子串了
+  
+          return dp[len(s)]
+  ```
+
+  - Time complexity: $O(N^2)$
+
+    Space complexity: O(N)
+
+  
+
+  
+
+  
