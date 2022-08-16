@@ -957,3 +957,70 @@ Output: 0
   - Time complexity: $O(n \times target)$
 
     Space complexity: $O(target)$ 
+
+## 9. 279 [Perfect Squares](https://leetcode.com/problems/perfect-squares/description/)
+
+|  Category  |   Difficulty    |                             Tags                             |
+| :--------: | :-------------: | :----------------------------------------------------------: |
+| algorithms | Medium (51.92%) | [`math`](https://leetcode.com/tag/math); [`dynamic-programming`](https://leetcode.com/tag/dynamic-programming); [`breadth-first-search`](https://leetcode.com/tag/breadth-first-search) |
+
+Given an integer `n`, return *the least number of perfect square numbers that sum to* `n`.
+
+A **perfect square** is an integer that is the square of an integer; in other words, it is the product of some integer with itself. For example, `1`, `4`, `9`, and `16` are perfect squares while `3` and `11` are not. 
+
+**Example 1:**
+
+```
+Input: n = 12
+Output: 3
+Explanation: 12 = 4 + 4 + 4.
+```
+
+**Example 2:**
+
+```
+Input: n = 13
+Output: 2
+Explanation: 13 = 4 + 9.
+```
+
+- **Constraints:**
+
+  - `1 <= n <= 104`
+
+- **Thoughts**
+
+  - 分析题目后可得知，题目可转换为完全背包问题：**完全平方数就是物品（可以无限件使用），凑个正整数n就是背包，问凑满这个背包最少有多少物品？** --> 由于不考虑每个平方完全数的顺序，所以该题是求组合数
+
+    `target = n`; `nums = [1, 4, 9, 16...]`
+
+  - 遵循动态规划五部曲:
+
+    - definition: dp[j]: the least number of perfect square numbers that sum to n --> <font color=red>每个元素代表的是最小值，所以初始化时要将每个元素的值初始化为最大值`float('inf')`</font> --> **非0下标的dp[j]一定要初始为最大值，这样dp[j]在递推的时候才不会被初始值覆盖**。
+    - function: `dp[j] = min(dp[j], dp[j - i * i] + 1)` --> <font color=blue>**因为这道题的物品是平方数，所以可以先创建一个数组包含小于target的所有平方数，即为所有可取的物品**</font>
+    - initialization: dp[0]表示和为0的完全平方数的最小数量，并且题目没有提到从0开始的平方数，那么dp[0]一定是0。
+    - traversal order: 由于这道题求的是组合数，所以两种遍历顺序都可以！
+
+  - 从二维状态转移到一维空间的优化：
+
+    <img src="https://pic.leetcode-cn.com/1618579990-nKBWBw-640.png" alt="640.png" style="zoom: 67%;" />
+
+- **Solution**
+
+  ```python
+  def numSquares(self, n: int) -> int:
+          nums = [i ** 2 for i in range(1, n + 1) if i ** 2 <= n]
+          dp = [float('inf')] * (n + 1)
+          dp[0] = 0
+          
+          for i in range(len(nums)):
+              for j in range(nums[i], n + 1):  # weight: [nums[i], n]
+                  dp[j] = min(dp[j], dp[j - nums[i]] + 1)
+          return dp[n]
+  ```
+
+  - Time complexity: $O(n \times \sqrt n)$ --> 物品`nums[i]`的最大值为$\sqrt n$
+
+    Space complexity: $O(n)$  --> store dp array
+
+  
