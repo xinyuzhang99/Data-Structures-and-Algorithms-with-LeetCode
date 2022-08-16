@@ -854,7 +854,7 @@ Output: 1
 
   - initialization: dp[0] = 1 --> <font color=red>初始化为0大小的背包, 当然是不装任何东西了, 就是1种方法</font>
 
-  - traversal order: both in order
+  - traversal order: both in order --> 由于这道题组合不强调顺序，所以**如果求组合数就是外层for循环遍历物品，内层for遍历背包**。
 
 - **Solution**
 
@@ -872,3 +872,88 @@ Output: 1
   - Time complexity: $O(n \times amount)$
 
     Space complexity: $O(amount)$ 
+
+## 8. 377 [Combination Sum IV](https://leetcode.com/problems/combination-sum-iv/description/)
+
+|  Category  |   Difficulty    |                             Tags                             |
+| :--------: | :-------------: | :----------------------------------------------------------: |
+| algorithms | Medium (49.55%) | [`dynamic-programming`](https://leetcode.com/tag/dynamic-programming) |
+
+Given an array of **distinct** integers `nums` and a target integer `target`, return *the number of possible combinations that add up to* `target`.
+
+The test cases are generated so that the answer can fit in a **32-bit** integer.
+
+**Example 1:**
+
+```
+Input: nums = [1,2,3], target = 4
+Output: 7
+Explanation:
+The possible combination ways are:
+(1, 1, 1, 1)
+(1, 1, 2)
+(1, 2, 1)
+(1, 3)
+(2, 1, 1)
+(2, 2)
+(3, 1)
+<Important!>Note that different sequences are counted as different combinations.
+```
+
+**Example 2:**
+
+```
+Input: nums = [9], target = 3
+Output: 0
+```
+
+- **Constraints:**
+
+  - `1 <= nums.length <= 200`
+
+  - `1 <= nums[i] <= 1000`
+
+  - All the elements of `nums` are **unique**.
+
+  - `1 <= target <= 1000`
+
+**Follow up:** What if negative numbers are allowed in the given array? How does it change the problem? What limitation we need to add to the question to allow negative numbers?
+
+- **Thoughts**
+
+  - 题目显示不限制每个数字所取的次数，所以该题目为完全背包。从`Note that different sequences are counted as different combinations.`可以看出本题题目描述说是求组合，但又说是可以元素相同顺序不同的组合算两个组合，**其实就是求排列！**
+
+    组合不强调顺序，(1,5)和(5,1)是同一个组合。排列强调顺序，(1,5)和(5,1)是两个不同的排列。
+
+    这道题目和<u>Backtrack.md</u>的39/40很接近，但其本质是本题求的是排列总和，而且仅仅是求排列总和的个数，并不是把所有的排列都列出来，可以使用完全背包理论解决。**如果本题要把排列都列出来的话，只能使用回溯算法爆搜**。（Brute-force!）
+
+  - 遵循动态规划五部曲：
+
+    - definition: dp[j]: the number of possible combinations that add up to j (**凑成目标正整数为j的排列个数为dp[j]**) 
+
+    - function: dp[j] = dp[j] + dp[j - nums[i]]
+
+    - initialization: dp[0] = 1(target >= 1 --> dp[0] must be 1 for future calculations)
+
+    - traversal order: 如果把遍历nums（物品）放在外循环，遍历target的作为内循环的话，举一个例子：计算dp[4]的时候，结果集只有 {1,3} 这样的集合，不会有{3,1}这样的集合，因为nums遍历放在外层，3只能出现在1后面！
+
+      所以本题遍历顺序最终遍历顺序：**target（背包）放在外循环，将nums（物品）放在内循环，内循环从前到后遍历**。
+
+- **Solution**
+
+  ```python
+  def combinationSum4(self, nums: List[int], target: int) -> int:
+    dp = [0] * (target + 1)
+    dp[0] = 1
+  
+    # traverse backpack weight first and then traverse object
+    for j in range(target + 1):
+      for i in range(len(nums)):
+        if j - nums[i] >= 0:
+          dp[j] += dp[j - nums[i]]
+    return dp[target]
+  ```
+
+  - Time complexity: $O(n \times target)$
+
+    Space complexity: $O(target)$ 
