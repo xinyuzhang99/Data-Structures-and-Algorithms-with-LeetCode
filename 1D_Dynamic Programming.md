@@ -4,14 +4,14 @@
 
 穷举所有可行解其实并不是一件容易的事，需要你熟练掌握递归思维，只有列出**正确的「状态转移方程」**，才能正确地穷举。而且，你需要判断算法问题是否**具备「最优子结构」(Optimal Substructure)**，是否能够通过子问题的最值得到原问题的最值 (**要符合「最优子结构」，子问题间必须互相<font color=red>独立</font>**)。另外，动态规划问题**存在「重叠子问题」(Overlapping Subproblem)**，如果暴力穷举的话效率会很低，所以需要你使用*<u>「备忘录」或者「DP table」</u>*来优化穷举过程，避免不必要的计算。
 
-==[重叠子问题、最优子结构、状态转移方程 (State Transition Equation)]==就是动态规划三要素！
+==[重叠子问题、最优子结构 (***Optimal Substructure***)、状态转移方程 (State Transition Equation)]==就是动态规划三要素！
 
 求解过程：==[初始状态、终止状态、状态转移方程式]== --> 动态规划：通过方程式求出初始状态到终止状态中所有中间状态的值（存到一个数组里） ，以此求得终止状态
 
 - **动态规划五步骤: Definition --> Equation --> Initialization --> Traversal Order --> Example**
 
   1. 确定dp数组（dp table）以及下标的含义
-  2. 确定递推公式
+  2. 确定递推公式/***Optimal Substructure***
   3. dp数组如何初始化
   4. 确定遍历顺序
   5. 举例推导dp数组
@@ -369,7 +369,7 @@ The total cost is 6.
   根据动态规划的五个步骤：procedure: definition; function; initialization; traversal order; example
 
   - definition: dp[i]: the minimum cost to climb to the top starting from the ith staircase. --> 表示将正整数 i 拆分成至少两个正整数的和之后，这些正整数的最大乘积
-  - function: dp[i] = cost[i] + min(dp[i-1], dp[i-2])  
+  - function: `dp[i] = cost[i] + min(dp[i-1], dp[i-2])`
   - initialization: dp[0] = cost[0], dp[1] = cost[1]; dp[n] = 0
   - example: 得出return smaller number of dp[-1], dp[-2]
 
@@ -617,8 +617,339 @@ Output: false
 
     Space complexity: O(N)
 
-  
+## 6. 198 [House Robber](https://leetcode.com/problems/house-robber/description/)
 
-  
+|  Category  |   Difficulty    |                             Tags                             |
+| :--------: | :-------------: | :----------------------------------------------------------: |
+| algorithms | Medium (47.38%) | [`dynamic-programming`](https://leetcode.com/tag/dynamic-programming) |
 
+You are a professional robber planning to rob houses along a street. Each house has a certain amount of money stashed, the only constraint stopping you from robbing each of them is that adjacent houses have security systems connected and **it will automatically contact the police if two adjacent houses were broken into on the same night**.
+
+Given an integer array `nums` representing the amount of money of each house, return *the maximum amount of money you can rob tonight **without alerting the police***.
+
+**Example 1:**
+
+```
+Input: nums = [1,2,3,1]
+Output: 4
+Explanation: Rob house 1 (money = 1) and then rob house 3 (money = 3).
+Total amount you can rob = 1 + 3 = 4.
+```
+
+**Example 2:**
+
+```
+Input: nums = [2,7,9,3,1]
+Output: 12
+Explanation: Rob house 1 (money = 2), rob house 3 (money = 9) and rob house 5 (money = 1).
+Total amount you can rob = 2 + 9 + 1 = 12 
+```
+
+- **Constraints:**
+
+  - `1 <= nums.length <= 100`
+
+  - `0 <= nums[i] <= 400`
+
+- **Thoughts**
+
+  - 这道题目是动态规划的经典题目，与746 [Min Cost Climbing Stairs](https://leetcode.com/problems/min-cost-climbing-stairs/description/)基本一致，只不过这道题要求不能抢劫相邻房屋 --> 一次迈两步
+
+  - 遵循动态规划五个步骤：
+
+    - definition: dp[i]: maximum amount of money at previous i houses (including not robbed houses) **考虑下标i（包括i）以内的房屋，最多可以偷窃的金额为dp[i]**; return dp[n - 1]
+
+    - equation: `dp[i] = max(dp[i - 1], dp[i - 2] + nums[i])`
+
+      - 如果偷第i房间，那么`dp[i] = dp[i - 2] + nums[i] `，即：第i-1房一定是不考虑的，找出 下标i-2（包括i-2）以内的房屋，最多可以偷窃的金额为dp[i-2] 加上第i房间偷到的钱。
+
+      - 如果不偷第i房间，那么`dp[i] = dp[i - 1]`，即考虑i-1房，（**注意这里是考虑，并不是一定要偷i-1房，这是很多同学容易混淆的点**）
+
+    - initialization: dp[i] = 0; dp[0] = nums[0]; dp[1] = max(nums[0], nums[1])
+
+    - traversal order: in order --> dp[i] 是根据dp[i - 2] 和 dp[i - 1] 推导出来的，那么一定是从前到后遍历！
+
+  - <font color=blue>**注意edge cases!**</font>
+
+- **Solution**
+
+  ```python
+  def rob(self, nums: List[int]) -> int:
+    n = len(nums)
+    # edge cases
+    if n == 1:
+      return nums[0]
+    
+    dp = [0] * n
+    dp[0] = nums[0]
+    dp[1] = max(nums[0], nums[1])
+    for i in range(2, n):
+      dp[i] = max(dp[i - 1], dp[i - 2] + nums[i])
+    return dp[n - 1]
   
+  ## Simple Version
+  def rob(self, nums: List[int]) -> int:
+    if len(nums) == 1:
+      return nums[0]
+    
+    rob1, rob2 = 0, 0
+    for n in nums:
+      newRob = max(rob1 + n, rob2)
+      rob1 = rob2
+      rob2 = newRob
+    return rob2
+  ```
+
+  - Time complexity: $O(N)$
+
+    Space complexity: O(n)
+
+  - Further Optimization： 使用滚动数组将空间复杂度进行进一步降维
+
+    ```python
+    # Optimization: 滚动数组
+    dp0 = nums[0]
+    dp1 = max(nums[0], nums[1])
+    
+    for i in range(2, n):
+      temp = dp1
+      dp1 = max(temp, dp0 + nums[i])
+      dp0 = temp
+    return dp1
+    ```
+
+    - Time complexity: $O(N)$
+
+      Space complexity: O(1)
+
+## 7. 213 [House Robber II](https://leetcode.com/problems/house-robber-ii/description/)
+
+|  Category  |   Difficulty    |        Tags         |
+| :--------: | :-------------: | :-----------------: |
+| algorithms | Medium (39.98%) | dynamic-programming |
+
+You are a professional robber planning to rob houses along a street. Each house has a certain amount of money stashed. All houses at this place are **arranged in a circle.** That means the first house is the neighbor of the last one. Meanwhile, adjacent houses have a security system connected, and **it will automatically contact the police if two adjacent houses were broken into on the same night**.
+
+Given an integer array `nums` representing the amount of money of each house, return *the maximum amount of money you can rob tonight **without alerting the police***. 
+
+**Example 1:**
+
+```
+Input: nums = [2,3,2]
+Output: 3
+Explanation: You cannot rob house 1 (money = 2) and then rob house 3 (money = 2), because they are adjacent houses.
+```
+
+**Example 2:**
+
+```
+Input: nums = [1,2,3,1]
+Output: 4
+Explanation: Rob house 1 (money = 1) and then rob house 3 (money = 3).
+Total amount you can rob = 1 + 3 = 4.
+```
+
+**Example 3:**
+
+```
+Input: nums = [1,2,3]
+Output: 3
+```
+
+- **Constraints:**
+
+  - `1 <= nums.length <= 100`
+
+  - `0 <= nums[i] <= 1000`
+
+- **Thoughts**
+
+  - 这道题目和第一道描述基本一样，强盗依然不能抢劫相邻的房子，输入依然是一个数组，但是告诉你这些房子不是一排，而是围成了一个圈。也就是说，现在**第一间房子和最后一间房子也相当于是相邻的，不能同时抢**。
+
+  - 首先，首尾房间不能同时被抢，那么只可能有三种不同情况：要么都不被抢；要么第一间房子被抢最后一间不抢；要么最后一间房子被抢第一间不抢。这三种情况，哪种的结果最大，就是最终答案！不过，其实我们不需要比较三种情况，**只要比较情况二和情况三就行了，**因为这两种情况对于房子的选择余地比情况一大呀，房子里的钱数都是非负数，所以选择余地大，最优决策结果肯定不会小。
+
+    <img src="https://mmbiz.qpic.cn/sz_mmbiz_jpg/gibkIz0MVqdG9kDIzE6qfsOcugRP3xn8nlATHI4e9ib8SUiar0s2OR8zQdvficwknUKDwfcKWV0sc3WwL1lC0Cw5GQ/640?wx_fmt=jpeg&wxfrom=5&wx_lazy=1&wx_co=1" alt="Image" style="zoom:50%;" />
+
+    --> 可以将198. House Robber的解法写成一个辅助函数，对情况二和情况三分别使用辅助函数，返回最大值
+
+- **Solution**
+
+  ```python
+  def rob(self, nums: List[int]) -> int:
+    if len(nums) == 1:
+      return nums[0]
+    
+    def helper(houses):
+      rob1, rob2 = 0, 0
+      for h in houses:
+        newRob = max(rob1 + h, rob2)
+        rob1 = rob2
+        rob2 = newRob
+      return rob2
+    
+    return max(helper(nums[1:]), helper(nums[:-1]))
+  ```
+
+  - Time complexity: $O(N)$
+
+    Space complexity: O(1)
+
+## 8. 300 [Longest Increasing Subsequence](https://leetcode.com/problems/longest-increasing-subsequence/description/)
+
+|  Category  |   Difficulty    |                             Tags                             |
+| :--------: | :-------------: | :----------------------------------------------------------: |
+| algorithms | Medium (49.55%) | [`binary-search`](https://leetcode.com/tag/binary-search); [`dynamic-programming`](https://leetcode.com/tag/dynamic-programming) |
+
+Given an integer array `nums`, return the length of the longest strictly increasing subsequence.
+
+A **subsequence** is a sequence that can be derived from an array by deleting some or no elements without changing the order of the remaining elements. For example, `[3,6,2,7]` is a subsequence of the array `[0,3,1,6,2,2,7]`. 
+
+**Example 1:**
+
+```
+Input: nums = [10,9,2,5,3,7,101,18]
+Output: 4
+Explanation: The longest increasing subsequence is [2,3,7,101], therefore the length is 4.
+```
+
+**Example 2:**
+
+```
+Input: nums = [0,1,0,3,2,3]
+Output: 4
+```
+
+**Example 3:**
+
+```
+Input: nums = [7,7,7,7,7,7,7]
+Output: 1
+```
+
+**Constraints:**
+
+- `1 <= nums.length <= 2500`
+- `-104 <= nums[i] <= 104`
+
+**Follow up:** Can you come up with an algorithm that runs in `O(n log(n))` time complexity?
+
+- **Thoughts**
+
+  - <u>Decision Tree:</u>
+
+    ```
+    Input  : arr[] = {3, 10, 2, 11}
+    f(i): Denotes LIS of subarray ending at index 'i'
+    
+    (LIS(1)=1)
+    
+          f(4)  {f(4) = 1 + max(f(1), f(2), f(3))}
+      /    |    \
+    f(1)  f(2)  f(3) {f(3) = 1, f(2) and f(1) are > f(3)}
+           |      |  \
+          f(1)  f(2)  f(1) {f(2) = 1 + max(f(1)}
+                  |
+                f(1) {f(1) = 1}
+    ```
+
+  - 最长上升子序列是动规的经典题目，这里dp[i]是可以根据dp[j] （j < i）推导出来的，那么依然用动规五部曲来分析：
+
+    - definition: dp[i]: the length of the longest strictly increasing subsequence end at nums[i] (**i之前包括i的以nums[i]结尾最长上升子序列的长度**)
+
+    - equation: for j < i, `if nums[i] > nums[j], dp[i] = max(dp[i], dp[j] + 1)`
+
+      ![img](https://labuladong.github.io/algo/images/%e6%9c%80%e9%95%bf%e9%80%92%e5%a2%9e%e5%ad%90%e5%ba%8f%e5%88%97/gif1.gif)
+
+    - initialization: dp[i] = 1 --> 因为以 nums[i] 结尾的最长递增子序列起码要包含它自己
+
+    - traversal order: in order
+
+    - return value: return max(dp) --> 最终结果（子序列的最大长度）应该是 **dp 数组中的最大值**
+
+- **Solution**
+
+  ```python
+  def lengthOfLIS(self, nums: List[int]) -> int:
+    n = len(nums)
+    if n == 1:
+      return 1
+    dp = [1] * n
+    
+    for i in range(n):
+      for j in range(i):
+        if nums[i] > nums[j]:					# 如果要求非严格递增，将此行 '<' 改为 '<=' 即可。
+          dp[i] = max(dp[i], dp[j] + 1)
+    return max(dp)
+  ```
+
+  - Time complexity: $O(N^2)$
+
+    Space complexity: O(N)
+
+- **Follow-up: Dynamic Programming + Binary Search**
+
+  <font color=red>**空缺！**</font>
+
+## 9. 354 [Russian Doll Envelopes](https://leetcode.com/problems/russian-doll-envelopes/description/)
+
+|  Category  |  Difficulty   |                             Tags                             |
+| :--------: | :-----------: | :----------------------------------------------------------: |
+| algorithms | Hard (38.92%) | [`binary-search`](https://leetcode.com/tag/binary-search); [`dynamic-programming`](https://leetcode.com/tag/dynamic-programming) |
+
+You are given a 2D array of integers `envelopes` where `envelopes[i] = [wi, hi]` represents the width and the height of an envelope.
+
+One envelope can fit into another if and only if both the width and height of one envelope are greater than the other envelope's width and height.
+
+Return *the maximum number of envelopes you can Russian doll (i.e., put one inside the other)*.
+
+**Note:** You cannot rotate an envelope. 
+
+**Example 1:**
+
+```
+Input: envelopes = [[5,4],[6,4],[6,7],[2,3]]
+Output: 3
+Explanation: The maximum number of envelopes you can Russian doll is 3 ([2,3] => [5,4] => [6,7]).
+```
+
+**Example 2:**
+
+```
+Input: envelopes = [[1,1],[1,1],[1,1]]
+Output: 1
+```
+
+- **Constraints:**
+
+  - `1 <= envelopes.length <= 105`
+
+  - `envelopes[i].length == 2`
+
+  - `1 <= wi, hi <= 105`
+
+- **Solution**
+
+  **这道题目其实是300. 最长递增子序列的一个变种，因为每次合法的嵌套是大的套小的，相当于在二维平面中找一个最长递增的子序列，其长度就是最多能嵌套的信封个数**。
+
+  - <u>Method 1: Dynamic Programming (Brute-force)</u>
+
+    ```python
+    def maxEnvelopes(self, envelopes: List[List[int]]) -> int:
+            n = len(envelopes)
+            if n == 1:
+                return 1
+            
+            # envelopes.sort()
+            envelopes.sort(key=lambda x:(x[0], -x[1]))
+            dp = [1] * n
+            for i in range(n):
+                for j in range(i):
+                    # if envelopes[i][0] > envelopes[j][0] and envelopes[i][1] > envelopes[j][1]:
+                    if envelopes[i][1] > envelopes[j][1]:
+                        dp[i] = max(dp[i], dp[j] + 1)
+            return max(dp)
+    ```
+
+    - Time complexity: $O(N^2)$
+
+      Space complexity: O(N)
