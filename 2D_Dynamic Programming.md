@@ -348,6 +348,11 @@ def test_multi_pack1():
       dp[i][k][1] = max(dp[i-1][k][1], dp[i-1][k-1][0] - prices[i])
       ```
 
+     - <u>空间优化</u>
+
+       观察发现，`dp[i][*][*] `的状态与上一时刻 `dp[i-1][*][*]` 有关，因此可考虑省去第一维度。⚠️ ⚠️ ⚠️ 同时又要注意到，如果先更新 `dp[j][1]` 的话，`dp[j][1]` 又会立马被用于更新 `dp[j][0]`，而先更新 `dp[j][0] `再更新 `dp[j][1] `则可避免这种时效问题。
+
+
 ## 1. 62 [Unique Paths](https://leetcode.com/problems/unique-paths/description/)
 
 |  Category  |   Difficulty    | Likes |                             Tags                             |
@@ -1163,3 +1168,571 @@ Explanation: 13 = 4 + 9.
 
     Space complexity: $O(n)$  --> store dp array
 
+## 10. 121 [Best Time to Buy and Sell Stock](https://leetcode.com/problems/best-time-to-buy-and-sell-stock/description/)
+
+|  Category  |  Difficulty   |                             Tags                             |
+| :--------: | :-----------: | :----------------------------------------------------------: |
+| algorithms | Easy (54.14%) | [`array`](https://leetcode.com/tag/array); [`dynamic-programming`](https://leetcode.com/tag/dynamic-programming) |
+
+You are given an array `prices` where `prices[i]` is the price of a given stock on the `ith` day.
+
+You want to maximize your profit by choosing a **single day** to buy one stock and choosing a **different day in the future** to sell that stock.
+
+Return *the maximum profit you can achieve from this transaction*. If you cannot achieve any profit, return `0`.
+
+**Example 1:**
+
+```
+Input: prices = [7,1,5,3,6,4]
+Output: 5
+Explanation: Buy on day 2 (price = 1) and sell on day 5 (price = 6), profit = 6-1 = 5.
+Note that buying on day 2 and selling on day 1 is not allowed because you must buy before you sell.
+```
+
+**Example 2:**
+
+```
+Input: prices = [7,6,4,3,1]
+Output: 0
+Explanation: In this case, no transactions are done and the max profit = 0.
+```
+
+- **Constraints:**
+
+  - `1 <= prices.length <= 105`
+
+  - `0 <= prices[i] <= 104`
+
+- **Solution**
+
+  - <u>Method 1: Brute-force</u> (超时)
+
+    ```python
+    def maxProfit(self, prices: List[int]) -> int:
+      res = 0
+      for i in range(len(prices)):
+        for j in range(i + 1, len(prices)):
+          res = max(res, prices[j] - prices[i])
+      return res
+    ```
+
+    - Time complexity: $O(N^2)$
+
+      Space complexity: $O(1)$
+
+  - <u>Method 2: Two-Pointers</u>（Brute-force解法的升级版，使用双指针减小时间复杂度）
+
+    ```python
+    def maxProfit(self, prices: List[int]) -> int:
+      l, r = 0, 1      # l: to buy (low); r: to sell (high)
+      res = 0
+      while r < len(prices):
+        if prices[r] > prices[l]:   # profitable
+          profit = prices[r] - prices[l]
+          res = max(res, profit)
+        else:
+          # if prices[r] < prices[l] --> not profitable --> set l to the low price --> l = r
+          l = r
+        r += 1
+     return res
+    ```
+
+    - Time complexity: $O(N)$
+
+      Space complexity: $O(1)$
+
+  - <u>Method 3: Dynamic Programming</u>
+
+    - Definition: `dp[i][0]` 表示第i天不持有股票所得最多现金 ，由于一开始现金是0，所以加入第i天买入股票现金就是 -prices[i]。`dp[i][1]`表示第i天持有股票所得最多现金; `return dp[n-1][0]`
+    - Equation: `dp[i][0] = max(dp[i-1][0], dp[i-1][1] + prices[i])`; `dp[i][1] = max(dp[i-1][1], -prices[i])`
+    - Initialization: 从递归公式可以看出，基础都是从`dp[0][0]`和`dp[0][1]`推导出来的 --> `dp[0][0]`表示第0天持有股票，此时的持有股票就一定是买入股票了，因为不可能有前一天推出来，所以`dp[0][0] -= prices[0]`; `dp[0][1]`表示第0天不持有股票，不持有股票那么现金就是0，所以`dp[0][1]` = 0
+    - Traversal Order: 从递推公式可以看出dp[i]都是有dp[i - 1]推导出来的，那么一定是从前向后遍历。
+
+    ```python
+    def maxProfit(self, prices: List[int]) -> int:
+      n = len(prices)
+      dp = [[0] * 2 for _ in range(n)]
+      # initialization
+      dp[0][0], dp[0][1] = 0, -prices[i]
+      
+      for i in range(1, n):
+        # dp[i][0]: not have a stock at day i --> rest; sell the stock
+        dp[i][0] = max(dp[i-1][0], dp[i-1][1] + prices[i])
+        # dp[i][1]: have a stock at day i --> rest; buy the stock (profit becomes -prices[i])
+        dp[i][1] = max(dp[i-1][1], -prices[i])
+      return dp[n-1][0]
+    # Time complecity: O(N)
+    # Space complexity: O(2N) = O(N)
+    
+    ## Optimization --> reduce space complexity
+    def maxProfit(self, prices: List[int]) -> int:
+      n = len(prices)
+      dp0, dp1 = 0, -prices[i]			# dp0: dp[-1][0]; dp1: dp[-1][1]
+      for i in range(1, n):
+        dp0 = max(dp0, dp1 + prices[i])
+        dp1 = max(dp1, -prices[i])
+      return dp0
+    # Time complecity: O(N)
+    # Space complexity: O(1)
+    ```
+
+  - <u>Method 4: Greedy</u>
+
+    <font color=red>**空缺！！**</font>
+
+## 11. 122 [Best Time to Buy and Sell Stock II](https://leetcode.com/problems/best-time-to-buy-and-sell-stock-ii/description/)
+
+|  Category  |   Difficulty    |                       Tags                        |
+| :--------: | :-------------: | :-----------------------------------------------: |
+| algorithms | Medium (62.17%) | [`array`](https://leetcode.com/tag/array); greedy |
+
+You are given an integer array `prices` where `prices[i]` is the price of a given stock on the `ith` day.
+
+On each day, you may decide to buy and/or sell the stock. You can only hold **at most one** share of the stock at any time. However, you can buy it then immediately sell it on the **same day**.
+
+Find and return *the **maximum** profit you can achieve*. 
+
+**Example 1:**
+
+```
+Input: prices = [7,1,5,3,6,4]
+Output: 7
+Explanation: Buy on day 2 (price = 1) and sell on day 3 (price = 5), profit = 5-1 = 4.
+Then buy on day 4 (price = 3) and sell on day 5 (price = 6), profit = 6-3 = 3.
+Total profit is 4 + 3 = 7.
+```
+
+**Example 2:**
+
+```
+Input: prices = [1,2,3,4,5]
+Output: 4
+Explanation: Buy on day 1 (price = 1) and sell on day 5 (price = 5), profit = 5-1 = 4.
+Total profit is 4.
+```
+
+**Example 3:**
+
+```
+Input: prices = [7,6,4,3,1]
+Output: 0
+Explanation: There is no way to make a positive profit, so we never buy the stock to achieve the maximum profit of 0.
+```
+
+- **Constraints:**
+
+  - `1 <= prices.length <= 3 * 104`
+
+  - `0 <= prices[i] <= 104`
+
+- **Thoughts**
+
+  - 题目强调可以在同一天出售，但这个条件纯属多余，如果当天买当天卖，那利润当然就是 0，这不是和没有进行交易是一样的吗？这道题和上一道题121非常类似，但不同点在于没有给出交易总数 `k` 的限制，也就相当于 `k` 为**正无穷 --> 因为本题的股票可以买卖多次！** 。<font color=blue>**如果 `k` 为正无穷，那么就可以认为 `k` 和 `k - 1` 是一样的。**</font>可以这样改写框架：
+
+    ```python
+    dp[i][k][0] = max(dp[i-1][k][0], dp[i-1][k][1] + prices[i])
+    dp[i][k][1] = max(dp[i-1][k][1], dp[i-1][k-1][0] - prices[i])
+                = max(dp[i-1][k][1], dp[i-1][k][0] - prices[i])
+    
+    我们发现数组中的 k 已经不会改变了，也就是说不需要记录 k 这个状态了：
+    dp[i][0] = max(dp[i-1][0], dp[i-1][1] + prices[i])
+    dp[i][1] = max(dp[i-1][1], dp[i-1][0] - prices[i])
+    ```
+
+- **Solution**
+
+  ```python
+  def maxProfit(self, prices: List[int]) -> int:
+    n = len(prices)
+    dp = [[0] * 2 for _ in range(n)]
+    dp[0][0], dp[0][1] = 0, -prices[0]
+  
+    for i in range(1, n):
+      dp[i][0] = max(dp[i-1][0], dp[i-1][1] + prices[i])
+      dp[i][1] = max(dp[i-1][1], dp[i-1][0] - prices[i])
+    return dp[n-1][0]
+  ```
+
+  - Time complexity: $O(N)$
+
+    Space complexity: $O(N)$
+
+  - <u>Optimization: reduce space complexity</u>
+
+    ```python
+    def maxProfit(self, prices: List[int]) -> int:
+      n = len(prices)
+      dp0, dp1 = 0, -prices[0]
+      for i in range(1, n):
+        temp = dp0
+        dp0 = max(dp0, dp1 + prices[i])
+        dp1 = max(dp1, temp - prices[i])
+      return dp0
+    ```
+
+    - Time complexity: $O(N)$
+
+      Space complexity: $O(1)$
+
+## 12. 309 [Best Time to Buy and Sell Stock with Cooldown](https://leetcode.com/problems/best-time-to-buy-and-sell-stock-with-cooldown/description/)
+
+|  Category  |   Difficulty    |                             Tags                             |
+| :--------: | :-------------: | :----------------------------------------------------------: |
+| algorithms | Medium (52.67%) | [`dynamic-programming`](https://leetcode.com/tag/dynamic-programming) |
+
+You are given an array `prices` where `prices[i]` is the price of a given stock on the `ith` day.
+
+Find the maximum profit you can achieve. You may complete as many transactions as you like (i.e., buy one and sell one share of the stock multiple times) with the following restrictions:
+
+- After you sell your stock, you cannot buy stock on the next day (i.e., cooldown one day).
+
+**Note:** You may not engage in multiple transactions simultaneously (i.e., you must sell the stock before you buy again). 
+
+**Example 1:**
+
+```
+Input: prices = [1,2,3,0,2]
+Output: 3
+Explanation: transactions = [buy, sell, cooldown, buy, sell]
+```
+
+**Example 2:**
+
+```
+Input: prices = [1]
+Output: 0
+```
+
+- **Constraints:**
+
+  - `1 <= prices.length <= 5000`
+
+  - `0 <= prices[i] <= 1000`
+
+- **Thoughts**
+
+  这道题和上一道题一样，k为正无穷，只不过每次 `sell` 之后要等一天才能继续交易，只要把这个特点融入上一题的状态转移方程即可：
+
+  ```python
+  dp[i][0] = max(dp[i-1][0], dp[i-1][1] + prices[i])
+  dp[i][1] = max(dp[i-1][1], dp[i-2][0] - prices[i])
+  解释：第 i 天选择 buy 的时候，要从 i-2 的状态转移，而不是 i-1 。
+  ```
+
+- **Solution**
+
+  ```python
+  def maxProfit(self, prices: List[int]) -> int:
+    n = len(prices)
+    if n == 1:
+      return 0
+    dp = [[0] * 2 for _ in range(n)]
+    # base case
+    dp[0][0], dp[0][1] = 0, -prices[0]
+    # for dp[i-2][0] and for dp[i-2][1]
+    dp[1][0] = max(dp[0][0], dp[0][1] + prices[1])   
+    dp[1][1] = max(dp[0][1], -prices[1])
+  
+    for i in range(2, n):
+      dp[i][0] = max(dp[i-1][0], dp[i-1][1] + prices[i])
+      dp[i][1] = max(dp[i-1][1], dp[i-2][0] - prices[i])
+    return dp[n-1][0]
+  ```
+
+  - Time complexity: $O(N)$
+
+    Space complexity: $O(N)$
+
+  - <u>Optimization</u>
+
+    ```python
+    def maxProfit(self, prices: List[int]) -> int:
+      n = len(prices)
+      dp0, dp1 = 0, -prices
+      dp_pre0 = 0						# 代表dp[i-2][0]
+      
+      for i in range(1, n):
+        temp = dp0
+        dp0 = max(dp0, dp1 + prices[i])
+        dp1 = max(dp1, dp_pre0 - prices[i])
+        dp_pre0 = temp
+      return dp0
+    ```
+
+    - Time complexity: $O(N)$
+
+      Space complexity: $O(1)$
+
+## 13. 714 [Best Time to Buy and Sell Stock with Transaction Fee](https://leetcode.com/problems/best-time-to-buy-and-sell-stock-with-transaction-fee/description/)
+
+|  Category  |   Difficulty    |                             Tags                             |
+| :--------: | :-------------: | :----------------------------------------------------------: |
+| algorithms | Medium (62.44%) | [`array`](https://leetcode.com/tag/array); [`dynamic-programming`](https://leetcode.com/tag/dynamic-programming); [`greedy`](https://leetcode.com/tag/greedy) |
+
+You are given an array `prices` where `prices[i]` is the price of a given stock on the `ith` day, and an integer `fee` representing a transaction fee.
+
+Find the maximum profit you can achieve. You may complete as many transactions as you like, but you need to pay the transaction fee for each transaction.
+
+**Note:** You may not engage in multiple transactions simultaneously (i.e., you must sell the stock before you buy again).
+
+**Example 1:**
+
+```
+Input: prices = [1,3,2,8,4,9], fee = 2
+Output: 8
+Explanation: The maximum profit can be achieved by:
+- Buying at prices[0] = 1
+- Selling at prices[3] = 8
+- Buying at prices[4] = 4
+- Selling at prices[5] = 9
+The total profit is ((8 - 1) - 2) + ((9 - 4) - 2) = 8.
+```
+
+**Example 2:**
+
+```
+Input: prices = [1,3,7,5,10,3], fee = 3
+Output: 6 
+```
+
+- **Constraints:**
+
+  - `1 <= prices.length <= 5 * 104`
+
+  - `1 <= prices[i] < 5 * 104`
+
+  - `0 <= fee < 5 * 104`
+
+- **Thoughts**
+
+  这道题和11. 122 [Best Time to Buy and Sell Stock II](https://leetcode.com/problems/best-time-to-buy-and-sell-stock-ii/description/)基本一致，唯一区别在于当买入股票时还要计算手续费
+
+- **Solution**
+
+  ```python
+  def maxProfit(self, prices: List[int], fee: int) -> int:
+    n = len(prices)
+    dp = [[0] * 2 for _ in range(n)]
+    dp[0][0], dp[0][1] = 0, -prices[0] - fee
+  
+    for i in range(1, n):
+      dp[i][0] = max(dp[i-1][0], dp[i-1][1] + prices[i])
+      dp[i][1] = max(dp[i-1][1], dp[i-1][0] - prices[i] - fee) # buy the stock
+    return dp[n-1][0]
+  # Time complexity: O(N); Space complexity: O(1)
+  
+  ## Opyimization
+  def maxProfit(self, prices: List[int], fee: int) -> int:
+    n = len(prices)
+    dp0, dp1 = 0, -prices[0] - fee
+  
+    for i in range(1, n):
+      temp = dp0
+      dp0 = max(dp0, dp1 + prices[i])
+      dp1 = max(dp1, temp - prices[i] - fee)
+    return dp0
+  # Time complexity: O(1); Space complexity: O(1)
+  ```
+
+## 14. 123 [Best Time to Buy and Sell Stock III](https://leetcode.com/problems/best-time-to-buy-and-sell-stock-iii/description/)
+
+|  Category  |  Difficulty   |                             Tags                             |
+| :--------: | :-----------: | :----------------------------------------------------------: |
+| algorithms | Hard (43.35%) | [`array`](https://leetcode.com/tag/array); [`dynamic-programming`](https://leetcode.com/tag/dynamic-programming) |
+
+You are given an array `prices` where `prices[i]` is the price of a given stock on the `ith` day.
+
+Find the maximum profit you can achieve. You may complete **at most two transactions**.
+
+**Note:** You may not engage in multiple transactions simultaneously (i.e., you must sell the stock before you buy again). 
+
+**Example 1:**
+
+```
+Input: prices = [3,3,5,0,0,3,1,4]
+Output: 6
+Explanation: Buy on day 4 (price = 0) and sell on day 6 (price = 3), profit = 3-0 = 3.
+Then buy on day 7 (price = 1) and sell on day 8 (price = 4), profit = 4-1 = 3.
+```
+
+**Example 2:**
+
+```
+Input: prices = [1,2,3,4,5]
+Output: 4
+Explanation: Buy on day 1 (price = 1) and sell on day 5 (price = 5), profit = 5-1 = 4.
+Note that you cannot buy on day 1, buy on day 2 and sell them later, as you are engaging multiple transactions at the same time. You must sell before buying again.
+```
+
+**Example 3:**
+
+```
+Input: prices = [7,6,4,3,1]
+Output: 0
+Explanation: In this case, no transaction is done, i.e. max profit = 0.
+```
+
+- **Constraints:**
+
+  - `1 <= prices.length <= 105`
+
+  - `0 <= prices[i] <= 105`
+
+- **Thoughts**
+
+  这道题和原版模板十分接近了，即为k = 2的情况。只是需要注意如何在Python构建三维数组以及二三维数组的slicing
+
+- **Solution**
+
+  ```python
+  # dp[i][k][0] = max(dp[i-1][k][0], dp[i-1][k][1] + prices[i])
+  # dp[i][k][1] = max(dp[i-1][k][1], dp[i-1][k-1][0] - prices[i])
+  def maxProfit(self, prices: List[int]) -> int:
+    n = len(prices)
+    if n == 1:
+      return 0
+    dp = [[[0] * 2 for _ in range(3)] for _ in range(n)]			# dp: n * (k+1) * 2
+    
+    # initialization
+    # dp[0][:][0] = 0; dp[0][:][1] = -prices[0]
+    for i in range(3):
+      dp[0][i][0], dp[0][i][1] = 0, -prices[0]
+      
+    for i in range(1, n):
+      for k in range(1, 3):
+        dp[i][k][0] = max(dp[i-1][k][0], dp[i-1][k][1] + prices[i])
+        dp[i][k][1] = max(dp[i-1][k][1], dp[i-1][k-1][0] - prices[i])
+    return dp[n-1][2][0]
+  ```
+
+  - Time complexity: $O(k \times N) = O(2N) = O(N)$
+
+    Space complexity: $O(N)$
+
+  - <u>Optimization</u>
+
+    ```python
+    # reduce dp table to 2-dimensional with no i
+    # dp[i][k][0] = max(dp[i-1][k][0], dp[i-1][k][1] + prices[i])
+    # dp[i][k][1] = max(dp[i-1][k][1], dp[i-1][k-1][0] - prices[i])
+    def maxProfit(self, prices: List[int]) -> int:
+      n = len(prices)
+      if n == 1:
+        return 0
+      dp = [[0] * 2 for _ in range(3)]  # dp: (k + 1) * 2
+      
+      # initialization
+      # dp[:][0] = 0; dp[:][1] = -prices[0]
+      for i in range(3):
+        dp[i][0], dp[i][1] = 0, -prices[0]
+        
+      for i in range(1, n):
+        for k in range(1, 3):
+          dp[k][0] = max(dp[k][0], dp[k][1] + prices[i])
+          dp[k][1] = max(dp[k][1], dp[k-1][0] - prices[i])
+      return dp[2][0]
+    ```
+
+    - Time complexity: $O(k \times N) = O(2N) = O(N)$
+
+      Space complexity: $O(1)$ --> create a dp table with size 6 ($(k + 1) * 2$ is a constant)
+
+## 15. 188 [Best Time to Buy and Sell Stock III](https://leetcode.com/problems/best-time-to-buy-and-sell-stock-iii/description/)
+
+|  Category  |  Difficulty   |                             Tags                             |
+| :--------: | :-----------: | :----------------------------------------------------------: |
+| algorithms | Hard (43.35%) | [`array`](https://leetcode.com/tag/array); [`dynamic-programming`](https://leetcode.com/tag/dynamic-programming) |
+
+You are given an array `prices` where `prices[i]` is the price of a given stock on the `ith` day.
+
+Find the maximum profit you can achieve. You may complete **at most two transactions**.
+
+**Note:** You may not engage in multiple transactions simultaneously (i.e., you must sell the stock before you buy again).
+
+**Example 1:**
+
+```
+Input: prices = [3,3,5,0,0,3,1,4]
+Output: 6
+Explanation: Buy on day 4 (price = 0) and sell on day 6 (price = 3), profit = 3-0 = 3.
+Then buy on day 7 (price = 1) and sell on day 8 (price = 4), profit = 4-1 = 3.
+```
+
+**Example 2:**
+
+```
+Input: prices = [1,2,3,4,5]
+Output: 4
+Explanation: Buy on day 1 (price = 1) and sell on day 5 (price = 5), profit = 5-1 = 4.
+Note that you cannot buy on day 1, buy on day 2 and sell them later, as you are engaging multiple transactions at the same time. You must sell before buying again.
+```
+
+**Example 3:**
+
+```
+Input: prices = [7,6,4,3,1]
+Output: 0
+Explanation: In this case, no transaction is done, i.e. max profit = 0.
+```
+
+- **Constraints:**
+
+  - `1 <= prices.length <= 105`
+
+  - `0 <= prices[i] <= 105`
+
+- **Thoughts**
+
+  这道题可以直接套用股票买卖的模板
+
+- **Solution**
+
+  ```python
+  # dp: n * (k + 1) * 2 --> 3 conditions: day, at most transactions, have/not have a stock
+      def maxProfit(self, k: int, prices: List[int]) -> int:  
+          n = len(prices)
+          # base case
+          if n == 0 or n == 1 or k == 0:
+              return 0
+          
+          # initialization
+          dp = [[[0] * 2 for _ in range(k + 1)] for _ in range(n)]    # dimension:(n, k, 2)
+          for i in range(k + 1):
+              dp[0][i][0] = 0
+              dp[0][i][1] = -prices[0]
+  
+          for i in range(1, n):
+              for j in range(1, k + 1):
+                  dp[i][j][0] = max(dp[i-1][j][0], dp[i-1][j][1] + prices[i])
+                  dp[i][j][1] = max(dp[i-1][j][1], dp[i-1][j-1][0] - prices[i])
+          return dp[n-1][k][0] 
+  # Time complexity: O(k * N)
+  # Space complexity: O(k * N * 2)
+  
+  ## Optimization
+  def maxProfit(self, k: int, prices: List[int]) -> int:
+          n = len(prices)
+          # base case
+          if n == 0 or n == 1 or k == 0:
+              return 0
+          
+          # initialization
+          dp = [[[0] * 2 for _ in range(k + 1)] for _ in range(n)]    # dimension:(n, k, 2)
+          for i in range(k + 1):
+              dp[0][i][0] = 0
+              dp[0][i][1] = -prices[0]
+  
+          for i in range(1, n):
+              for j in range(1, k + 1):
+                  dp[i][j][0] = max(dp[i-1][j][0], dp[i-1][j][1] + prices[i])
+                  dp[i][j][1] = max(dp[i-1][j][1], dp[i-1][j-1][0] - prices[i])
+          return dp[n-1][k][0]  
+  # Time complexity: O(k * N)
+  # Space complexity: O(k * 2) = O(1)
+  ```
+
+  - Further Optimization:
+
+    如果传入的 `k` 值会非常大，`dp` 数组会太大。那么现在想想，交易次数 `k` 最多有多大呢？一次交易由买入和卖出构成，至少需要两天。所以说有效的限制 `k` 应该不超过 `n/2` -->  <font color=blue>**n 天最多只能进行 n/2 笔交易**</font> `k = min(k, n//2)`
+
+    
