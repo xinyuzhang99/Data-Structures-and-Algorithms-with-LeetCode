@@ -130,7 +130,7 @@
 
 - **题型总结：**
 
-  <img src="https://camo.githubusercontent.com/624ae48228610285917d87d92baba28f9e2132199c3e266dbfb82f59acccf302/68747470733a2f2f636f64652d7468696e6b696e672e63646e2e626365626f732e636f6d2f706963732fe58aa8e68081e8a784e588922de680bbe7bb93e5a4a7e7bab2312e6a7067" alt="img" style="zoom: 33%;" />
+  ![img](https://camo.githubusercontent.com/624ae48228610285917d87d92baba28f9e2132199c3e266dbfb82f59acccf302/68747470733a2f2f636f64652d7468696e6b696e672e63646e2e626365626f732e636f6d2f706963732fe58aa8e68081e8a784e588922de680bbe7bb93e5a4a7e7bab2312e6a7067)
 
 ## 1. 322 [Coin Change](https://leetcode.com/problems/coin-change/description/)
 
@@ -865,6 +865,17 @@ Output: 1
     - traversal order: in order
 
     - return value: return max(dp) --> 最终结果（子序列的最大长度）应该是 **dp 数组中的最大值**
+
+  - <font color=blue>**变种题目：674. Longest Continuous Increasing Subsequence**</font>
+
+    Given an unsorted array of integers `nums`, return *the length of the longest **continuous increasing subsequence** (i.e. subarray)*. The subsequence must be **strictly** increasing.
+
+    A **continuous increasing subsequence** is defined by two indices `l` and `r` (`l < r`) such that it is `[nums[l], nums[l + 1], ..., nums[r - 1], nums[r]]` and for each `l <= i < r`, `nums[i] < nums[i + 1]`.
+
+    - 674和这道题最大的区别在于“连续”。本题要求的是最长**连续**递增序列 --> 修改一下递推公式即可：`if nums[i] > nums[i -  1], dp[i] = dp[i - 1] + 1`
+
+    - Time complexity: O(N)
+    - Space complexity: O(N)
 
 - **Solution**
 
