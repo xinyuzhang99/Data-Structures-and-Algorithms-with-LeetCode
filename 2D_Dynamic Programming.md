@@ -87,7 +87,7 @@
 
        `dp[i-1][j]`和`dp[i - 1][j - weight[i]` 都在`dp[i][j]`的左上角方向（包括正上方向），那么先遍历物品，再遍历背包的过程如图所示：
 
-       <img src="https://img-blog.csdnimg.cn/202101101032124.png" alt="动态规划-背包问题5" style="zoom:50%;" />
+       <img src="/Users/xinyuzhang/Downloads/202101101032124.png" alt="202101101032124" style="zoom:50%;" />
 
     - ```python
       def test_2D_bag_problem1(bag_size, weight, value) -> int: 
@@ -110,11 +110,9 @@
 
     **--> 与其把dp[i - 1]这一层拷贝到dp[i]上，不如只用一个一维数组了**，只用dp[j]（一维数组，也可以理解是一个滚动数组）。这就是滚动数组的由来，需要满足的条件是==上一层可以重复利用，直接拷贝到当前层==。
 
-    <img src="https://labuladong.github.io/algo/images/%e7%8a%b6%e6%80%81%e5%8e%8b%e7%bc%a9/1.jpeg" alt="img" style="zoom: 33%;" />
+    <img src="https://labuladong.github.io/algo/images/%e7%8a%b6%e6%80%81%e5%8e%8b%e7%bc%a9/1.jpeg" alt="img" style="zoom:33%;" />
 
     <img src="https://labuladong.github.io/algo/images/%e7%8a%b6%e6%80%81%e5%8e%8b%e7%bc%a9/2.jpeg" alt="img" style="zoom:33%;" />
-
-    <img src="https://pic.leetcode-cn.com/1622938646-fiOLSL-image.png" alt="image.png" style="zoom:33%;" />
 
     1. 确定dp数组的定义
 
@@ -135,13 +133,13 @@
        dp[j]表示：容量为j的背包，所背的物品价值可以最大为dp[j]，那么dp[0]就应该是0，因为背包容量为0所背的物品的最大价值就是0。假设物品价值都是大于0的，所以dp数组初始化的时候，都初始为0就可以了
 
     4. 一维dp数组遍历顺序
-    
+
        ```python
        for i in range(len(weight)):		  # 遍历物品; 从1开始，因为dp[0]已经为0了
          for j in range(bagweight, weight[i] - 1, -1):		# 遍历背包容量
            dp[j] = max(dp[j], dp[j - weight[i]] + value[i])
        ```
-
+    
        - 二维dp遍历的时候，背包容量是从小到大，而一维dp遍历的时候，背包是从大到小。
 
          --> <font color=blue>**倒序遍历是为了保证物品i只被放入一次！**</font>。但如果一旦正序遍历了，那么物品0就会被重复加入多次！
@@ -181,7 +179,7 @@
     5. 举例推导dp数组
 
        <img src="https://img-blog.csdnimg.cn/20210110103614769.png" alt="动态规划-背包问题9" style="zoom:50%;" />
-    
+
     ```python
     # weight = [1, 3, 4]
     # value = [15, 20, 30]
@@ -196,7 +194,7 @@
                 # 递归公式
                 dp[j] = max(dp[j], dp[j - weight[i]] + value[i])
     ```
-
+  
 - ==**完全背包问题🎒 (Complete Knapsack Problem)**==
 
   有N件物品和一个最多能背重量为W的背包。第i件物品的重量是weight[i]，得到的价值是value[i] 。**每件物品都有无限个（也就是可以放入背包多次）**，求解将哪些物品装入背包里物品价值总和最大。--> <font color=blue>**完全背包和01背包问题唯一不同的地方就是，每种物品有无限件，在代码里体现在遍历顺序上的不同**。</font>
@@ -1735,4 +1733,81 @@ Explanation: In this case, no transaction is done, i.e. max profit = 0.
 
     如果传入的 `k` 值会非常大，`dp` 数组会太大。那么现在想想，交易次数 `k` 最多有多大呢？一次交易由买入和卖出构成，至少需要两天。所以说有效的限制 `k` 应该不超过 `n/2` -->  <font color=blue>**n 天最多只能进行 n/2 笔交易**</font> `k = min(k, n//2)`
 
-    
+## 16. 718 [Maximum Length of Repeated Subarray](https://leetcode.com/problems/maximum-length-of-repeated-subarray/description/)
+
+|  Category  |   Difficulty    |                             Tags                             |
+| :--------: | :-------------: | :----------------------------------------------------------: |
+| algorithms | Medium (51.37%) | [`array`](https://leetcode.com/tag/array); [`hash-table`](https://leetcode.com/tag/hash-table); [`binary-search`](https://leetcode.com/tag/binary-search); [`dynamic-programming`](https://leetcode.com/tag/dynamic-programming) |
+
+Given two integer arrays `nums1` and `nums2`, return *the maximum length of a subarray that appears in **both** arrays*.
+
+**Example 1:**
+
+```
+Input: nums1 = [1,2,3,2,1], nums2 = [3,2,1,4,7]
+Output: 3
+Explanation: The repeated subarray with maximum length is [3,2,1].
+```
+
+**Example 2:**
+
+```
+Input: nums1 = [0,0,0,0,0], nums2 = [0,0,0,0,0]
+Output: 5 
+```
+
+- **Constraints:**
+
+  - `1 <= nums1.length, nums2.length <= 1000`
+
+  - `0 <= nums1[i], nums2[i] <= 100`
+
+- **Thoughts**
+
+  - 这道题和📒<u>1D_Dynamic Programming.md</u>的300. [Longest Increasing Subsequence](https://leetcode.com/problems/longest-increasing-subsequence/description/)和变种题目674的区别主要在于这里有两个`nums`，所以对应的dp数组也是二维的
+  - 遵循动态规划五个步骤：
+    - definition: `dp[i][j]`: the maximum length of a subarray to nums1[i] and nums2[j]; return max(dp)
+    - equation: `if nums1[i - 1] == nums2[j - 1]: dp[i][j] = dp[i - 1][j - 1] + 1`
+    - initialization: `dp[i][j] = 0`; dp: (i + 1) * (j + 1) --> <font color=red>设置dp数组为(i + 1) * (j + 1)是因为num1[0]和nums2[0]也要进行是否相等的比较，所以dp数组值不确定为0或1，要增加一行一列初始化</font>
+
+- **Solution**
+
+  ```python
+  def findLength(self, nums1: List[int], nums2: List[int]) -> int:        
+      n1, n2 = len(nums1), len(nums2)
+      dp = [[0] * (n2 + 1) for _ in range(n1 + 1)]
+      res = 0
+      for i in range(1, n1 + 1):
+        for j in range(1, n2 + 1):
+          if nums1[i - 1] == nums2[j - 1]:
+            dp[i][j] = dp[i - 1][j - 1] + 1
+            res = max(res, dp[i][j])
+      return res
+  ```
+
+  - Time complexity: $O(N1 \times N2)$
+
+    Space complexity: $O(N1 \times N2)$
+
+  - <u>Optimization: 滚动数组</u>
+
+    `dp[i][j]都是由dp[i - 1][j - 1]`推出。那么压缩为一维数组，也就是dp[j]都是由dp[j - 1]推出。也就是相当于可以把上一层`dp[i - 1][j]`拷贝到下一层`dp[i`][j]来继续用。
+
+    ```python
+    def findLength(self, nums1: List[int], nums2: List[int]) -> int:     
+      n1, n2 = len(nums1), len(nums2)
+      dp = [0] * (n2 + 1)
+      res = 0
+      for i in range(1, n1 + 1):
+        for j in range(n2, 0, -1):
+          if nums1[i - 1] == nums2[j - 1]:
+            dp[j] = dp[j - 1] + 1
+          else:
+            dp[j] = 0
+            res = max(res, dp[j])
+      return res
+    ```
+
+    <font color=red>**易错点：在从二维数组转换为一维数组时一定要注意遍历第二维时要从后向前遍历，避免重复覆盖！！**</font>
+
+  
