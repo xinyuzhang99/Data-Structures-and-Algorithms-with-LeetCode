@@ -1035,3 +1035,113 @@ Explanation: In this case, no transactions are done and the max profit = 0.
     - Time complexity: $O(N)$
 
       Space complexity: $O(1)$
+  
+  - <u>Method 2: Dynamic Programming</u>
+  
+    --> see 2D-Dynamic Programming.md
+
+## 14. 31 [Next Permutation](https://leetcode.com/problems/next-permutation/description/)
+
+|  Category  |   Difficulty    |                          Tags                           |
+| :--------: | :-------------: | :-----------------------------------------------------: |
+| algorithms | Medium (36.51%) | [`array`](https://leetcode.com/tag/array); Two-Pointers |
+
+A **permutation** of an array of integers is an arrangement of its members into a sequence or linear order.
+
+- For example, for `arr = [1,2,3]`, the following are all the permutations of `arr`: `[1,2,3], [1,3,2], [2, 1, 3], [2, 3, 1], [3,1,2], [3,2,1]`.
+
+The **next permutation** of an array of integers is the next lexicographically greater permutation of its integer. More formally, if all the permutations of the array are sorted in one container according to their lexicographical order, then the **next permutation** of that array is the permutation that follows it in the sorted container. If such arrangement is not possible, the array must be rearranged as the lowest possible order (i.e., sorted in ascending order).
+
+- For example, the next permutation of `arr = [1,2,3]` is `[1,3,2]`.
+- Similarly, the next permutation of `arr = [2,3,1]` is `[3,1,2]`.
+- While the next permutation of `arr = [3,2,1]` is `[1,2,3]` because `[3,2,1]` does not have a lexicographical larger rearrangement.
+
+Given an array of integers `nums`, *find the next permutation of* `nums`.
+
+The replacement must be **[in place](http://en.wikipedia.org/wiki/In-place_algorithm)** and use only constant extra memory. 
+
+**Example 1:**
+
+```
+Input: nums = [1,2,3]
+Output: [1,3,2]
+```
+
+**Example 2:**
+
+```
+Input: nums = [3,2,1]
+Output: [1,2,3]
+```
+
+**Example 3:**
+
+```
+Input: nums = [1,1,5]
+Output: [1,5,1] 
+```
+
+- **Constraints:**
+
+  - `1 <= nums.length <= 100`
+
+  - `0 <= nums[i] <= 100`
+
+- **Thoughts**
+
+  - “下一个排列”的定义是：给定数字序列的字典序中下一个更大的排列。如果不存在下一个更大的排列，则将数字重新排列成最小的排列（即升序排列）。我们可以将该问题形式化地描述为：给定若干个数字，将其组合为一个整数。如何将这些数字重新排列，以得到下一个更大的整数。如 123 下一个更大的数为 132。如果没有更大的整数，则输出最小的整数。
+
+  - Approach: 
+
+    1. Generate every permutation until find the current and next permutation
+
+       cons: not satisfy problem requirement; time complexity: O(N * N!)
+
+    2. Case Analysis
+
+       a strictly decreasing section is the last permutation
+
+  - 如何得到这样的排列顺序？这是本文的重点。我们可以这样来分析：
+
+    1. 我们希望下一个数比当前数大，这样才满足“下一个排列”的定义。因此只需要将后面的「大数」与前面的「小数」交换，就能得1到一个更大的数。比如 123456，将 5 和 6 交换就能得到一个更大的数 123465。
+    2. 我们还希望下一个数增加的幅度尽可能的小，这样才满足“下一个排列与当前排列紧邻“的要求。为了满足这个要求，我们需要：
+       1. **在尽可能靠右的低位进行交换，需要从后向前查找**
+       2. 将一个 尽可能小的「大数」 与前面的「小数」交换。比如 123465，下一个排列应该把 5 和 4 交换而不是把 6 和 4 交
+       3. 将「大数」换到前面后，需要将「大数」后面的所有数重置为升序，升序排列就是最小的排列。以 123465 为例：首先按照上一步，交换 5 和 4，得到 123564；然后需要将 5 之后的数重置为升序，得到 123546。显然 123546 比 123564 更小，123546 就是 123465 的下一个排列。
+
+  - 资料：[Next lexicographical permutation algorithm](https://www.nayuki.io/page/next-lexicographical-permutation-algorithm)
+
+    步骤如下：
+
+    <img src="/Users/xinyuzhang/Downloads/IMG_722D001CF367-1.jpeg" alt="IMG_722D001CF367-1" style="zoom: 33%;" />
+
+- **Solution**
+
+  ```python
+  def nextPermutation(self, nums: List[int]) -> None:
+    def nextPermutation(self, nums: List[int]) -> None:
+          """
+          Do not return anything, modify nums in-place instead.
+          """
+          n = len(nums)
+          # S1: find non-increasing suffix
+          i = n - 1
+          while i > 0 and nums[i - 1] >= nums[i]:
+              i -= 1
+          if i == 0:
+              nums.reverse()
+              return
+          
+          # S2: find successor to pivot; nums[i - 1] is the last ascending position
+          j = n - 1
+          while nums[j] <= nums[i - 1]:
+              j -= 1
+          nums[i - 1], nums[j] = nums[j], nums[i - 1]
+  
+          # S3: reverse sufix --> reverse 
+          nums[i:] = nums[n-1:i-1:-1]  # reverse nums[i:n - 1]
+  ```
+
+  - Time complexity: $O(N)$
+
+    Space complexity: $O(1)$
