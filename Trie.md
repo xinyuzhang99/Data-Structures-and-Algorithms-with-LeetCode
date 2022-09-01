@@ -19,7 +19,7 @@
 
     <img src="https://labuladong.github.io/algo/images/trie/2.jpeg" alt="img" style="zoom:50%;" />
 
-- Trie can be efficient for checking prefixes --> reuse many nodes; not necessarily create a separate node for every single word
+- Trie can be efficient for checking prefixes --> ==reuse many nodes; not necessarily create a separate node for every single word==
 
 ## 1. 208 [Implement Trie (Prefix Tree)](https://leetcode.com/problems/implement-trie-prefix-tree/description/)
 
@@ -105,7 +105,8 @@ trie.search("app");     // return True
               if ch not in cur.children:
                   return False
               cur = cur.children[ch]
-          return cur.endOfWord 
+          ## Important!! complete traversal of the word but may be False (eg. Trie has 'apple' but the word is 'app')
+          return cur.endOfWord   
   
       def startsWith(self, prefix: str) -> bool:
           # start from root --> check character by character; no need to  check flag
@@ -116,14 +117,15 @@ trie.search("app");     // return True
               cur = cur.children[ch]
           return True
   ```
-
+  
   - Time complexity: Initialization: O(1); Other: O(N)
-
+  
     Space complexity: O(N) --> children needs extra memory
-
+  
   - <font color=red>**注意点：**</font>
     - `cur.children[ch] = TrieNode()`不是`cur.children['ch'] = TrieNode()`!
     - 当移动到下一步时，是`cur = cur.children[ch]`不是`cur = cur.children`，要移动到对应的下一个节点处
+      - `search`和`startsWith`的区别在于将变量遍历完之后，`search`返回的是`endOfWord`这个flag，而`startsWith`可以直接返回True
 
 ## 2. 211 [Design Add and Search Words Data Structure](https://leetcode.com/problems/design-add-and-search-words-data-structure/description/)
 
