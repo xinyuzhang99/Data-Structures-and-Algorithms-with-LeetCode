@@ -873,6 +873,8 @@ Output: 9
 
     --> 不使用备忘录提前计算了，而是用双指针**边走边算**，节省下空间复杂度
 
+    <img src="https://labuladong.github.io/algo/images/%e6%8e%a5%e9%9b%a8%e6%b0%b4/5.jpg" alt="img" style="zoom: 50%;" />
+    
     ```python
     def trap(height: List[int]) -> int:
       if not height:
@@ -883,14 +885,14 @@ Output: 9
       
       res = 0
       while (l < r): 
-        if l_max <= r_max:
+        l_max = max(l_max, height[l])
+        r_max = max(r_max, height[r])
+        if l_max <= r_max:					#find a greater left wall
+          res += l_max - height[l]
           l += 1
-          l_max = max(l_max, height[l])
-          res += l_max - height[i]
         else:
+          res += r_max - height[r]
           r -= 1
-          r_max = max(r_max, height[r])
-          res += r_max - height[i]
       return res
     ```
     
@@ -951,9 +953,6 @@ Output: 1
 
   ```python
   def maxArea(self, height: List[int]) -> int:
-    if not height:
-      return 0
-    
     n = len(height)
     l, r = 0, n - 1
     res = 0
