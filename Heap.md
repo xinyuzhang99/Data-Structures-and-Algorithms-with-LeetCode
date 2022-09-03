@@ -515,13 +515,13 @@ Explanation: The answer [[-2,4],[3,3]] would also be accepted.
 
 - **Thoughts**
 
-  - k closest points to the origin --> minheap; closest distance to (0, 0) --> (x1 - x2)^2 + (y1 - y2)^2 --> x^2 + y^2
+  - k closest points to the origin --> minheap; closest distance to (0, 0) --> $(x1 - x2)^2 + (y1 - y2)^2 -> x^2 + y^2$
 
     --> main idea: use min-heap based on distance and return the first k elements
 
   - S1: create a new array to record each point's distance
 
-    S2: establish a min-heap (distance, point)
+    S2: establish a min-heap (distance, point) <font color=red>重点！由于最小堆是对距离进行排序，然而最后结果要求返回的是points，所以最小堆输入的应该是一个tuple</font>
 
     S3: return the first k elements using index (pop out)
 
@@ -540,41 +540,48 @@ Explanation: The answer [[-2,4],[3,3]] would also be accepted.
   
     n = len(points)
     distance = [None] * n
-    for i in range(n):
-      x = points[i][0]
-      y = points[i][1]
-      distance[i] = math.sqrt((math.pow(x, 2) + math.pow(y, 2)))
-  
-      minHeap = []
-      heapq.heapify(minHeap)
-      for i in range(n):
-        heapq.heappush(minHeap, (distance[i], points[i]))
-  
-      res = []
-      while k > 0:
-        val = heapq.heappop(minHeap)
-        res.append(val[1])
-        k -= 1
-      return res
-    
-  # Version 2: Non-optimized + simplified
-  def kClosest(self, points: List[List[int]], k: int) -> List[List[int]]:
-    pts = []
+    # for i in range(n):
+      # x = points[i][0]
+      # y = points[i][1]
+      # distance[i] = math.sqrt((math.pow(x, 2) + math.pow(y, 2)))
     for x, y in points:
-      dist = math.pow(x, 2) + math.pow(y, 2)
-      pts.append([dist, x, y])
-    
-    heapq.heapify(pts)
+      distance[i] = math.sqrt(x**2 + y**2)
+  
+    minHeap = []
+    heapq.heapify(minHeap)
+    for i in range(n):
+      heapq.heappush(minHeap, (distance[i], points[i]))
+  
     res = []
-    for _ in range(k):
-      dist, x, y = heapq.heappop(pts)
-      res.append([x, y])
+    while k > 0:
+      val = heapq.heappop(minHeap)
+      res.append(val[1])
+      k -= 1
     return res
+  # Time complexity: $O(nlogn)$
+  # Space complexity: O(n) --> build a heap to store most n values
+    
+  # Version 2: Non-optimized + simplified 使用大根堆！！
+  # Optimization: to ensure the heap has k closest points, so we use max-heap and eliminate unsatisfactory points (order is unnecessary)
+  def kClosest(self, points: List[List[int]], k: int) -> List[List[int]]:
+    if not points:
+      return []
+  
+    maxHeap = []
+    for x, y in points[:k]:   # the k-size heap
+      maxHeap.append((-math.sqrt(x**2 + y**2), x, y))
+      heapq.heapify(maxHeap)
+  
+    for x, y in points[k:]:
+      dist = -math.sqrt(x**2 + y**2)
+      heapq.heappushpop(maxHeap, (dist, x, y))
+    return [[x, y] for (dist, x, y) in maxHeap] 
+  
+  # Time complexity: O(nlogk)
+  # Inserting an item to a heap of size k take `O(logK)` time. And we do this for each item points. So runtime is `O(N * logK)` where N is the length of `points`.
+  # Space complexity: O(k)
   ```
-
-  - Time complexity: $O(nlogn)$ 
-
-    Space complexity: O(n) --> build a heap to store most n values
+  
 
 ## 7. 621 [Task Scheduler](https://leetcode.com/problems/task-scheduler/description/)
 
