@@ -39,7 +39,6 @@ def BFS(start, target):
   q = deque([start])		 # S1: initialize a queue and add the start in queue
   visisted.add(start)		
   step = 0							 # 记录扩散的步数
-  
   										
   while q:								# S2: traverse through each level
     n = len(q)
@@ -524,7 +523,109 @@ Output:
 
   - <font color=red>**注意点：**</font>为了防止无限循环，添加一个`visited`的集合记录已经修改过的cell
 
-## 6. 127 [Word Ladder](https://leetcode.com/problems/word-ladder/description/)
+
+## 6. 1293 [Shortest Path in a Grid with Obstacles Elimination](https://leetcode.com/problems/shortest-path-in-a-grid-with-obstacles-elimination/description/)
+
+|  Category  |  Difficulty   |                             Tags                             |
+| :--------: | :-----------: | :----------------------------------------------------------: |
+| algorithms | Hard (43.53%) | [`breadth-first-search`](https://leetcode.com/tag/breadth-first-search) |
+
+You are given an `m x n` integer matrix `grid` where each cell is either `0` (empty) or `1` (obstacle). You can move up, down, left, or right from and to an empty cell in **one step**.
+
+Return *the minimum number of **steps** to walk from the upper left corner* `(0, 0)` *to the lower right corner* `(m - 1, n - 1)` *given that you can eliminate **at most*** `k` *obstacles*. If it is not possible to find such walk return `-1`.
+
+**Example 1:**
+
+![img](https://assets.leetcode.com/uploads/2021/09/30/short1-grid.jpg)
+
+```
+Input: grid = [[0,0,0],[1,1,0],[0,0,0],[0,1,1],[0,0,0]], k = 1
+Output: 6
+Explanation: 
+The shortest path without eliminating any obstacle is 10.
+The shortest path with one obstacle elimination at position (3,2) is 6. Such path is (0,0) -> (0,1) -> (0,2) -> (1,2) -> (2,2) -> (3,2) -> (4,2).
+```
+
+**Example 2:**
+
+![img](https://assets.leetcode.com/uploads/2021/09/30/short2-grid.jpg)
+
+```
+Input: grid = [[0,1,1],[1,1,1],[1,0,0]], k = 1
+Output: -1
+Explanation: We need to eliminate at least two obstacles to find such a walk.
+```
+
+- **Constraints:**
+
+  - `m == grid.length`
+
+  - `n == grid[i].length`
+
+  - `1 <= m, n <= 40`
+
+  - `1 <= k <= m * n`
+
+  - `grid[i][j]` is either `0` **or** `1`.
+
+  - `grid[0][0] == grid[m - 1][n - 1] == 0`
+
+- **Thoughts**
+
+  - 当看到求最短路径时，如果是无向图首先想到使用BFS方法，如果是有向图首先想到使用Dijkstra方法 --> simplifying the problem: shortest path --> BFS for unweighted graphs; optimization: keep track of the removable obstacles
+
+  - 这道题为上一道题 5. 286 Walls and Gates 的变种题，区别在于：对于此题，点坐标(x, y)本身不足以与当前状态一一对应：显然即使在同一位置上，可以越过障碍的剩余机会数目也会决定之后是否能走完、可以走的最短路径等信息，所以需要(x, y, restK)三元组来与当前状态一一对应。
+
+  - 一个剪枝小技巧：
+
+    假设网格中都是0，没有障碍物，每次只能走四个方向，那么最短路径一定是m+n-2。 如果k>=m+n-3，那么最短路径一定是m+n-2。不需要BFS，浪费性能。 如果k<m+n-3，才需要BFS。
+
+    <img src="/Users/xinyuzhang/Downloads/IMG_A4391059976B-1.jpeg" alt="IMG_A4391059976B-1" style="zoom: 25%;" />
+
+- **Solution**
+
+  ```python
+  from collections import deque
+  def shortestPath(self, grid: List[List[int]], k: int) -> int:
+    row, col = len(grid), len(grid[0])
+    visited = set()   # keep track of the visited cells to avoid repetition
+    q = deque()				# (r, c, kk): row, col, remaining k
+    dir = [[-1, 0], [1, 0], [0, -1], [0, 1]]   # left, right, down, up
+    
+    # prune
+    if k >= row + col - 2:
+      return row + col - 2
+    
+    # initialize q, visited and result steps
+    visited.add((0, 0, k))
+    q.add((0, 0, k))
+    steps = 0
+    
+    while q:
+      for _ in range(len(q)):
+        r, c, k_rest = q.popleft()
+        if r == row - 1 and c == col - 1:				# reach the bottom-right cell
+          return steps
+        
+        # traverse throught the four neighbor cells
+        for d in dir:
+          r_new, c_new = r + d[0], c + d[1]
+          k_new = k_rest - grid[r_new][c_new]
+          if r_new < 0 or r_new >= row or c_new < 0 or c_new >= col:   # out of bound
+            continue
+          state = (r_new, c_new, k_new)
+          if k_new >= 0 and state not in visited:
+            visited.add(state)
+            q.append(state)
+      steps += 1
+    return -1
+  ```
+
+  - Time complexity: $O(m \times n \times k)$ --> for every cell (m*n), the worst case we have to put that cell into the queue/bfs k times
+
+    Space complexity: $O(m \times n \times k)$ --> for every cell (m*n), in the worst case we have to put that cell into the queue/bfs k times which means we need to worst case <u>store all of those steps/paths in the visited set</u>.
+
+## 7. 127 [Word Ladder](https://leetcode.com/problems/word-ladder/description/)
 
 |  Category  |  Difficulty   |                             Tags                             |
 | :--------: | :-----------: | :----------------------------------------------------------: |
