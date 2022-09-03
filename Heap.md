@@ -106,6 +106,8 @@ Output: 4
                 heapq.heappop(maxheap)
                 k -= 1
             return -1 * maxheap[0]
+    # Time complexity: O(nlogn)
+    # Space complexity: O(n)
     
     # Method 2: use min-heap
     import heapq
@@ -118,6 +120,10 @@ Output: 4
                 heapq.heappop(minHeap)
             return minHeap[0]
     ```
+
+​			    Time complexity: O(nlogn)
+
+​				Space complexity: O(n)
 
 ## 2. 692 [Top K Frequent Words](https://leetcode.com/problems/top-k-frequent-words/description/)
 
@@ -212,6 +218,9 @@ Explanation: "the", "is", "sunny" and "day" are the four most frequent words, wi
           return res
   ```
 
+​		- Time complexity: O(n + nlogk + n) = O(nlogk)
+
+​		  Space complexity: O(k)
 
 ## 3. 347 [Top K Frequent Elements](https://leetcode.com/problems/top-k-frequent-elements/description/)
 
