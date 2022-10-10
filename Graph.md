@@ -1599,40 +1599,86 @@ Output: false.
 
 - **Thoughts**
 
-  - 和684. Redundant Connection题目很类似，可以使用union-find算法模板
-  - Valid tree: have no cycles + <font color=red>**len(edges) should equal to (n - 1)!**</font> --> 由于题目同时给了 $n$ 和 $edges$，所以要考虑到两者比较关系对结果的影响
-
+  - Valid tree: have no cycles + <font color=red>**len(edges) should equal to (n - 1)! (the tree is fully connected!)**</font> --> 由于题目同时给了 $n$ 和 $edges$，所以要考虑到两者比较关系对结果的影响
+  
 - **Solution**
 
-  ```python
-  def valid_tree(self, n: int, edges: List[List[int]]) -> bool:
-          # write your code here
-          if len(edges) != n - 1:
-              return False
+  - <u>Method 1: Depth-first-search</u>
   
-          parent = list(range(n))
+    - method: DFS --> create an adjacency list using hashmap and a visted set to track all visited nodes
   
-          def find(node):
-              if node != parent[node]:
-                  parent[node] = find(parent[node])
-              return parent[node]
-          
-          def union(node1, node2):
-              root1 = find(node1)
-              root2 = find(node2)
-              parent[root1] = root2
-          
-          for node1, node2 in edges:
-              if find(node1) != find(node2):
-                  union(node1, node2)
-              else:
+    - fully connected: `len(visited) = n`
+  
+    - no cycle: check the visited set --> <font color=red>**Important!: because this is an undirected graph, so trivial 'cycles' might be detected (false positive)**</font> --> created another variable `prev` to denote the previous node 
+  
+      注意在这道题中，图是无向的，所以在创建adjacency list时，对于每条edge两个node都要加。在detect loop时也要注意要跳过该节点的上一个节点，以防错误检测loop
+  
+    ```python
+    def validTree(self, n: int, edges: List[List[int]]) -> bool:
+            if len(edges) != n - 1:
+                return False
+            
+            # S1: create an adjacency list using a hashmap {key (node value): value (neighbor value)}
+            adj = {i:[] for i in range(n)}					
+            for node1, node2 in edges:							# O(E)
+                adj[node1].append(node2)	
+                adj[node2].append(node1)
+            
+            # S2: implement DFS to visit all nodes and check if there is a loop
+            visited = set()
+            def dfs(node, prev):
+                if node in visited:
+                    return False
+                
+                visited.add(node)
+                for neighbor in adj[node]:						# O(N)
+                    if neighbor == prev:
+                        continue
+                    if not dfs(neighbor, node):
+                        return False
+                return True
+            
+            return dfs(0, -1) and len(visited) == n
+    ```
+  
+    - Time complexity: $O(N + E)$ --> traverse through each node and each edge
+  
+      Space complexity: $O(N + E)$ --> The adjacency list is a list of length N, with inner lists with lengths that add to a total of E. This gives a total of O(N + E) space.
+  
+  - <u>Method 2: Union-find</u>
+  
+    - 和684. Redundant Connection题目很类似，可以使用union-find算法模板
+  
+      ```python
+      def valid_tree(self, n: int, edges: List[List[int]]) -> bool:
+              # write your code here
+              if len(edges) != n - 1:
                   return False
-          return True
-  ```
-
-  - Time complexity: $O(2nlogn) = O(nlogn)$
-
-    Space complexity: O(n) by `parent` 
+      
+              parent = list(range(n))
+      
+              def find(node):
+                  if node != parent[node]:
+                      parent[node] = find(parent[node])
+                  return parent[node]
+              
+              def union(node1, node2):
+                  root1 = find(node1)
+                  root2 = find(node2)
+                  parent[root1] = root2
+              
+              for node1, node2 in edges:
+                  if find(node1) != find(node2):
+                      union(node1, node2)
+                  else:
+                      return False
+              return True
+      ```
+  
+    - Time complexity: $O(2nlogn) = O(nlogn)$ (no optimization of union-find)
+  
+      Space complexity: O(n) by `parent` 
+  
 
 ## 14. 332 [Reconstruct Itinerary](https://leetcode.com/problems/reconstruct-itinerary/description/)
 
