@@ -26,6 +26,14 @@
 
     树的判定算法加上按权重排序的逻辑就变成了 Kruskal 算法
 
+    [Kruskal's algorithm](https://leetcode.com/explore/featured/card/graph/621/algorithms-to-construct-minimum-spanning-tree/3856/) is a **greedy algorith**m for building a minimum spanning tree in a ***weighted* and *undirected*** graph.
+
+  - <u>Prim算法</u>
+
+    **首先，Prim 算法也使用贪心思想来让生成树的权重尽可能小**，也就是「切分定理」。
+
+    **其次，Prim 算法使用 [BFS 算法思想](https://labuladong.github.io/algo/4/31/111/) 和 `visited` 布尔数组避免成环**，来保证选出来的边最终形成的一定是一棵树。
+
 ## 1. 1135 [Connecting Cities With Minimum Cost](https://leetcode.com/problems/connecting-cities-with-minimum-cost/)
 
 There are `n` cities labeled from `1` to `n`. You are given the integer `n` and an array `connections` where `connections[i] = [xi, yi, costi]` indicates that the cost of connecting city `xi` and city `yi` (bidirectional connection) is `costi`.
@@ -110,6 +118,108 @@ Explanation: There is no way to connect all cities even if all edges are used.
           return weight if total == n - 1 else -1   # check if the graph is fully-connected (result edge = n - 1)
   ```
 
-  - Time complexity: $O(ElogE + N + E * \alpha(N))$
+  - Time complexity: $O(ElogE + E * \alpha(N))$
   - Space complexity: O(N), space required by `parents`.
 
+## 2. 1584 [Min Cost to Connect All Points](https://leetcode.com/problems/min-cost-to-connect-all-points/description/)
+
+|  Category  |   Difficulty    |                     Tags                      |
+| :--------: | :-------------: | :-------------------------------------------: |
+| algorithms | Medium (64.34%) | [`Unknown`](https://leetcode.com/tag/Unknown) |
+
+You are given an array `points` representing integer coordinates of some points on a 2D-plane, where `points[i] = [xi, yi]`.
+
+The cost of connecting two points `[xi, yi]` and `[xj, yj]` is the **manhattan distance** between them: `|xi - xj| + |yi - yj|`, where `|val|` denotes the absolute value of `val`.
+
+Return *the minimum cost to make all points connected.* All points are connected if there is **exactly one** simple path between any two points.
+
+**Example 1:**
+
+![img](https://assets.leetcode.com/uploads/2020/08/26/d.png)
+
+```
+Input: points = [[0,0],[2,2],[3,10],[5,2],[7,0]]
+Output: 20
+Explanation: 
+
+We can connect the points as shown above to get the minimum cost of 20.
+Notice that there is a unique path between every pair of points.
+```
+
+**Example 2:**
+
+```
+Input: points = [[3,12],[-2,5],[-4,1]]
+Output: 18
+```
+
+- **Constraints:**
+
+  - `1 <= points.length <= 1000`
+
+  - `-106 <= xi, yi <= 106`
+
+  - All pairs `(xi, yi)` are distinct.
+
+- **Solution**
+
+  - 这道题和1135. Connecting Cities With Minimum Cost基本一致，都是使用Minimum Spanning Tree算法，区别在于这道题每两个点之间的cost需要先计算出来
+
+    这道题做了一个小的变通：每个坐标点是一个二元组，那么按理说应该用五元组表示一条带权重的边，但这样的话不便执行 Union-Find 算法；所以我们用 `points` 数组中的索引代表每个坐标点，这样就可以直接复用之前的 Kruskal 算法逻辑了。
+
+  - <u>Method 1: Kruskal Algorithm</u>
+
+    --> sort distance + union find
+
+    - S1: build edge list to represent distance between a pair of points --> adjacency list
+    - S2: sort distance in ascending order
+    - S3: use union-find
+
+    ```python
+     n = len(points)
+            # S1: create an edge list to represent tuple(edgeweight, node1, node2): 生成所有边及权重
+            edges = []																				# Space complexity: O(E) to cover all edges
+            for i in range(n):            # current node
+                for j in range(i + 1, n): # next node
+                    distance = abs(points[i][0] - points[j][0]) + abs(points[i][1] - points[j][1])
+                    edges.append((distance, i, j))
+    
+            # S2: sort distance in ascending order
+            edges.sort()																			# Time complexity: O(ElogE)
+    
+            # S3: use union-find (by rank + path compression) # Time complexity: O(E * alpha(V))
+            parent = list(range(n))														# Space complexity: O(V)
+            # rank = [1] * n
+            self.count = n   # initial there are n connected components
+            
+            # Find the root of the node
+            def find(node):
+                if parent[node] != node:
+                    parent[node] = find(parent[node])
+                return parent[node]
+            
+            # Connect two nodes
+            def union(node1, node2):
+                root1 = find(node1)
+                root2 = find(node2)
+                if root1 == root2:
+                    return
+                parent[root1] = root2
+            
+            cost = 0
+            for distance, node1, node2 in edges:						 # Time complexity: O(E * alpha(V))
+                if find(node1) == find(node2):
+                    continue
+                else:
+                    union(node1, node2)
+                    cost += distance
+                    self.count -= 1
+                    if self.count == 1:
+                        break
+            return cost
+    ```
+
+    - Time complexity: $O(ElogE + E * \alpha(N))$
+    - Space complexity: $O(E + V)$, space required by `edges` and `parents`.
+
+    
