@@ -38,6 +38,10 @@
 
       **每次切分都能找到最小生成树的一条边，然后又可以进行新一轮切分，直到找到最小生成树的所有边为止**。
 
+- **Dijkstra (pronunciation: dike·struh) Algorithm**
+
+  --> 是一个 BFS 算法的加强版，都是从二叉树的层序遍历衍生出来的
+
 ## 1. 1135 [Connecting Cities With Minimum Cost](https://leetcode.com/problems/connecting-cities-with-minimum-cost/)
 
 There are `n` cities labeled from `1` to `n`. You are given the integer `n` and an array `connections` where `connections[i] = [xi, yi, costi]` indicates that the cost of connecting city `xi` and city `yi` (bidirectional connection) is `costi`.
@@ -90,40 +94,80 @@ Explanation: There is no way to connect all cities even if all edges are used.
 
 - **Solution**
 
-  ```python
-  def minimumCost(self, n: int, connections: List[List[int]]) -> int:
-          
-          connections.sort(key = lambda x: x[2])    # sort all edges by cost: O(ElogE)
-          weight = 0
-          total = 0  # keep track of the edge number
-          
-          # 城市编号为 1...n，所以初始化大小为 n + 1
-          parent = list(range(n + 1))								# space complexity: O(N)
-          def find(node):
-              if parent[node] != node:
-                  parent[node] = find(parent[node])  # path compression
-              return parent[node]
-          
-          def union(node1, node2):
-              root1 = find(node1)
-              root2 = find(node2)
-              if root1 == root2:
-                  return
-              parent[root1] = root2
-          
-          for x, y, cost in connections:
-              if find(x) == find(y):
-                  continue
-              else:
-                  union(x, y)												# each time: alpha(N); for E edges: O(E*alpha(N)) = O(E)
-                  weight += cost
-                  total += 1
-          
-          return weight if total == n - 1 else -1   # check if the graph is fully-connected (result edge = n - 1)
-  ```
+  - <u>Method 1: Kruskal Algorithm</u>
 
-  - Time complexity: $O(ElogE + E * \alpha(N))$
-  - Space complexity: O(N), space required by `parents`.
+    ```python
+    def minimumCost(self, n: int, connections: List[List[int]]) -> int:
+            
+            connections.sort(key = lambda x: x[2])    # sort all edges by cost: O(ElogE)
+            weight = 0
+            total = 0  # keep track of the edge number
+            
+            # 城市编号为 1...n，所以初始化大小为 n + 1
+            parent = list(range(n + 1))								# space complexity: O(N)
+            def find(node):
+                if parent[node] != node:
+                    parent[node] = find(parent[node])  # path compression
+                return parent[node]
+            
+            def union(node1, node2):
+                root1 = find(node1)
+                root2 = find(node2)
+                if root1 == root2:
+                    return
+                parent[root1] = root2
+            
+            for x, y, cost in connections:
+                if find(x) == find(y):
+                    continue
+                else:
+                    union(x, y)												# each time: alpha(N); for E edges: O(E*alpha(N)) = O(E)
+                    weight += cost
+                    total += 1
+            
+            return weight if total == n - 1 else -1   # check if the graph is fully-connected (result edge = n - 1)
+    ```
+
+    - Time complexity: $O(ElogE + E * \alpha(N))$
+
+    - Space complexity: O(N), space required by `parents`.
+
+  - <u>Method 2: Prim's Algorithm</u>
+
+    ```python
+    # Prim's Algorithm: BFS with adjacency list + visited set + min-heap (cost, node)
+    # each time: pop out the top minimum cost; then push all neighbors and their weighs into the min-heap
+    from collections import defaultdict
+    import heapq
+    def minimumCost(self, n: int, connections: List[List[int]]) -> int:
+            visited = set()									# visited set to track visited cities 
+            adjacent = defaultdict(list)    # adjacency list with all edges
+            for city1, city2, cost in connections:						#  Time complexity: O(E)
+                adjacent[city1].append((cost, city2))
+                adjacent[city2].append((cost, city1))
+            
+            minHeap = [(0, 1)]    # intitialize the mininmum heap
+            heapq.heapify(minHeap)
+            res = 0
+            
+            while minHeap and len(visited) < n:							   # Time complexity: O(ElogE)
+                cost, city = heapq.heappop(minHeap)						 # O(logE) for each pop/push operation
+                if city in visited:
+                    continue
+                
+                visited.add(city)
+                res += cost
+                
+                for next_cost, next_city in adjacent[city]:
+                    if next_city in visited:
+                        continue
+                    heapq.heappush(minHeap, (next_cost, next_city)) 
+            return res if len(visited) == n else -1
+    ```
+
+    - Time complexity: $O(E + ElogE)$
+
+    - Space complexity: $O(V + E)$, space required by `visited` and `adjacent`.
 
 ## 2. 1584 [Min Cost to Connect All Points](https://leetcode.com/problems/min-cost-to-connect-all-points/description/)
 
