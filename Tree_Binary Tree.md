@@ -383,8 +383,7 @@ Output: []
         <img src="https://assets.leetcode-cn.com/solution-static/116/5.png" alt="fig5" style="zoom:25%;" />
 
       完成当前层的连接后，进入下一层重复操作，直到所有的节点全部连接。进入下一层后需要更新最左节点，然后从新的最左节点开始遍历该层所有节点。因为是完美二叉树，因此最左节点一定是当前层最左节点的左孩子。如果当前最左节点的左孩子不存在，说明已经到达该树的最后一层，完成了所有节点的连接。
-
-
+    
     ```python
     def connect(self, root: 'Optional[Node]') -> 'Optional[Node]':
             def traverse(root):
@@ -397,17 +396,16 @@ Output: []
                     root.right.next = root.next.left
             
                 traverse(root.left)
-                traverse(root.right)
+                traverse(root.right)s
     
             if not root:
                 return
             traverse(root)
             return root 
+    
+    # Time complexity: O(N) --> each node is accessed once
+    # Space complexity: O(N) --> stack memory
     ```
-    
-    Time complexity: O(N) --> each node is accessed once
-    
-    Space complexity: O(N) --> stack memory
 
   - <font color=red>**<u>Method 4: Traversal with O(1) memory</u>**</font>
 
