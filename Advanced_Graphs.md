@@ -2,7 +2,7 @@
 
 - **最小生成树算法 Minimum Spanning Tree**
 
-  最小生成树算法主要有 **Prim 算法（普里姆算法）**和 **Kruskal 算法（克鲁斯卡尔算法）**两种，这两种算法虽然都运用了贪心思想，但从实现上来说差异还是蛮大的。
+  最小生成树算法主要有 **Prim 算法（普里姆算法）**和 **Kruskal 算法（克鲁斯卡尔算法）**两种，这两种算法虽然都运用了贪心思想，但从实现上来说差异还是蛮大的。[Kruskal's algorithm](https://leetcode.com/explore/featured/card/graph/621/algorithms-to-construct-minimum-spanning-tree/3856/) and Prim's Algorithm are two **greedy algorithms** for building a minimum spanning tree in a ***weighted* and *undirected*** graph.
 
   图的「生成树」：就是在图中找一棵包含图中的所有节点的树。专业点说，生成树是含有图中所有顶点的「无环连通子图」。
 
@@ -26,13 +26,17 @@
 
     树的判定算法加上按权重排序的逻辑就变成了 Kruskal 算法
 
-    [Kruskal's algorithm](https://leetcode.com/explore/featured/card/graph/621/algorithms-to-construct-minimum-spanning-tree/3856/) is a **greedy algorith**m for building a minimum spanning tree in a ***weighted* and *undirected*** graph.
+  - <u>==Prim算法: BFS + Visted set + Min-heap==</u>
 
-  - <u>Prim算法</u>
+    - **首先，Prim 算法也使用贪心思想来让生成树的权重尽可能小**，也就是「切分定理」。Prim 算法不需要事先对所有边排序，而是利用<font color=blue>**优先级队列**</font>动态实现排序的效果，所以 Prim 算法类似于 Kruskal 的动态过程 --> A **min-heap** is a tree-like data structure that always **stores the minimum valued element (edge weight here)** at the root and where insertion and removal of elements (edges) take logarithmic time. --> <font color=blue>A min-heap to pick minimum weight edge, each element of heap is a pair of `(edge weight, node)`.</font>
 
-    **首先，Prim 算法也使用贪心思想来让生成树的权重尽可能小**，也就是「切分定理」。
+      **其次，Prim 算法使用 [BFS 算法思想](https://labuladong.github.io/algo/4/31/111/) 和 `visited` 布尔数组避免成环**，来保证选出来的边最终形成的一定是一棵树。
 
-    **其次，Prim 算法使用 [BFS 算法思想](https://labuladong.github.io/algo/4/31/111/) 和 `visited` 布尔数组避免成环**，来保证选出来的边最终形成的一定是一棵树。
+      --> In this algorithm, we include an arbitrary node in the MST and keep on adding the **lowest-weighted** edges of the nodes present in the MST until all nodes are included in the MST and **no cycles** are formed.
+
+    - 切分定理：**对于任意一种「切分」，其中权重最小的那条「横切边」一定是构成最小生成树的一条边**。
+
+      **每次切分都能找到最小生成树的一条边，然后又可以进行新一轮切分，直到找到最小生成树的所有边为止**。
 
 ## 1. 1135 [Connecting Cities With Minimum Cost](https://leetcode.com/problems/connecting-cities-with-minimum-cost/)
 
@@ -219,7 +223,61 @@ Output: 18
             return cost
     ```
 
-    - Time complexity: $O(ElogE + E * \alpha(N))$
+    - Time complexity: $O(ElogE + E * \alpha(V))$, in the worst case: $E = N^2$
     - Space complexity: $O(E + V)$, space required by `edges` and `parents`.
+
+  - <u>Method 2: Prim's Algorithm</u>
+
+    --> **BFS思想（遍历附近的所有点） + Visited set + min-heap**
+
+    visited set: keep track of visited nodes (used edges); min-heap: with least weight edge on top (edge weight, node)
+
+    - Procedures:
+
+      - <u>push all adjacent edges of node</u> in `heap `with their respective `weights` using a for-loop
+
+      - pop elements from the `heap` and attempt to add them to the tree until `edgesUsed` becomes equal to `n`. We initially added one temporary edge, thus we stop when `n` edges are added in the MST.
+
+        --> get the minimum weighted edge and the node from the top of `heap` and pop it.
+
+        <img src="/Users/xinyuzhang/Library/Application Support/typora-user-images/image-20221015171436405.png" alt="image-20221015171436405" style="zoom:50%;" />
+
+      <img src="/Users/xinyuzhang/Library/Application Support/typora-user-images/image-20221015171353709.png" alt="image-20221015171353709" style="zoom:50%;" />
+
+    ```python
+    # Prim's: BFS + visited set + min-heap to dynamically determine the minimum cost edge (cost, node)
+    import heapq
+    def minCostConnectPoints(self, points: List[List[int]]) -> int:
+      n = len(points)
+      visited = set()
+      cost = 0
+      currEdges = 0
+      
+      minHeap = [(0, 0)]    # heap: (cost/weight, node)
+      heapq.heapify(minHeap)
+      
+      # BFS traversal --> stop traversal condition: currEdges == n - 1
+      # 1. pop out the top edge and update the information
+      # 2. push all neighboring nodes and their weights to the min-heap
+      while currEdges < n:
+        weight, node = heapq.heappop(minHeap)				# Time complexity: O(logn) for each pop/push operation
+        if node in visited:
+          continue
+        
+        visited.add(node)
+        cost += weight
+        currEdges += 1
+        
+        for neighbor in range(n):    # traverse through all unvisited nodes 
+          if neighbor in visited:
+            continue
+          
+          next_weight = abs(points[node][0] - points[neighbor][0]) + abs(points[node][1] - points[neighbor][1])
+          heapq.heappush(minHeap, (next_weight, neighbor))	# Time complexity: O(logn)
+      return cost
+    ```
+
+    - Time complexity: $O(N^2logN)$
+    - Space complexity: $O(E) = O(N^2)$, in the worst case, push/pop $N^2$ edges in the heap
 
     
