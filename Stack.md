@@ -29,7 +29,7 @@
     return res
   ```
 
-​		题目：5(496)
+​		题目：5(496), 6(739), 7(503)
 
 ## 1. 232 [Implement Queue using Stacks](https://leetcode.com/problems/implement-queue-using-stacks/description/)
 
