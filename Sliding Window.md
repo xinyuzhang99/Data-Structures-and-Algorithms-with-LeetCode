@@ -8,6 +8,8 @@
 
 --> 常用：==数组中定长问题（求k个数的和最大值/最小值）==
 
+在解题时使用`left`和`right`两个指针，类似于双指针的快慢指针解法
+
 - **Template**
 
   - Question 1: 进行窗口内数据的一系列更新即加入字符时，应该更新哪些数据？
@@ -142,7 +144,6 @@ Output: 0
 ```
 
 Time Complexity: <font color=red>**O(N)**</font> --> n is the length of the array (the two pointers move n times at most) 主要是看每一个元素被操作的次数，每个元素在滑动窗后进来操作一次，出去操作一次，每个元素都是被操作两次，所以时间复杂度是 2 × n 也就是O(n)
-    
 Space Complexity: O(1)
 
 ## 2. 1456 [Maximum Number of Vowels in a Substring of Given Length](https://leetcode.com/problems/maximum-number-of-vowels-in-a-substring-of-given-length/description/)
@@ -213,6 +214,7 @@ Explanation: "lee", "eet" and "ode" contain 2 vowels.
           # S2: check if each letter in the first window is a vowel
           res = 0    # the result
           count = 0  # number of vowels in the current window
+          # First check the first k-length array
           for i in range(0, k):
               if (s[i] in hashset):
                   count += 1
@@ -227,9 +229,9 @@ Explanation: "lee", "eet" and "ode" contain 2 vowels.
               res = max(res, count)
           return res
   ```
-
+  
   Time Complexity: O(N) --> N is the length of the string（先遍历了0~k，再遍历了k~len(s)）
-
+  
   Space Complexity: O(1)
 
 ## 3. 76 [Minimum Window Substring](https://leetcode.com/problems/minimum-window-substring/description/)
