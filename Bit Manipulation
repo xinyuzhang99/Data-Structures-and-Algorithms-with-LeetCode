@@ -146,6 +146,8 @@ Explanation: The input binary string 11111111111111111111111111111101 has a tota
 
     这样我们可以利用这个位运算的性质加速我们的检查过程，在实际代码中，我们不断让当前的 n 与 n−1 做与运算，直到 n 变为 0 即可。因为每次运算会使得 n 的最低位的 1 被翻转，因此运算次数就等于 n 的二进制位中 1 的个数。
 
+    --> <font color=blue>**repeatedly flip the least-significant 1-bit of the number to 0**</font>, and add 1 to the sum. As soon as the number becomes 0, we know that it does not have any more 11-bits, and we return the sum
+  
     ```python
     def hammingWeight(self, n: int) -> int:
       res = 0
@@ -163,7 +165,7 @@ Explanation: The input binary string 11111111111111111111111111111101 has a tota
   - <u>Method 3: apply Python library functions</u>
 
     在 Python 语言中，使用 `bin()` 函数可以得到一个整数的二进制字符串
-
+  
     ```python
     def hammingWeight(self, n: int) -> int:
       return bin(n).count('1')
@@ -172,8 +174,69 @@ Explanation: The input binary string 11111111111111111111111111111101 has a tota
     <font color=red>需要注意的是，二进制字符串是以 "0b" 开头，所以如果题目要问的是二进制中 0 的个数，需要注意答案是 `bin(n).count("0") - 1`</font>
 
     - Time complexity: O(32) = O(1) --> every string is of length 32
-
+  
       Space complexity: O(32)
+
+### 1.1 1356 [Sort Integers by The Number of 1 Bits](https://leetcode.com/problems/sort-integers-by-the-number-of-1-bits/description/)
+
+|  Category  |  Difficulty   |                Tags                 |
+| :--------: | :-----------: | :---------------------------------: |
+| algorithms | Easy (71.43%) | Bit Manipulation; Sorting; Counting |
+
+You are given an integer array `arr`. Sort the integers in the array in ascending order by the number of `1`'s in their binary representation and in case of two or more integers have the same number of `1`'s you have to sort them in ascending order.
+
+Return *the array after sorting it*. 
+
+**Example 1:**
+
+```
+Input: arr = [0,1,2,3,4,5,6,7,8]
+Output: [0,1,2,4,8,3,5,6,7]
+Explantion: [0] is the only integer with 0 bits.
+[1,2,4,8] all have 1 bit.
+[3,5,6] have 2 bits.
+[7] has 3 bits.
+The sorted array by bits is [0,1,2,4,8,3,5,6,7]
+```
+
+**Example 2:**
+
+```
+Input: arr = [1024,512,256,128,64,32,16,8,4,2,1]
+Output: [1,2,4,8,16,32,64,128,256,512,1024]
+Explantion: All integers have 1 bit in the binary representation, you should just sort them in ascending order. 
+```
+
+- **Constraints:**
+
+  - `1 <= arr.length <= 500`
+
+  - `0 <= arr[i] <= 10^4`
+
+- **Thoughts**
+
+  这道题是191的变形题，要根据计数得到的么一个整数1 bit的个数进行排序 --> 在191的基础上进行排序操作
+
+  - S1: count the number of 1 bits of each integer (use a helper function)
+  - S2: sort the array based on the helper function as a key
+
+- **Solution**
+
+  ```python
+  def sortByBits(self, arr: List[int]) -> List[int]:
+    def count1bits(n: int):
+      count = 0
+      while n:
+        n &= n - 1
+        count += 1
+    	return count
+          
+    return sorted(arr, key=lambda x: (count1bits(x), x))  # complex sorts: sort the array firstly by count, then by value
+  ```
+
+  - Time complexity: O(nlogn), 其中 n 为整数数组 *arr* 的长度，由于`count1bits`的时间复杂度为O(1)，所以整体的时间复杂度为排序的时间复杂度
+
+    Space complexity: O(1)
 
 ## 2. 231 [Power of Two](https://leetcode.com/problems/power-of-two/description/)
 
@@ -247,7 +310,7 @@ Output: false
 
   - <u>Method 2: bit manipulation</u> --> <font color=blue>**[Follow-up]**</font>
 
-    一个数 *n* 是 2 的幂，当且仅当 *n* 是正整数，并且 *n* 的二进制表示中仅包含 1 个 1。
+    一个数 *n* 是 2 的幂，当且仅当 *n* 是正整数，并且 <font color=red>***n* 的二进制表示中仅包含 1 个 1**</font>。
 
     ```
     2^0 = 1 = 0b0001
@@ -507,5 +570,3 @@ Output: 21
   ## Time complexity: O(log_10(x)) 翻转的次数即 x 十进制的位数 --> x 中大约有 log10(x) 位数字: 由于x是32位二进制数字，而显示在输入中的是十进制，翻转的也是通过十进制翻转
   ## Space complexity: O(1)
   ```
-
-  
