@@ -277,8 +277,6 @@ Output: false
 Explanation: There is no cycle in the linked list.
 ```
 
- 
-
 - **Constraints:**
 
   - The number of the nodes in the list is in the range `[0, 104]`.
@@ -293,7 +291,7 @@ Explanation: There is no cycle in the linked list.
 
     每当慢指针 `slow` 前进一步，快指针 `fast` 就前进两步。(similar to 876)
 
-    如果 `fast` 最终遇到空指针，说明链表中没有环；如果 `fast` 最终和 `slow` 相遇，那肯定是 `fast` 超过了 `slow` 一圈，说明链表中含有环 ==若有环，两指针一定会相遇。因为每走 1 轮，`fast` 与 `slow` 的间距 +1，`fast` 终会追上 `slow`==
+    如果 `fast` 最终遇到空指针，说明链表中没有环；如果 `fast` 最终和 `slow` 相遇，那肯定是 `fast` 超过了 `slow` 一圈，说明链表中含有环 ==若有环，两指针一定会相遇。因为每走 1 轮，`fast` 与 `slow` 的间距 +1，`fast` 终会追上 `slow`== --> if there is a cycle, for each time, the distance between `fast` and `slow` increases by 1, so `fast` will eventually meets `slow`
 
 - **Solution**
 
@@ -317,6 +315,10 @@ Explanation: There is no cycle in the linked list.
                   return True
           return False
   ```
+
+  - Time complexity: O(N)
+
+    Space complexity: O(1)
 
 - **Follow-up**
 
@@ -567,6 +569,10 @@ Output: [1,2,3]
             return head
     ```
 
+    - Time complexity: O(N)
+
+      Space complexity: O(1)
+
   - Method 2: **快慢指针** (Similar to 26: remove duplicates from an array)
 
     <img src="https://labuladong.github.io/algo/images/%e6%95%b0%e7%bb%84%e5%8e%bb%e9%87%8d/2.gif" alt="img" style="zoom:33%;" />
@@ -587,8 +593,93 @@ Output: [1,2,3]
                 fast = fast.next
             
             slow.next = None    #  断开与结尾重复元素的连接
-            return head       
+            return head  
     ```
+
+    - Time complexity: O(N)
+
+      Space complexity: O(1)     
+
+
+## 6.1 **1836 Remove Duplicates From an Unsorted Linked List**
+
+Given the `head` of a linked list, find all the values that appear **more than once** in the list and delete the nodes that have any of those values.
+
+Return *the linked list after the deletions.*
+
+**Example 1:**
+
+![img](https://assets.leetcode.com/uploads/2021/04/21/tmp-linked-list.jpg)
+
+```
+Input: head = [1,2,3,2]
+Output: [1,3]
+Explanation: 2 appears twice in the linked list, so all 2's should be deleted. After deleting all 2's, we are left with [1,3].
+```
+
+**Example 2:**
+
+![img](https://assets.leetcode.com/uploads/2021/04/21/tmp-linked-list-1.jpg)
+
+```
+Input: head = [2,1,1,2]
+Output: []
+Explanation: 2 and 1 both appear twice. All the elements should be deleted.
+```
+
+**Example 3:**
+
+![img](https://assets.leetcode.com/uploads/2021/04/21/tmp-linked-list-2.jpg)
+
+```
+Input: head = [3,2,2,1,3,2,4]
+Output: [1,4]
+Explanation: 3 appears twice and 2 appears three times. After deleting all 3's and 2's, we are left with [1,4].
+```
+
+- **Constraints:**
+
+  - The number of nodes in the list is in the range `[1, 105]`
+
+  - `1 <= Node.val <= 105`
+
+- **Thoughts**
+
+  - 这道题和83题的区别在于，由于链表是无序的，所以在一次遍历删除节点之前就需要知道哪个节点是需要被删除的。可以使用一个hashmap先记录每个节点值的count，然后再一次遍历删除相应节点
+
+- **Solution**
+
+  ```python
+  # S1: use a hashmap to count appearances of each node's value --> {key: node.val; val: counts}
+  # S2: traverse through the whole linked list, if a node with the same value shows, delete
+  from collections import defaultdict
+  class Solution:
+      def deleteDuplicatesUnsorted(self, head: ListNode) -> ListNode:
+          dummyHead = ListNode(-1)
+          dummyHead.next = head    
+          pre = dummyHead
+          cur = head
+          
+          hashmap = defaultdict(int)
+          while cur:
+              hashmap[cur.val] += 1
+              cur = cur.next
+          
+          cur = head     # initialize the current pointer back to the head
+          while cur:
+              if hashmap[cur.val] > 1:
+                  pre.next = cur.next
+                  # cur = pre.next
+              else:
+                  pre = pre.next
+                  # cur = cur.next
+              cur = cur.next
+          return dummyHead.next
+  ```
+
+  - Time complexity: O(2N) = O(N)
+
+    Space complexity: O(1)
 
 ### 7. 2 [Add Two Numbers](https://leetcode.com/problems/add-two-numbers/description/)
 
