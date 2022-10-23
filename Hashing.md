@@ -76,46 +76,47 @@ Output: false
 
     Space complexity: O(n) --> create a hashmap with n elements
 
-  ## 2. 49 [Group Anagrams](https://leetcode.com/problems/group-anagrams/description/)
 
-  |  Category  |   Difficulty    |                             Tags                             |
-  | :--------: | :-------------: | :----------------------------------------------------------: |
-  | algorithms | Medium (64.40%) | [`hash-table`](https://leetcode.com/tag/hash-table); [`string`](https://leetcode.com/tag/string) |
+## 2. 49 [Group Anagrams](https://leetcode.com/problems/group-anagrams/description/)
 
-  Given an array of strings `strs`, group **the anagrams** together. You can return the answer in **any order**.
+|  Category  |   Difficulty    |                             Tags                             |
+| :--------: | :-------------: | :----------------------------------------------------------: |
+| algorithms | Medium (64.40%) | [`hash-table`](https://leetcode.com/tag/hash-table); [`string`](https://leetcode.com/tag/string) |
 
-  An **Anagram** is a word or phrase formed by rearranging the letters of a different word or phrase, typically using all the original letters exactly once.
+Given an array of strings `strs`, group **the anagrams** together. You can return the answer in **any order**.
 
-  **Example 1:**
+An **Anagram** is a word or phrase formed by rearranging the letters of a different word or phrase, typically using all the original letters exactly once.
 
-  ```
-  Input: strs = ["eat","tea","tan","ate","nat","bat"]
-  Output: [["bat"],["nat","tan"],["ate","eat","tea"]]
-  ```
+**Example 1:**
 
-  **Example 2:**
+```
+Input: strs = ["eat","tea","tan","ate","nat","bat"]
+Output: [["bat"],["nat","tan"],["ate","eat","tea"]]
+```
 
-  ```
-  Input: strs = [""]
-  Output: [[""]]
-  ```
+**Example 2:**
 
-  **Example 3:**
+```
+Input: strs = [""]
+Output: [[""]]
+```
 
-  ```
-  Input: strs = ["a"]
-  Output: [["a"]]
-  ```
+**Example 3:**
 
-  **Constraints:**
+```
+Input: strs = ["a"]
+Output: [["a"]]
+```
 
-  - `1 <= strs.length <= 104`
-  - `0 <= strs[i].length <= 100`
-  - `strs[i]` consists of lowercase English letters.
+**Constraints:**
+
+- `1 <= strs.length <= 104`
+- `0 <= strs[i].length <= 100`
+- `strs[i]` consists of lowercase English letters.
 
 - **Thoughts**
 
-  - 一旦需要根据特征进行分类，就应该利用hash table
+  - 一旦需要==根据特征进行分类==，就应该利用hash table
 
   - ```python
      strs = ["eat","tea","tan","ate","nat","bat"]
@@ -168,6 +169,79 @@ Output: false
 
     Space complexity: $O(m*(n+26)$ --> the hash table records every string
 
-    
+
+## 3. 1010 [Pairs of Songs With Total Durations Divisible by 60](https://leetcode.com/problems/pairs-of-songs-with-total-durations-divisible-by-60/description/)
+
+|  Category  |   Difficulty    |    Tags    |
+| :--------: | :-------------: | :--------: |
+| algorithms | Medium (53.53%) | Hash Table |
+
+You are given a list of songs where the `ith` song has a duration of `time[i]` seconds.
+
+Return *the number of pairs of songs for which their total duration in seconds is divisible by* `60`. Formally, we want the number of indices `i`, `j` such that `i < j` with `(time[i] + time[j]) % 60 == 0`.
+
+**Example 1:**
+
+```
+Input: time = [30,20,150,100,40]
+Output: 3
+Explanation: Three pairs have a total duration divisible by 60:
+(time[0] = 30, time[2] = 150): total duration 180
+(time[1] = 20, time[3] = 100): total duration 120
+(time[1] = 20, time[4] = 40): total duration 60
+```
+
+**Example 2:**
+
+```
+Input: time = [60,60,60]
+Output: 3
+Explanation: All three pairs have a total duration of 120, which is divisible by 60.
+```
+
+- **Constraints:**
+
+  - `1 <= time.length <= 6 * 104`
+
+  - `1 <= time[i] <= 500`
+
+- **Thoughts**
+
+  这道题首先会使用暴力解法，用两个for循环，但是会超时。观察的话可得知，(a + b) % 60 == 0 --> (a % 60 + b % 60) % 60 == 0
+
+  Two situations: 1. a % 60 + b % 60 == 60  2. a % 60 = 0 and b % 60 = 0
+
+  这样的话这道题可以转换成 2 Sum类似，可以创建一个hashmap记录所有余数的数量
+
+- **Solution**
+
+  ```python
+  def numPairsDivisibleBy60(self, time: List[int]) -> int:
+          ## Method 1: brute-force
+          n = len(time)
+          res = 0
+          for i in range(n):
+              for j in range(i + 1, n):
+                  if (time[i] + time[j]) % 60 == 0:
+                      res += 1
+          return res
+          # Time complexity: O(N^2); Space complexity: O(1)
+  
+          ## Method 2: hashing
+          # Similar to two-sum, use a hashmap to record all remainders and find according pair counts
+          # (a + b) % 60 == 0 --> (a % 60 + b % 60) % 60 == 0
+          # Two situations: 1. a % 60 + b % 60 == 60  2. a % 60 = 0 and b % 60 = 0
+          remainder = defaultdict(int)
+          res = 0
+          for t in time:
+              if t % 60 == 0:					        # situation 1: a % 60 = 0 and b % 60 = 0
+                  res += remainder[0]
+              else:														# situation 2: a % 60 + b % 60 == 60
+                  res += remainder[60 - t%60]
+              remainder[t % 60] += 1
+          return res   
+          # Time complexity: O(N); Space complexity: O(N)
+  ```
 
   
+
