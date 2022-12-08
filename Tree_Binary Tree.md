@@ -1,5 +1,15 @@
 # Tree / Binary Tree 树 / 二叉树
 
+- 树节点类：
+
+  ```python
+  class TreeNode:
+    def __init__(self, val=0, left=None, right=None):
+      self.val = val
+      self.left = left
+      self.right = right
+  ```
+
 - 二叉树解题的思维模式分两类：
 
   **1、是否可以通过==遍历一遍二叉树==得到答案**？如果可以，用一个 `traverse` 函数配合外部变量来实现，这叫**「遍历」**的思维模式。
@@ -155,6 +165,81 @@ Output: [1]
 
     - 易错点：
       - <font color=red>主函数里要单独写一个递归函数！</font>If all of the logis is in one function, `res` will be set to `[]` everytime `preorderTraversal` is called --> 递归过程要用一个新的函数写，然后在主函数call
+
+### 2.1 872 [Leaf-Similar Trees](https://leetcode.com/problems/leaf-similar-trees/description/)
+
+|  Category  |  Difficulty   | Likes | Dislikes |
+| :--------: | :-----------: | :---: | :------: |
+| algorithms | Easy (64.98%) | 2174  |    60    |
+
+Consider all the leaves of a binary tree, from left to right order, the values of those leaves form a **leaf value sequence***.*
+
+<img src="https://s3-lc-upload.s3.amazonaws.com/uploads/2018/07/16/tree.png" alt="img" style="zoom:50%;" />
+
+For example, in the given tree above, the leaf value sequence is `(6, 7, 4, 9, 8)`.
+
+Two binary trees are considered *leaf-similar* if their leaf value sequence is the same.
+
+Return `true` if and only if the two given trees with head nodes `root1` and `root2` are leaf-similar.
+
+**Example 1:**
+
+<img src="https://assets.leetcode.com/uploads/2020/09/03/leaf-similar-1.jpg" alt="img" style="zoom:50%;" />
+
+```
+Input: root1 = [3,5,1,6,2,9,8,null,null,7,4], root2 = [3,5,1,6,7,4,2,null,null,null,null,null,null,9,8]
+Output: true
+```
+
+**Example 2:**
+
+<img src="https://assets.leetcode.com/uploads/2020/09/03/leaf-similar-2.jpg" alt="img" style="zoom:50%;" />
+
+```
+Input: root1 = [1,2,3], root2 = [1,3,2]
+Output: false
+```
+
+- **Constraints:**
+
+  - The number of nodes in each tree will be in the range `[1, 200]`.
+
+  - Both of the given trees will have values in the range `[0, 200]`.
+
+- **Thoughts**
+
+  从这道题的题意可看出，关键是要求出binary tree的leaf node的值并组成一个list。根据二叉树的两类思维模式：
+
+  **1、是否可以通过==遍历一遍二叉树==得到答案**？如果可以，用一个 `traverse` 函数配合外部变量来实现，这叫**「遍历」**的思维模式。
+
+  **2、是否可以定义一个递归函数，通过子问题（子树）的答案推导出原问题的答案**？如果可以，写出这个递归函数的定义，并充分利用这个函数的返回值，这叫**「分解问题」**的思维模式。
+
+  可以判断得出，这道题可以使用递归解决 --> 以得到以root为根的数的leaf node sequence为函数
+
+- **Solution**
+
+  ```python
+  class TreeNode:
+    def __init__(self, val=0, left=None, right=None):
+      self.val = val
+      self.left = left
+      self.right = right
+  
+  def leafSimilar(self, root1: Optional[TreeNode], root2: Optional[TreeNode]) -> bool:
+    def getLeafValue(root):  # get the leaf node value sequence of root
+      if not root:
+        return []
+      if not root.left and not root.right:
+        return [root.val]
+      left = getLeafValue(root.left)      # the leaf node value sequence of left subtree
+      right = getLeafValue(root.right)		# the leaf node value sequence of right subtree
+      return left + right   							
+    return getLeafValue(root1) == getLeafValue(root2)  
+  ```
+
+  - Time complexity: O(N1 + N2) --> 其中 n1, n2 为二叉树节点的个数 --> 遍历了两棵树的所有节点
+
+    Space complexity: O(N1 + N2) --> recursion uses stack memory 空间复杂度主要取决于存储「叶值序列」的空间以及深度优先搜索的过程中需要使用的栈空间。
 
 ## 3. 226 [Invert Binary Tree](https://leetcode.com/problems/invert-binary-tree/description/)
 
