@@ -215,7 +215,7 @@ It does not matter what you leave beyond the returned k (hence they are undersco
 
   该题使用**快慢指针**，如果 `fast` 遇到值为 `val` 的元素，则直接跳过，否则就赋值给 `slow` 指针，并让 `slow` 前进一步。
 
-  <img src="/Users/xinyuzhang/Downloads/IMG_9694B5B5B2FF-1.jpeg" alt="IMG_9694B5B5B2FF-1" style="zoom:25%;" />
+  <img src="/Users/xinyuzhang/Downloads/IMG_9694B5B5B2FF-1.jpeg" alt="IMG_9694B5B5B2FF-1" style="zoom: 33%;" />
 
   ```python
   from typing import List
@@ -1143,4 +1143,109 @@ Output: [1,5,1]
 
   - Time complexity: $O(N)$
 
-    Space complexity: $O(1)$
+    Space complexity: $O(1)$ 
+
+## 15. 151 [Reverse Words in a String](https://leetcode.com/problems/reverse-words-in-a-string/description/)
+
+|  Category  |   Difficulty    |                    Tags                     |
+| :--------: | :-------------: | :-----------------------------------------: |
+| algorithms | Medium (28.73%) | [`string`](https://leetcode.com/tag/string) |
+
+Given an input string `s`, reverse the order of the **words**.
+
+A **word** is defined as a sequence of non-space characters. The **words** in `s` will be separated by at least one space.
+
+Return *a string of the words in reverse order concatenated by a single space.*
+
+**Note** that `s` may contain leading or trailing spaces or multiple spaces between two words. The returned string should only have a single space separating the words. Do not include any extra spaces.
+
+**Example 1:**
+
+```
+Input: s = "the sky is blue"
+Output: "blue is sky the"
+```
+
+**Example 2:**
+
+```
+Input: s = "  hello world  "
+Output: "world hello"
+Explanation: Your reversed string should not contain leading or trailing spaces.
+```
+
+**Example 3:**
+
+```
+Input: s = "a good   example"
+Output: "example good a"
+Explanation: You need to reduce multiple spaces between two words to a single space in the reversed string.
+```
+
+**Constraints:**
+
+- `1 <= s.length <= 104`
+- `s` contains English letters (upper-case and lower-case), digits, and spaces `' '`.
+- There is **at least one** word in `s`.
+
+**Follow-up:** If the string data type is mutable in your language, can you solve it **in-place** with `O(1)` extra space?
+
+- **Thoughts**
+
+  - 这道题目要求反转字符串里所有单词的顺序，常规方式是把 `s` 按空格 `split` 成若干单词，然后 `reverse` 这些单词的顺序，最后把这些单词 `join` 成句子。
+
+  - 常规方式使用了额外的空间，不是「原地反转」单词。如果要原地反转单词，考虑使用双指针方法。
+
+    **先将整个字符串 `s` 反转**：
+
+    ```python
+    s = "gnodalubal dlrow olleh"
+    ```
+
+    **然后将每个单词分别反转**：
+
+    ```python
+    s = "labuladong world hello"
+    ```
+
+    <img src="/Users/xinyuzhang/Downloads/IMG_EAEDBBB8F319-1.jpeg" alt="IMG_EAEDBBB8F319-1" style="zoom: 33%;" />
+
+- **Solution**
+
+  - <u>Method 1: Traditional Method</u>
+
+    ```python
+    def reverseWords(self, s: str) -> str:
+      words = s.split()
+      return ' '.join(reversed(words))
+    ```
+
+    - Time complexity: O(N) --> for `split` and `join`
+    - Space complexity: O(N) --> store the splited result string
+
+  - <u>Method 2: Two-Pointers</u>
+
+    ```python
+    def reverseWords(self, s: str) -> str:
+      s = s.strip()
+      n = len(s)
+      i, j = n - 1, n - 1  # i = j = n - 1
+      res = []
+      while i > 0:
+        if s[i] != ' ':
+          i -= 1
+        else:
+          res.append(s[i+1:j+1])
+          while s[i] == ' ':
+            i -= 1
+          j = i
+      
+      res.append(s[0:j+1]) if s[0] != ' ' else None
+      return res
+    ```
+
+    - Time complexity: O(N) --> though there are two `while` loops, but the two loops both operate on pointer `i`, therefore only traverse N times for pointer `i`
+    - Space complexity: O(N) --> `res` list --> O(1) extra space!
+    - Attention: 
+      - `string.strip([chars])`: remove leading and trailing characters of a string
+      - `string.strip()`: remove leading and trailing zeros of a string（将字符串前后的零删除）
