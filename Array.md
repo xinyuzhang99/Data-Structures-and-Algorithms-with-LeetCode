@@ -502,4 +502,95 @@ Output: [[15,13,2,5],[14,3,4,1],[12,6,8,9],[16,7,10,11]]
 
       
 
+### 2. 54 [Spiral Matrix](https://leetcode.com/problems/spiral-matrix/description/)
+
+|  Category  |   Difficulty    |                   Tags                    |
+| :--------: | :-------------: | :---------------------------------------: |
+| algorithms | Medium (41.66%) | [`array`](https://leetcode.com/tag/array) |
+
+Given an `m x n` `matrix`, return *all elements of the* `matrix` *in spiral order*.
+
+**Example 1:**
+
+![img](https://assets.leetcode.com/uploads/2020/11/13/spiral1.jpg)
+
+```
+Input: matrix = [[1,2,3],[4,5,6],[7,8,9]]
+Output: [1,2,3,6,9,8,7,4,5]
+```
+
+**Example 2:**
+
+![img](https://assets.leetcode.com/uploads/2020/11/13/spiral.jpg)
+
+```
+Input: matrix = [[1,2,3,4],[5,6,7,8],[9,10,11,12]]
+Output: [1,2,3,4,8,12,11,10,9,5,6,7]
+```
+
+- **Constraints:**
+
+  - `m == matrix.length`
+
+  - `n == matrix[i].length`
+
+  - `1 <= m, n <= 10`
+
+  - `-100 <= matrix[i][j] <= 100`
+
+- **Thoughts**
+
+  - 解决这道题可以模拟螺旋矩阵的路径。初始位置是矩阵的左上角，初始方向是向右，当路径超出界限或者进入之前访问过的位置时，顺时针旋转，进入下一个方向。
+
+    **解题的核心思路是按照右、下、左、上的顺序遍历数组，重点在于如何确定什么时候改变遍历方向 --> 使用四个变量圈定未遍历元素的<font color=red>边界</font>。**
+
+    <img src="https://labuladong.github.io/algo/images/%e8%8a%b1%e5%bc%8f%e9%81%8d%e5%8e%86/6.png" alt="img" style="zoom:50%;" />
+
+    随着螺旋遍历，相应的边界会收缩，直到螺旋遍历完整个数组：
+
+    <img src="https://labuladong.github.io/algo/images/%e8%8a%b1%e5%bc%8f%e9%81%8d%e5%8e%86/7.png" alt="img" style="zoom:50%;" />
+
+    当结果数组将所有值都遍历完时，即可停止。
+
+- **Solution**
+
+  ```python
+  def spiralOrder(self, matrix: List[List[int]]) -> List[int]:
+          res = []
+          r, c = len(matrix), len(matrix[0])   # row, column
+          left, right = 0, c - 1
+          top, bottom = 0, r - 1
   
+          # follow right -> down -> left -> up rule
+          while len(res) < (r * c):
+              # append top elements from left to right
+              if top <= bottom:   # make sure there is a row to traverse
+                  for i in range(left, right + 1):
+                      res.append(matrix[top][i])
+              top += 1
+  
+              # append right elements from top to bottom
+              if left <= right:		# make sure there is a column to traverse
+                  for i in range(top, bottom + 1):
+                      res.append(matrix[i][right])
+              right -= 1
+  
+              # append bottom elements from right to left
+              if top <= bottom:		# make sure there is a row to traverse
+                  for i in range(right, left - 1, -1):
+                      res.append(matrix[bottom][i])
+              bottom -= 1
+  
+              # append left elements from bottom to top
+              if left <= right:		# make sure there is a column to traverse
+                  for i in range(bottom, top - 1, -1):
+                      res.append(matrix[i][left])
+              left += 1
+          
+          return res
+  ```
+
+  - Time complexity: $O(M \times N)$, where M is the number of rows and N is the number of columns --> visit each element once
+
+    Space complexity: $O(M \times N)$ for the result array
+
