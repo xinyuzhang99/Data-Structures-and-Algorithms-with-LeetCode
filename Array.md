@@ -594,3 +594,76 @@ Output: [1,2,3,4,8,12,11,10,9,5,6,7]
 
     Space complexity: $O(M \times N)$ for the result array
 
+#### 2.1 59 [Spiral Matrix II](https://leetcode.com/problems/spiral-matrix-ii/description/)
+
+|  Category  |   Difficulty    |                   Tags                    |
+| :--------: | :-------------: | :---------------------------------------: |
+| algorithms | Medium (65.09%) | [`array`](https://leetcode.com/tag/array) |
+
+Given a positive integer `n`, generate an `n x n` `matrix` filled with elements from `1` to `n2` in spiral order.
+
+**Example 1:**
+
+![img](https://assets.leetcode.com/uploads/2020/11/13/spiraln.jpg)
+
+```
+Input: n = 3
+Output: [[1,2,3],[8,9,4],[7,6,5]]
+```
+
+**Example 2:**
+
+```
+Input: n = 1
+Output: [[1]]
+```
+
+- **Constraints:**
+
+  - `1 <= n <= 20`
+
+- **Thoughts**
+
+  这道题的主要思想和48完全一致，只不过是步骤相反，按照螺旋的顺序生成矩阵 --> 创建一个空矩阵填值进去即可
+
+- **Solution**
+
+  ```python
+  def generateMatrix(self, n: int) -> List[List[int]]:
+          res = [[0] * n for _ in range(n)] 
+          left, right = 0, n - 1
+          top, bottom = 0, n - 1
+          num = 1    # the number to be filled: 需要填入矩阵的数字
+  
+          while num <= n * n:
+              if top <= bottom:
+                  for i in range(left, right + 1):    # [left, right]
+                      res[top][i] = num
+                      num += 1
+              top += 1
+  
+              if left <= right:
+                  for i in range(top, bottom + 1):    # [top, bottom]
+                      res[i][right] = num
+                      num += 1
+              right -= 1
+  
+              if top <= bottom: 
+                  for i in range(right, left - 1, -1):
+                      res[bottom][i] = num
+                      num += 1
+              bottom -= 1
+  
+              if left <= right:
+                  for i in range(bottom, top - 1, -1):
+                      res[i][left] = num
+                      num += 1
+              left += 1
+  
+          return res      
+  ```
+
+  Time complexity: $O(N^2)$ --> visit each element once
+
+  Space complexity: $O(N^2)$ for the result array
+
