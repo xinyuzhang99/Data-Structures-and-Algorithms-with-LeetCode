@@ -4,7 +4,7 @@
 
 - **定义**
 
-  **贪心的本质是选择每一阶段的局部最优，从而达到全局最优**。<font color=blue>**每一步做出的选择都是<u>当前</u>看起来最好的选择，只是局部最优解而非全局最优解**</font>
+  **贪心的本质是选择每一阶段的局部最优，从而达到全局最优**。<font color=blue>**每一步做出的选择都是<u>当前</u>看起来最好的选择，只是局部最优解而非全局最优解**</font> --> 贪心算法可以理解为一种<font color=blue>**特殊的动态规划问题，拥有贪心选择性质**</font>，可以进一步降低动态规划算法的时间复杂度。
 
   例如，有一堆钞票，你可以拿走十张，如果想达到最大的金额，你要怎么拿？
 
@@ -105,6 +105,242 @@ You need to output 2.
   ```
 
   - Time complexity: $O(nlogn + mlogm + m)$
-  - Space complexity: $O(logm + logn)$
-
   
+    Space complexity: $O(logm + logn)$
+
+
+## 2. [Maximum Subarray](https://leetcode.com/problems/maximum-subarray/description/)
+
+|  Category  |  Difficulty   |                             Tags                             |
+| :--------: | :-----------: | :----------------------------------------------------------: |
+| algorithms | Easy (49.53%) | [`array`](https://leetcode.com/tag/array); [`divide-and-conquer`](https://leetcode.com/tag/divide-and-conquer); [`dynamic-programming`](https://leetcode.com/tag/dynamic-programming) |
+
+Given an integer array `nums`, find the contiguous subarray (containing at least one number) which has the largest sum and return *its sum*.
+
+A **subarray** is a **contiguous** part of an array.
+
+**Example 1:**
+
+```
+Input: nums = [-2,1,-3,4,-1,2,1,-5,4]
+Output: 6
+Explanation: [4,-1,2,1] has the largest sum = 6.
+```
+
+**Example 2:**
+
+```
+Input: nums = [1]
+Output: 1
+```
+
+**Example 3:**
+
+```
+Input: nums = [5,4,-1,7,8]
+Output: 23
+```
+
+**Constraints:**
+
+- `1 <= nums.length <= 105`
+- `-104 <= nums[i] <= 104` 
+
+**Follow up:** If you have figured out the `O(n)` solution, try coding another solution using the **divide and conquer** approach, which is more subtle.
+
+## 3. 55 [Jump Game](https://leetcode.com/problems/jump-game/description/)
+
+|  Category  |   Difficulty    |                             Tags                             |
+| :--------: | :-------------: | :----------------------------------------------------------: |
+| algorithms | Medium (37.90%) | [`array`](https://leetcode.com/tag/array), [`greedy`](https://leetcode.com/tag/greedy) |
+
+You are given an integer array `nums`. You are initially positioned at the array's **first index**, and each element in the array represents your maximum jump length at that position.
+
+Return `true` *if you can reach the last index, or* `false` *otherwise*.
+
+**Example 1:**
+
+```
+Input: nums = [2,3,1,1,4]
+Output: true
+Explanation: Jump 1 step from index 0 to 1, then 3 steps to the last index.
+```
+
+**Example 2:**
+
+```
+Input: nums = [3,2,1,0,4]
+Output: false
+Explanation: You will always arrive at index 3 no matter what. Its maximum jump length is 0, which makes it impossible to reach the last index.
+```
+
+- **Constraints:**
+
+  - `1 <= nums.length <= 104`
+
+  - `0 <= nums[i] <= 105`
+
+- **Solution**
+
+  解题思路：尽可能到达最远位置（贪心）。如果能到达某个位置，那一定能到达它前面的所有位置。
+
+  - <u>Approach 1: </u>
+
+    如何确保能一个位置，取决于前一个位置加上step能否到达该位置 --> 可以从最后开始往前移动goal，如果最后goal能移到最初点，则代表能reach
+
+    ![image-20221230021742706](/Users/xinyuzhang/Library/Application Support/typora-user-images/image-20221230021742706.png)
+
+    ```python
+    def canJump(self, nums: List[int]) -> bool:
+      goal = len(nums) - 1
+      
+      for i in range(goal - 1, -1, -1):    # [0, goal - 1]
+        if i + nums[i] >= goal:
+          goal = i
+      
+      return goal == 0   # or: return True if goal == 0 else None
+    ```
+
+    - Time complexity: O(N)
+
+      Space complexity: O(1)
+
+  - <u>Approach 2: </u>
+
+    刚看到本题一开始可能想：当前位置元素如果是3，我究竟是跳一步呢，还是两步呢，还是三步呢，究竟跳几步才是最优呢？
+
+    其实跳几步无所谓，关键在于可跳的覆盖范围！不一定非要明确一次究竟跳几步，每次取最大的跳跃步数，这个就是可以跳跃的覆盖范围。这个范围内，别管是怎么跳的，反正一定可以跳过来。
+
+    **那么这个问题就转化为<u>跳跃覆盖范围究竟可不可以覆盖到终点</u>！** 每次移动取最大跳跃步数（得到最大的覆盖范围），每移动一个单位，就更新最大覆盖范围。
+
+    **贪心算法局部最优解：每次取最大跳跃步数（取最大覆盖范围），整体最优解：最后得到整体最大覆盖范围，看是否能到终点**。
+
+    局部最优推出全局最优，找不出反例，试试贪心！
+
+    <img src="https://img-blog.csdnimg.cn/20201124154758229.png" alt="55.跳跃游戏" style="zoom:50%;" />
+
+    i每次移动只能在cover的范围内移动，每移动一个元素，cover得到该元素数值（新的覆盖范围）的补充，让i继续移动下去。而cover每次只取 max(该元素数值补充后的范围, cover本身范围)。如果cover大于等于了终点下标，直接return true就可以了。
+
+    <font color=red>这道题目关键点在于：不用拘泥于每次究竟跳几步，而是看覆盖范围，覆盖范围内一定是可以跳过来的，不用管是怎么跳的。</font>
+
+    ```python
+    def canJump(self, nums: List[int]) -> bool:
+      n = len(nums)
+      rightmost = 0
+      for i in range(n):
+        if i <= rightmost:
+          rightmost = max(rightmost, i + nums[i])
+        if rightmost >= n - 1:
+          return True
+      return False
+    ```
+
+    - Time complexity: O(N)
+
+      Space complexity: O(1)
+
+## 4. 45 [Jump Game II](https://leetcode.com/problems/jump-game-ii/description/)
+
+|  Category  |   Difficulty    |                             Tags                             |
+| :--------: | :-------------: | :----------------------------------------------------------: |
+| algorithms | Medium (37.33%) | [`array`](https://leetcode.com/tag/array), [`greedy`](https://leetcode.com/tag/greedy) |
+
+You are given a **0-indexed** array of integers `nums` of length `n`. You are initially positioned at `nums[0]`.
+
+Each element `nums[i]` represents the maximum length of a forward jump from index `i`. In other words, if you are at `nums[i]`, you can jump to any `nums[i + j]` where:
+
+- `0 <= j <= nums[i]` and
+- `i + j < n`
+
+Return *the minimum number of jumps to reach* `nums[n - 1]`. The test cases are generated such that you can reach `nums[n - 1]`. 
+
+**Example 1:**
+
+```
+Input: nums = [2,3,1,1,4]
+Output: 2
+Explanation: The minimum number of jumps to reach the last index is 2. Jump 1 step from index 0 to 1, then 3 steps to the last index.
+```
+
+**Example 2:**
+
+```
+Input: nums = [2,3,0,1,4]
+Output: 2
+```
+
+- **Constraints:**
+
+  - `1 <= nums.length <= 104`
+
+  - `0 <= nums[i] <= 1000`
+
+- **Thoughts**
+
+  - 这道题首先看到是求最值问题 --> 考虑使用动态规划，根据动态规划步骤：
+    1. Definition: dp[i]: the minimum number of jumps to index i --> return `dp[-1]`
+    2. Formula: 每一个dp[i]的值都由前面所有选择组成，所以可以额外生成一个`subproblems`数组 --> `dp[i] = min(subproblems)`，而每一个选择的结果为:`subproblems.append(dp[j] + 1) `
+    3. Initialization: `dp = [0] * len(nums)`
+    4. Traversal order: in-order traversal
+  - 然而动态规划的解法超出时间限制，所以考虑使用优化的动态规划：贪心算法（**贪心算法比动态规划多了一个性质：贪心选择性质**）如果我们「贪心」地进行正向查找，每次找到可到达的最远位置，就可以在线性时间内得到最少的跳跃次数。
+
+- **Solution**
+
+  - <u>Method 1: Dynamic Programming (Time Limit Exceeded)</u>
+
+    ```python
+    def jump(self, nums: List[int]) -> int:
+      n = len(nums)
+      dp = [0] * n
+      
+      for i in range(1, n):
+        subproblems = []
+        for j in range(i):			# 穷举每一个选择并计算每一个选择的结果
+          if i - j > nums[j]:   # cannot jump from j to i
+            continue
+          # can jump from j to i --> add 1 step to dp[j]
+          subproblems.append(dp[j] + 1)
+      	dp[i] = min(subproblems)
+      
+      return dp[-1]   
+    ```
+
+    - Time complexity: $O(N^2)$ --> two for-loops where i and j both traverse through the whole array
+
+      Space complexity: O(N) --> create `dp` matrix
+
+  - <u>Method 2: Greedy (Implicit BFS)</u>
+
+    动态规划的时间复杂度高的根本原因在于：for 循环中会陷入递归计算子问题，**运用贪心选择性质，我们不需要「递归地」计算出所有选择的具体结果然后比较求最值，而只需要做出那个最有「潜力」，看起来最优的选择即可**
+
+    例如，对于数组 [2,3,1,2,4,2,3]，初始位置是下标 0，从下标 0 出发，最远可到达下标 2。下标 0 可到达的位置中，下标 1 的值是 3，从下标 1 出发可以达到更远的位置，因此第一步到达下标 1。从下标 1 出发，最远可到达下标 4。下标 1 可到达的位置中，下标 4 的值是 4 ，从下标 4 出发可以达到更远的位置，因此第二步到达下标 4。
+
+    --> 使用两个指针`left`和`right`分别指代每一次跳跃后的左边界和右边界以显示range
+
+    <img src="https://assets.leetcode-cn.com/solution-static/45/45_fig1.png" alt="fig1" style="zoom:50%;" />
+
+    <font color=blue>这道题的贪心算法解法也运用了BFS思想 --> 每一层即为跳同样的步骤的结果</font>
+
+    <img src="/Users/xinyuzhang/Downloads/IMG_85C0E187F078-1.jpeg" alt="IMG_85C0E187F078-1" style="zoom:50%;" />
+
+    ```python
+    def jump(self, nums: List[int]) -> int:
+      n = len(nums)
+      l, r = 0, 0
+      res = 0
+      
+      while r < n - 1:     # r does not reach the last value; if r == n - 1, res += 1, add another 1
+        farthest = 0
+        for i in range(l, r + 1):
+          farthest = max(farthest, i + nums[i])   # the farthest destination
+        l = r + 1
+        r = farthest
+        res += 1		# move to the next level --> jump a step
+      
+      return res
+    ```
+
+    - Time complexity: $O(N)$ --> 虽然有while和for两个loop，但其实只是让l, r遍历了一次数组
+
+      Space complexity: O(1)
+
