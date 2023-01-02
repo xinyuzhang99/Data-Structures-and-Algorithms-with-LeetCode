@@ -32,7 +32,7 @@
 
        对于背包问题，有一种写法， 是使用二维数组，即**`dp[i][j]` 表示从下标为[0-i]的物品里任意取，放进容量为j的背包，价值总和最大是多少**。 --> 根据这个定义，我们想求的最终答案就是 `dp[n][w]`
 
-       <img src="https://img-blog.csdnimg.cn/20210110103003361.png" alt="动态规划-背包问题1" style="zoom:50%;" />
+       <img src="/Users/xinyuzhang/Library/Application Support/typora-user-images/image-20221031165016552.png" alt="image-20221031165016552" style="zoom:50%;" />
 
     2. 确定递推公式
 
@@ -135,7 +135,7 @@
     4. 一维dp数组遍历顺序
 
        ```python
-       for i in range(len(weight)):		  # 遍历物品; 从1开始，因为dp[0]已经为0了
+       for i in range(1, len(weight)):		  # 遍历物品; 从1开始，因为dp[0]已经为0了
          for j in range(bagweight, weight[i] - 1, -1):		# 遍历背包容量
            dp[j] = max(dp[j], dp[j - weight[i]] + value[i])
        ```
@@ -178,7 +178,7 @@
 
     5. 举例推导dp数组
 
-       <img src="https://img-blog.csdnimg.cn/20210110103614769.png" alt="动态规划-背包问题9" style="zoom:50%;" />
+       <img src="/Users/xinyuzhang/Library/Application Support/typora-user-images/image-20221031165152709.png" alt="image-20221031165152709" style="zoom:50%;" />
 
     ```python
     # weight = [1, 3, 4]
@@ -418,6 +418,76 @@ Explanation: From the top-left corner, there are a total of 3 ways to reach the 
   - Time complexity: $O(mn)$
 
     Space complexity: $O(mn)$
+
+#### 1.1 64 [Minimum Path Sum](https://leetcode.com/problems/minimum-path-sum/description/)
+
+|  Category  |   Difficulty    |                             Tags                             |
+| :--------: | :-------------: | :----------------------------------------------------------: |
+| algorithms | Medium (59.51%) | [`array`](https://leetcode.com/tag/array); [`dynamic-programming`](https://leetcode.com/tag/dynamic-programming) |
+
+Given a `m x n` `grid` filled with non-negative numbers, find a path from top left to bottom right, which minimizes the sum of all numbers along its path.
+
+**Note:** You can only move either down or right at any point in time.
+
+**Example 1:**
+
+<img src="https://assets.leetcode.com/uploads/2020/11/05/minpath.jpg" alt="img" style="zoom: 50%;" />
+
+```
+Input: grid = [[1,3,1],[1,5,1],[4,2,1]]
+Output: 7
+Explanation: Because the path 1 → 3 → 1 → 1 → 1 minimizes the sum.
+```
+
+**Example 2:**
+
+```
+Input: grid = [[1,2,3],[4,5,6]]
+Output: 12
+```
+
+- **Constraints:**
+
+  - `m == grid.length`
+
+  - `n == grid[i].length`
+
+  - `1 <= m, n <= 200`
+
+  - `0 <= grid[i][j] <= 100`
+
+- **Thoughts**
+
+  - 看到题目求最值，即想到使用动态规划解法 --> 这道题和62题的思路基本一模一样，根据题意修改即可
+
+    根据动态规划步骤：
+
+    - definiiton: `dp[i][j]`: minimum path sum to `grid[i][j]`
+    - formula: `dp[i][j] = min(dp[i][j], dp[i - 1][j] + grid[i][j], dp[i][j - 1] + grid[i][j])`
+    - initialization: `dp = [[float('inf')] * col for _ in range(row)]`; `dp[0][0] = grid[0][0]`
+
+  - <font color=red>**易错点：**</font>由于这道题求的是最小值，所以初始化的dp table的值应该都是`float('inf')`
+
+- **Solution**
+
+  ```python
+  def minPathSum(self, grid: List[List[int]]) -> int:
+          row, col = len(grid), len(grid[0])
+          dp = [[float('inf')] * col for _ in range(row)]
+          dp[0][0] = grid[0][0]
+  
+          for i in range(row):
+              for j in range(col):
+                  if i - 1 >= 0:
+                      dp[i][j] = min(dp[i][j], dp[i - 1][j] + grid[i][j])
+                  if j - 1 >= 0:
+                      dp[i][j] = min(dp[i][j], dp[i][j - 1] + grid[i][j])
+          return dp[-1][-1]      
+  ```
+
+  - Time complexity: $O(row * col)$
+
+    Space complexity: $O(row * col)$ for the `dp` array
 
 ## 2. 63 [Unique Paths II](https://leetcode.com/problems/unique-paths-ii/description/)
 
