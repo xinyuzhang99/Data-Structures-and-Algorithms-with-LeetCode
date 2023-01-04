@@ -813,7 +813,9 @@ Output: 3
 
     Space complexity: O(1)
 
-## 8. 300 [Longest Increasing Subsequence](https://leetcode.com/problems/longest-increasing-subsequence/description/)
+## 子序列类型问题
+
+## 1. 300 [Longest Increasing Subsequence](https://leetcode.com/problems/longest-increasing-subsequence/description/)
 
 |  Category  |   Difficulty    |                             Tags                             |
 | :--------: | :-------------: | :----------------------------------------------------------: |
@@ -926,7 +928,7 @@ Output: 1
 
   <font color=red>**空缺！**</font>
 
-## 9. 354 [Russian Doll Envelopes](https://leetcode.com/problems/russian-doll-envelopes/description/)
+## 2. 354 [Russian Doll Envelopes](https://leetcode.com/problems/russian-doll-envelopes/description/)
 
 |  Category  |  Difficulty   |                             Tags                             |
 | :--------: | :-----------: | :----------------------------------------------------------: |
@@ -989,3 +991,112 @@ Output: 1
     - Time complexity: $O(N^2)$
 
       Space complexity: O(N)
+
+## 3. 53 [Maximum Subarray](https://leetcode.com/problems/maximum-subarray/description/)
+
+|  Category  |  Difficulty   |                             Tags                             |
+| :--------: | :-----------: | :----------------------------------------------------------: |
+| algorithms | Easy (49.53%) | [`array`](https://leetcode.com/tag/array); [`divide-and-conquer`](https://leetcode.com/tag/divide-and-conquer); [`dynamic-programming`](https://leetcode.com/tag/dynamic-programming) |
+
+Given an integer array `nums`, find the contiguous subarray (containing at least one number) which has the largest sum and return *its sum*.
+
+A **subarray** is a **contiguous** part of an array. 
+
+**Example 1:**
+
+```
+Input: nums = [-2,1,-3,4,-1,2,1,-5,4]
+Output: 6
+Explanation: [4,-1,2,1] has the largest sum = 6.
+```
+
+**Example 2:**
+
+```
+Input: nums = [1]
+Output: 1
+```
+
+**Example 3:**
+
+```
+Input: nums = [5,4,-1,7,8]
+Output: 23
+```
+
+**Constraints:**
+
+- `1 <= nums.length <= 105`
+- `-104 <= nums[i] <= 104`
+
+**Follow up:** If you have figured out the `O(n)` solution, try coding another solution using the **divide and conquer** approach, which is more subtle.
+
+- **Solution**
+
+  - <u>Method 1: Dynamic Programming</u>
+
+    1. definition: dp[i]: 以 nums[i] 为结尾的「最大子数组和」为 dp[i]
+    2. function: `dp[i] = max(nums[i], nums[i] + dp[i - 1]) `
+    3. initialization: `dp[0] = nums[0]`
+    4. traversal order: in order
+    5. return value: `res = max(dp)`
+
+    ```python
+    def maxSubArray(self, nums: List[int]) -> int:
+    # 1. Original version
+            n = len(nums)
+            dp = [0] * n
+            dp[0] = nums[0]
+    
+            for i in range(1, n):
+                # dp[i] 有两种「选择」，要么与前面的相邻子数组连接，形成一个和更大的子数组；要么不与前面的子数组连接，自成一派，自己作为一个子数组
+                dp[i] = max(nums[i], nums[i] + dp[i - 1])
+            return max(dp)
+    # Time complexity: O(N)
+    # Space complexity: O(N)
+            
+    # 2. Optimization: as dp[i] only relates to dp[i - 1] --> 滚动数组
+            n = len(nums)
+            dp0, dp1 = nums[0], 0
+            res = dp0
+            for i in range(1, n):
+                dp1 = max(nums[i], nums[i] + dp0)
+                dp0 = dp1
+                res = max(res, dp1)
+            return res
+    # Time complexity: O(N)
+    # Space complexity: O(1)
+    ```
+
+  - <u>Method 2: Greedy / Sliding Window</u>
+
+    ```python
+    def maxSubArray(self, nums: List[int]) -> int:
+      			## 1. Original Version
+            # for each element two situations: add the element/start a new subarray
+            res = nums[0]
+            preSum = 0
+    
+            for n in nums:
+                # Situation 1: start a new subarray
+                if preSum < 0:
+                    preSum = 0    # start a new subarray
+                
+                # Situation 2: add the current element and compare with previous res
+                preSum += n
+                res = max(res, preSum)
+            return res
+          
+            ## 2. Greedy --> 直接修改原数组，令nums[i]为包含nums[i]结尾的最大数组和，所以在遍历的过程中
+             for i in range(1, len(nums)):
+                if nums[i - 1] >= 0:
+                    nums[i] += nums[i - 1]
+            return max(nums)
+    ```
+
+    - Time complexity: $O(N)$
+
+      Space complexity: O(1)
+
+      
+
