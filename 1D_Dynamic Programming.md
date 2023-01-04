@@ -132,6 +132,25 @@
 
   ![img](https://camo.githubusercontent.com/624ae48228610285917d87d92baba28f9e2132199c3e266dbfb82f59acccf302/68747470733a2f2f636f64652d7468696e6b696e672e63646e2e626365626f732e636f6d2f706963732fe58aa8e68081e8a784e588922de680bbe7bb93e5a4a7e7bab2312e6a7067)
 
+- **子序列问题**
+
+  子序列问题比子串、子数组更难一些，因为子序列问题是不连续的。子序列问题一般会涉及到两个字符串。**一般这类问题都是求最长子序列**，因为最短子序列就是一个字符 --> <font color=blue>**一旦涉及到子序列和最值 --> 考察的是动态规划，时间复杂度一般都是$O(N^2)$**</font>
+
+  - <u>两种思路</u>
+
+    1. 一维的dp数组
+
+       ```python
+       n = len(array)
+       dp = [0] * n
+       
+       for i in range(1, n):
+         for j in range(i):
+           dp[i] = max/min(dp[i], dp[j] + ...)
+       ```
+
+       在这个思路中dp数组的定义是：**在子数组`arr[0...i]`中，我们要去的子序列长度是`dp[i]`**
+
 ## 1. 322 [Coin Change](https://leetcode.com/problems/coin-change/description/)
 
 |  Category  |   Difficulty    |                             Tags                             |
@@ -854,17 +873,23 @@ Output: 1
 
   - 最长上升子序列是动规的经典题目，这里dp[i]是可以根据dp[j] （j < i）推导出来的，那么依然用动规五部曲来分析：
 
-    - definition: dp[i]: the length of the longest strictly increasing subsequence end at nums[i] (**i之前包括i的以nums[i]结尾最长上升子序列的长度**)
+    - definition: dp[i]: the length of the longest strictly increasing subsequence **end at nums[i]** <font color=blue>(**i之前包括i的以nums[i]结尾最长上升子序列的长度**) </font>
 
-    - equation: for j < i, `if nums[i] > nums[j], dp[i] = max(dp[i], dp[j] + 1)`
+    - equation: 
+
+      位置i的最长升序子序列等于j从0到i-1各个位置的最长升序子序列 + 1 的最大值。
+
+      `for j < i`, `if nums[i] > nums[j], dp[i] = max(dp[i], dp[j] + 1)`
 
       ![img](https://labuladong.github.io/algo/images/%e6%9c%80%e9%95%bf%e9%80%92%e5%a2%9e%e5%ad%90%e5%ba%8f%e5%88%97/gif1.gif)
+
+      <font color=red>根据 `dp` 数组的定义，运用**数学归纳法**的思想，假设 `dp[0...i-1]` 都已知，想办法求出 `dp[i]`</font>
 
     - initialization: dp[i] = 1 --> 因为以 nums[i] 结尾的最长递增子序列起码要包含它自己
 
     - traversal order: in order
 
-    - return value: return max(dp) --> 最终结果（子序列的最大长度）应该是 **dp 数组中的最大值**
+    - return value: `return max(dp)` --> 最终结果（子序列的最大长度）应该是 **dp 数组中的最大值**
 
   - <font color=blue>**变种题目：674. Longest Continuous Increasing Subsequence**</font>
 
