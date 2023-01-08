@@ -1803,7 +1803,9 @@ Explanation: In this case, no transaction is done, i.e. max profit = 0.
 
     如果传入的 `k` 值会非常大，`dp` 数组会太大。那么现在想想，交易次数 `k` 最多有多大呢？一次交易由买入和卖出构成，至少需要两天。所以说有效的限制 `k` 应该不超过 `n/2` -->  <font color=blue>**n 天最多只能进行 n/2 笔交易**</font> `k = min(k, n//2)`
 
-## 16. 718 [Maximum Length of Repeated Subarray](https://leetcode.com/problems/maximum-length-of-repeated-subarray/description/)
+## 子序列系列
+
+## 1. 718 [Maximum Length of Repeated Subarray](https://leetcode.com/problems/maximum-length-of-repeated-subarray/description/)
 
 |  Category  |   Difficulty    |                             Tags                             |
 | :--------: | :-------------: | :----------------------------------------------------------: |
@@ -1836,7 +1838,7 @@ Output: 5
 
   - 这道题和📒<u>1D_Dynamic Programming.md</u>的300. [Longest Increasing Subsequence](https://leetcode.com/problems/longest-increasing-subsequence/description/)和变种题目674的区别主要在于这里有两个`nums`，所以对应的dp数组也是二维的
   - 遵循动态规划五个步骤：
-    - definition: `dp[i][j]`: the maximum length of a subarray to nums1[i] and nums2[j]; return max(dp)
+    - definition: `dp[i][j]`: the maximum length of a subarray to nums1[i] and nums2[j]; `return max(dp)`
     - equation: `if nums1[i - 1] == nums2[j - 1]: dp[i][j] = dp[i - 1][j - 1] + 1`
     - initialization: `dp[i][j] = 0`; dp: (i + 1) * (j + 1) --> <font color=red>设置dp数组为(i + 1) * (j + 1)是因为num1[0]和nums2[0]也要进行是否相等的比较，所以dp数组值不确定为0或1，要增加一行一列初始化</font>
 
