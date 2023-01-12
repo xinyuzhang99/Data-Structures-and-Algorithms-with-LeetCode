@@ -1,5 +1,47 @@
 # Tree / Binary Tree 树 / 二叉树
 
+<img src="https://img-blog.csdnimg.cn/20210219190809451.png" alt="二叉树大纲" style="zoom:50%;" />
+
+- **二叉树的种类**
+
+  <img src="/Users/xinyuzhang/Library/Application Support/typora-user-images/image-20220520193431323.png" alt="image-20220520193431323" style="zoom:50%;" />
+
+  满二叉树是完全二叉树，而完全二叉树不一定是满二叉树（1是满二叉树，2是完全二叉树，3都不是）
+
+  - <u>Full Binary Tree 满二叉树</u> 
+
+    --> each node has 0 / 2 children <font color=red>(no one children!)</font>
+
+    也可以说深度为$k$，有$2^k-1$个节点的二叉树
+
+  - <u>==Perfect Binary Tree==</u>
+
+    --> all non-leaf nodes have two children and all leaf nodes are at the same depth
+
+    <img src="/Users/xinyuzhang/Library/Application Support/typora-user-images/image-20220129001518045.png" alt="image-20220129001518045" style="zoom:80%;" />
+
+  - ==<u>Complete Binary Tree 完全二叉树 --> **优先级队列其实是一个堆，堆就是一棵完全二叉树，同时保证父子节点的顺序关系**</u>==
+
+    --> all levels are completely filled except the last level and the nodes should be as **at left** as possible (only have N9 and N10)
+
+    <img src="/Users/xinyuzhang/Library/Application Support/typora-user-images/image-20220129001634574.png" alt="image-20220129001634574" style="zoom:80%;" />
+
+    若最底层为第 h 层，则该层包含 $1$ ~  $2^{(h-1)}$ 个节点。
+
+  - <u>Balanced Binary Tree</u>
+
+    --> Each leaf is not more than a certain distance from the root node than any other leaf (all leaf nodes are located **from the root** **in the same distance**)
+
+    <img src="/Users/xinyuzhang/Library/Application Support/typora-user-images/image-20220129001906030.png" alt="image-20220129001906030" style="zoom:80%;" />
+
+    - <font color=blue>**AVL 平衡二叉搜索树**</font>
+
+      它是一棵空树或它的左右两个子树的**高度差的绝对值不超过1**，并且左右两个子树都是一棵平衡二叉树。
+
+      如图：
+
+      ![img](https://img-blog.csdnimg.cn/20200806190511967.png)
+
 - 树节点类：
 
   ```python
@@ -48,6 +90,12 @@
   ```
 
 - <img src="/Users/xinyuzhang/Library/Application Support/typora-user-images/image-20220706234652980.png" alt="image-20220706234652980" style="zoom:50%;" />
+
+- **递归三部曲**
+
+  1. 确定递归函数的参数和返回值
+  2. 确定终止条件
+  3. 确定单层递归的逻辑
 
 - **二叉树的构造问题一般都是使用「分解问题」的思路：构造整棵树 = 根节点 + 构造左子树 + 构造右子树**。
 
