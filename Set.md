@@ -6,7 +6,7 @@
 
 - 主要作用：
   - 检查某一个元素是否存在
-  - 检查重复元素 --> **数据集元素是否和插入数据的集合元素相等**
+  - 检查<font color=blue>**重复**元素</font> --> **数据集元素是否和插入数据的集合元素相等**
 
 - **Hash set**：在LeetCode中主要使用
 
@@ -237,7 +237,7 @@ Explanation: Same as Example 1, except with the 5 in the top left corner being m
 
 - **Thoughts**
 
-  有效的数独满足以下三个条件：同一个数字在每一行只能出现一次；同一个数字在每一列只能出现一次；同一个数字在每一个小九宫格只能出现一次。--> <font color=red>**Without repetition! --> 考虑使用set --> create three sets according to row, column, square**</font> 
+  有效的数独满足以下三个条件：同一个数字在每一行只能出现一次；同一个数字在每一列只能出现一次；同一个数字在每一个小九宫格只能出现一次。--> <font color=red>**Without repetition! --> 考虑使用set --> create three sets for each row, column, square --> create three dictionaries where the key is the location and the value is the set**</font> 
 
 - **Solution**
 
