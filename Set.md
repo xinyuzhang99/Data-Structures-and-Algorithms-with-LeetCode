@@ -265,6 +265,49 @@ Explanation: Same as Example 1, except with the 5 in the top left corner being m
 
     Space complexity: $O(81) = O(1)$
 
+- **Follow-Up**
+
+  - 你这个地方判断一行有‍‍‌‌‌‍‍‌‍‌‌‌‍‌‍‌‍‌‌没有9个不同的数字，用的是python set，如果不准你用这个set，你该怎么写。
+
+    --> use an **array of fixed length** to check for duplicates
+
+    ```python
+    def isValidSudoku(self, board: List[List[str]]) -> bool:
+            N = 9
+    
+            # Use an array to record the status
+            rows = [[False] * N for _ in range(N)]
+            cols = [[False] * N for _ in range(N)]
+            boxes = [[False] * N for _ in range(N)]
+    
+            for r in range(N):
+                for c in range(N):
+                    # Check if the position is filled with number
+                    if board[r][c] == ".":
+                        continue
+    
+                    # check if the value is interpreted before
+                    pos = int(board[r][c]) - 1    
+    
+                    # Check the row
+                    if rows[r][pos] == True:
+                        return False
+                    rows[r][pos] = True
+    
+                    # Check the column
+                    if cols[c][pos] == True:
+                        return False
+                    cols[c][pos] = True
+                    
+                    # Check the box
+                    idx = (r // 3) * 3 + c // 3   # convert the 2D matrix into 1D array
+                    if boxes[idx][pos] == True:
+                        return False
+                    boxes[idx][pos] = True
+    
+            return True
+    ```
+
 ## 4. 128 [Longest Consecutive Sequence](https://leetcode.com/problems/longest-consecutive-sequence/description/)
 
 |  Category  |   Difficulty    |                             Tags                             |
