@@ -115,10 +115,12 @@
     def dfs(graph, s):
       if s in visited: 
         return
+      
       # 经过节点 s，标记为已遍历
       visited.add(s)
       # 做选择：标记节点 s 在路径上
       path.add(s)
+      
       for neighbor in graph.neighbors:
         dfs(graph, neighbor)
       # 撤销选择：节点 s 离开路径
@@ -128,7 +130,7 @@
     - 这个 `Path` 数组的操作很像回溯算法中做「做选择」和「撤销选择」，区别在于位置：回溯算法的「做选择」和「撤销选择」在 for 循环里面，而对 `Path` 数组的操作在 for 循环外面。
 
       区别：<u>*DFS 算法，关注点在节点*；*回溯算法，关注点在树枝*</u>
-
+    
     - 如果题目告诉你图中不含环，可以把 `visited` 数组都省掉，基本就是**多叉树的遍历**。
 
 - **岛屿系列题目**
@@ -157,24 +159,24 @@
   # Version 1: cannot change the original values in the grid
   dir = [[1, 0], [-1, 0], [0, 1], [0, -1]]
   visited = set()
-  def dfs(grid, r, c, visited):
+  def dfs(r, c, visited):
     m = len(grid)									# row
     n = len(grid[0])							# column
     
     # base case
-    if r < 0 or c < 0 or r >= m or c >= n:		# 超出索引边界(r: row index; c: column index)
+    if r < 0 or c < 0 or r >= m or c >= n:		 # 超出索引边界(r: row index; c: column index)
       return 
     
-    if (r, c) in visited or grid[r][c] != '1':# 已遍历过 (r, c)；如果这个格子不是岛屿，直接返回
+    if (r, c) in visited or grid[r][c] != '1': # 已遍历过 (r, c)；如果这个格子不是岛屿，直接返回
       return 
     
     # 进入节点 (r, c)
     visited.add((r, c))
     # 第一种写法
-    dfs(grid, r - 1, c, visited)	# 上
-    dfs(grid, r + 1, c, visited)	# 下
-    dfs(grid, r, c - 1, visited)	# 左
-    dfs(grid, r, c + 1, visited)	# 右
+    dfs(r - 1, c, visited)	# 上
+    dfs(r + 1, c, visited)	# 下
+    dfs(r, c - 1, visited)	# 左
+    dfs(r, c + 1, visited)	# 右
     
     # 第二种写法
     for d in dir:
@@ -304,7 +306,7 @@
         self.count = n
         for i in range(n):    				# initialization --> 父节点指针初始指向自己
           self.parent[i] = i
-          self.size[i] = 1						# 最初每棵树只有一个节点，重量应该初始化为1
+          self.rank[i] = 1						# 最初每棵树只有一个节点，重量应该初始化为1
     
     def union(x, y):
         rootX = self.find(x)
@@ -372,8 +374,13 @@
         rootX = self.find(x)
         rootY = self.find(y)
         if rootX != rootY:
-          # 将两棵树合并为一棵
-          self.parent[rootX] = rootY	   # or: self.root[rootY] = rootX
+          # 将两棵树合并为一棵, 小树接到大树下面，较平衡
+          if self.rank[rootX] > self.rank[rootY]:			# 此时Y是小树，将y所在的小树接到x所在大树的根节点下
+            self.parent[rootY] = rootX
+            self.rank[rootX] += self.rank[rootY]
+          else:																				# 此时X是小树
+            self.parent[rootX] = rootY
+            self.rank[rootY] += self.rank[rootX]
           self.count -= 1							 # 两个分量合二为一
           
       def connected(x, y):
@@ -381,17 +388,17 @@
         rootY = self.find(y)
         return rootX == rootY
     ```
-  
+    
     - <img src="/Users/xinyuzhang/Library/Application Support/typora-user-images/image-20220725155049695.png" alt="image-20220725155049695" style="zoom:50%;" />
-  
+    
     - 构造函数初始化数据结构需要 O(N) 的时间和空间复杂度；连通两个节点 `union`、判断两个节点的连通性 `connected`、计算连通分量 `count` 所需的时间复杂度均为 O(1)。
-  
+    
     - 总结一下我们优化算法的过程：
-  
+    
       1、用 `root` 数组记录每个节点的父节点，相当于指向父节点的指针，所以 `root` 数组内实际存储着一个森林（若干棵多叉树）。
-  
+    
       2、用 `size` 数组记录着每棵树的重量，目的是让 `union` 后树依然拥有平衡性，保证各个 API 时间复杂度为 O(logN)，而不会退化成链表影响操作效率。
-  
+    
       3、在 `find` 函数中进行路径压缩，保证任意树的高度保持在常数，使得各个 API 时间复杂度为 O(1)。使用了路径压缩之后，可以不使用 `size` 数组的平衡优化。
 
 ## 1. 200 [Number of Islands](https://leetcode.com/problems/number-of-islands/description/)
@@ -448,7 +455,7 @@ Output: 3
     row, col = len(grid), len(grid[0])
     dir = [[1, 0], [-1, 0], [0, 1], [0, -1]]
     
-    def dfs(grid, r, c, visited):
+    def dfs(r, c, visited):
       # base case
       if (r not in range(row) or c not in range(col)):
         return
@@ -459,14 +466,14 @@ Output: 3
       visited.add((r, c))
       # 访问上、下、左、右四个相邻结点
       for d in dir:
-        dfs(grid, r + d[0], c + d[1], visited)  
+        dfs(r + d[0], c + d[1], visited)  
     
     res = 0
     for r in range(row):
       for c in range(col):
         if (grid[r][c] == '1' and (r, c) not in visited):
           res += 1
-          dfs(grid, r, c, visited)
+          dfs(r, c, visited)
     return res
   ```
 
@@ -505,7 +512,7 @@ Output: 3
 
   - Time complexity：$O(row \times col)$ --> two for-loops
 
-    Space complexity: $O(row \times col)$ --> 在最坏情况下，整个网格均为陆地，深度优先搜索的深度达到 $O(row \times col)$
+    Space complexity: $O(row \times col)$ --> 在最坏情况下，整个网格均为陆地，深度优先搜索的深度达到 $O(row \times col)$ <font color=red>**Space used for stack memory using dfs**</font>
 
 ## 2. 695 [Max Area of Island](https://leetcode.com/problems/max-area-of-island/description/)
 
@@ -649,12 +656,12 @@ Output: 2
 
     2、让你计算「封闭岛屿」的数目。所谓「封闭岛屿」就是上下左右全部被 `1` 包围的 `0`，也就是说**靠边的陆地不算作「封闭岛屿」**。
 
-    --> **判断「封闭岛屿」：*<u>把那些靠边的岛屿排除掉</u>*，剩下的就是「封闭岛屿」了**
+    --> **判断「封闭岛屿」：*<u>把那些靠边的岛屿排除掉</u>*，剩下的就是「封闭岛屿」了** --> 单独将靠边的岛屿使用dfs遍历一遍，加入`visited` set里，这样在最终判断时会把靠边岛屿排除掉
 
 - **Solution**
 
   ```python
-  # 0: land; 1: water: closed island: 0 surrounded by 1
+      # 0: land; 1: water: closed island: 0 surrounded by 1
       # S1: add islands on top and bottom, left and right to visited --> not closed islands
       # S2: for the rest, traverse and each island is a closed island
       def closedIsland(self, grid: List[List[int]]) -> int:
@@ -861,7 +868,7 @@ Explanation: This an empty graph, it does not have any nodes.
 
   - 我们需要明确图的深拷贝是在做什么 --> 
 
-    <u>Deep copy:</u>，对于一张图而言，它的深拷贝即构建一张与原图结构，值均一样的图，但是其中的节点不再是原来图节点的引用。因此，为了深拷贝出整张图，我们需要知道整张图的结构以及对应节点的值。由于题目只给了我们一个节点的引用，因此为了知道整张图的结构以及对应节点的值，我们需要**从给定的节点出发，进行「图的遍历」，并在遍历的过程中完成图的深拷贝**。--> ==**遍历图 --> depth-first-search**==
+    <u>Deep copy:</u>，对于一张图而言，它的深拷贝即构建一张与原图结构，值均一样的图，但是其中的节点不再是原来图节点的引用。因此，为了深拷贝出整张图，我们需要知道整张图的结构以及对应节点的值。由于<u>题目只给了我们一个节点的引用</u>，因此为了知道整张图的结构以及对应节点的值，我们需要**从给定的节点出发，进行「图的遍历」，并在遍历的过程中完成图的深拷贝**。--> ==**遍历图 --> depth-first-search**==
 
   - 为了避免在深拷贝时陷入死循环，我们需要理解图的结构。对于一张无向图，任何给定的无向边都可以表示为两个有向边，即如果节点 A 和节点 B 之间存在无向边，则表示该图具有从节点 A 到节点 B 的有向边和从节点 B 到节点 A 的有向边。
 
@@ -956,7 +963,7 @@ Output: [[0,0],[0,1],[1,0],[1,1]]
 
   - 由于矩阵的左边界和上边界是太平洋，矩阵的右边界和下边界是大西洋，因此从矩阵的左边界和上边界开始反向搜索即可找到雨水流向太平洋的单元格，从矩阵的右边界和下边界开始反向搜索即可找到雨水流向大西洋的单元格。
 
-    判断是否能达到点的条件: heights[r][c] >= prevHeights
+    判断是否能达到点的条件: `heights[r][c] >= prevHeights`
 
   - S1: find all cells reachable from Pacific Ocean (left and top)
 
@@ -984,7 +991,7 @@ Output: [[0,0],[0,1],[1,0],[1,1]]
               for d in dir:
                   dfs(r + d[0], c + d[1], ocean, heights[r][c])
           
-          # check available cells based on row
+          # S1: check available cells based on row
           for r in range(row):
               dfs(r, 0, pac, heights[r][0])							 # left: Pacific Ocean
               dfs(r, col - 1, atl, heights[r][col - 1])	 # right: Atlantic Ocean
@@ -993,6 +1000,7 @@ Output: [[0,0],[0,1],[1,0],[1,1]]
               dfs(0, c, pac, heights[0][c])								# top: Pacific Ocean
               dfs(row - 1, c, atl, heights[row - 1][c])		# botoom: Atlantic Ocean
           
+          # S2: find locations which appear both in the two sets
           res = []
           for r in range(row):
               for c in range(col):
@@ -1000,9 +1008,9 @@ Output: [[0,0],[0,1],[1,0],[1,1]]
                       res.append((r, c))
           return res
   ```
-
+  
   - Time complexity：$O(row \times col)$ --> two for-loops
-
+  
     Space complexity: $O(row \times col)$ --> set memory + stack memory for recursion
 
 ## 7. 130 [Surrounded Regions](https://leetcode.com/problems/surrounded-regions/description/)
@@ -1092,82 +1100,7 @@ Output: [["X"]]
 
     Space complexity: $O(row \times col)$ --> set memory + stack memory for recursion
 
-## 8. 797 [All Paths From Source to Target](https://leetcode.com/problems/all-paths-from-source-to-target/description/)
-
-|  Category  |   Difficulty    |                             Tags                             |
-| :--------: | :-------------: | :----------------------------------------------------------: |
-| algorithms | Medium (80.93%) | [`hash-table`](https://leetcode.com/tag/hash-table); [`math`](https://leetcode.com/tag/math) |
-
-Given a directed acyclic graph (**DAG**) of `n` nodes labeled from `0` to `n - 1`, find all possible paths from node `0` to node `n - 1` and return them in **any order**.
-
-The graph is given as follows: `graph[i]` is a list of all nodes you can visit from node `i` (i.e., there is a directed edge from node `i` to node `graph[i][j]`).
-
-**Example 1:**
-
-<img src="https://assets.leetcode.com/uploads/2020/09/28/all_1.jpg" alt="img" style="zoom:50%;" />
-
-```
-Input: graph = [[1,2],[3],[3],[]]
-Output: [[0,1,3],[0,2,3]]
-Explanation: There are two paths: 0 -> 1 -> 3 and 0 -> 2 -> 3.
-```
-
-**Example 2:**
-
-<img src="https://assets.leetcode.com/uploads/2020/09/28/all_2.jpg" alt="img" style="zoom:50%;" />
-
-```
-Input: graph = [[4,3,1],[3,2,4],[3],[4],[]]
-Output: [[0,4],[0,3,4],[0,1,3,4],[0,1,2,3,4],[0,1,4]]
-```
-
-- **Constraints:**
-
-  - `n == graph.length`
-
-  - `2 <= n <= 15`
-
-  - `0 <= graph[i][j] < n`
-
-  - `graph[i][j] != i` (i.e., there will be no self-loops).
-
-  - All the elements of `graph[i]` are **unique**.
-
-  - The input graph is **guaranteed** to be a **DAG**.
-
-- **Thoughts**
-
-  - 由于题目确定了该图不包含环，所以这道题可以用多叉树的dfs遍历解决 --> **以 `0` 为起点遍历图，同时记录遍历过的路径，当遍历到终点 (n - 1) 时将路径记录下来即可**
-  - 这道题和Backtracking笔记里的排列题和17 [Letter Combinations of a Phone Number](https://leetcode.com/problems/letter-combinations-of-a-phone-number/description/)接近。
-
-- **Solution**
-
-  ```python
-  def allPathsSourceTarget(self, graph: List[List[int]]) -> List[List[int]]:
-    res = []
-    path = []
-  
-    def dfs(node):          # node: the current node for traversal
-      # base case: 当目前遍历的节点为最后一个节点的时候，就找到了一条从出发点到终止点的路径
-      if node == len(graph) - 1: # 要求从节点0到节点n-1的路径并输出，所以是len(graph)-1
-        res.append(path[:])
-        return
-  
-      for i in range(len(graph[node])): # 遍历节点n连接的所有邻居节点
-        path.append(graph[node][i])
-        dfs(graph[node][i])
-        path.pop()
-  
-     path.append(0)           # 无论什么路径都是从0节点出发
-     dfs(0)                   # 开始遍历
-     return res
-  ```
-
-  - Time complexity：$O(n \times 2^n)$ --> each node has two conditions: in the path/not in the path, the total possible number of paths is $2^n$; the length of each path is n
-
-    Space complexity: $O(n)$ --> stack memory for recursion + path
-
-## 9. 207 [Course Schedule](https://leetcode.com/problems/course-schedule/description/)
+## 8. 207 [Course Schedule](https://leetcode.com/problems/course-schedule/description/)
 
 |  Category  |   Difficulty    |                             Tags                             |
 | :--------: | :-------------: | :----------------------------------------------------------: |
@@ -1211,7 +1144,7 @@ To take course 1 you should have finished course 0, and to take course 0 you sho
 
 - **Thoughts**
 
-  - This problem is equivalent to finding if a cycle exists in a directed graph. If a cycle exists, no topological ordering exists and therefore it will be impossible to take all courses. --> <font color=blue>**Topological Sort**</font>
+  - This problem is equivalent to finding if a cycle exists in a directed graph. If a cycle exists, no topological ordering exists and therefore it will be impossible to take all courses. --> <font color=blue>**Topological Sort: Sorts given actions in such a way that if there is a ==dependency of one action on another==, then the dependent action always comes later than its parent action.**</font>
   - <u>Procedures:</u>
     - S1: create a graph --> key: each course; value: prerequisites; finish mapping
     - S2: create a visited set to track the nodes; create a path set to track the path (start on current node)
@@ -1238,17 +1171,17 @@ To take course 1 you should have finished course 0, and to take course 0 you sho
         hasCycle = True
       visited.add(pre)
       path.add(pre)
-      for crs in graph[pre]:					# for each course, conduct dfs
+      for crs in graph[pre]:					# for each course, conduct dfs --> O(E): visit edges
         dfs(crs)
       path.remove(pre)								  
     
     # As not all nodes in the graph are connected --> treat every node as a start to use DFS
-    for pre in range(numCourses):     # O(V + E)
+    for pre in range(numCourses):     # O(V): only visit vertices
       dfs(pre)
     return not self.hasCycle
   ```
 
-  - Time complexity：$O(V + E)$ --> V为先修课程的要求数，E为课程数
+  - Time complexity：$O(V + E)$ --> V为先修课程的要求数，E为课程数; Essentially we iterate through each node and each vertex in the graph once and only once.
 
     Space complexity: $O(V + E)$ --> the two lists created will insert all vertices and edges + stack memory for recursion (O(V))
 
@@ -1329,7 +1262,7 @@ Output: [0]
               path.add(pre)
               for course in graph[pre]:
                   dfs(course)
-              res.insert(0, pre)
+              res.insert(0, pre)    				# the only line added from Leetcode 207: add the prerequisite course into the result
               path.remove(pre)
           
           for node in range(numCourses):
@@ -1457,7 +1390,7 @@ Output: 3
                province = 0
        
                def dfs(i):
-                   for j in range(n):
+                   for j in range(n):    # 不能用range(i + 1, n)，在使用dfs的时候不要设限
                        if isConnected[i][j] == 1 and j not in visited:
                            visited.add(j)
                            dfs(j)
@@ -1605,13 +1538,13 @@ Output: false.
 
   - <u>Method 1: Depth-first-search</u>
   
-    - method: DFS --> create an adjacency list using hashmap and a visted set to track all visited nodes
+    - method: DFS --> create an adjacency list using hashmap and a visited set to track all visited nodes
   
     - fully connected: `len(visited) = n`
   
     - no cycle: check the visited set --> <font color=red>**Important!: because this is an undirected graph, so trivial 'cycles' might be detected (false positive)**</font> --> created another variable `prev` to denote the previous node 
   
-      注意在这道题中，图是无向的，所以在创建adjacency list时，对于每条edge两个node都要加。在detect loop时也要注意要跳过该节点的上一个节点，以防错误检测loop
+      注意在这道题中，<font color=red>**图是无向的，所以在创建adjacency list时，对于每条edge两个node都要加**</font>。在detect loop时也要注意要跳过该节点的上一个节点，以防错误检测loop
   
     ```python
     def validTree(self, n: int, edges: List[List[int]]) -> bool:
@@ -1632,7 +1565,7 @@ Output: false.
                 
                 visited.add(node)
                 for neighbor in adj[node]:						# O(N)
-                    if neighbor == prev:
+                    if neighbor == prev:							# 如果不加prev节点的话，由于是双向图，邻居节点同样会连接至node，于是会提前显示在visited集合里并return False
                         continue
                     if not dfs(neighbor, node):
                         return False
@@ -1686,7 +1619,7 @@ Output: false.
 | :--------: | :-----------: | :----------------------------------------------------------: |
 | algorithms | Hard (40.27%) | [`depth-first-search`](https://leetcode.com/tag/depth-first-search); [`graph`](https://leetcode.com/tag/graph) |
 
-You are given a list of airline `tickets` where `tickets[i] = [fromi, toi]` represent the departure and the arrival airports of one flight. Reconstruct the itinerary in order and return it.
+You are given a list of airline `tickets` where `tickets[i] = [from_i, to_i]` represent the departure and the arrival airports of one flight. Reconstruct the itinerary in order and return it.
 
 All of the tickets belong to a man who departs from `"JFK"`, thus, the itinerary must begin with `"JFK"`. If there are multiple valid itineraries, you should return the itinerary that has the smallest lexical order when read as a single string.
 
@@ -1723,9 +1656,9 @@ Explanation: Another possible reconstruction is ["JFK","SFO","ATL","JFK","ATL","
 
   - `toi.length == 3`
 
-  - `fromi` and `toi` consist of uppercase English letters.
+  - `from_i` and `to_i` consist of uppercase English letters.
 
-  - `fromi != toi`
+  - `from_i != to_i`
 
 - **Thoughts**
 
