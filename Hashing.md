@@ -1,5 +1,7 @@
 # Hashing
 
+n Sum的题目在双指针Two Pointers笔记里📒
+
 ## 1. 242 [Valid Anagram](https://leetcode.com/problems/valid-anagram/description/)
 
 |  Category  |  Difficulty   |                            Likes                             |
@@ -32,6 +34,8 @@ Output: false
 - **Follow up:** What if the inputs contain Unicode characters? How would you adapt your solution to such a case? 
 
   Unicode 是为了解决传统字符编码的局限性而产生的方案，它为每个语言中的字符规定了一个唯一的二进制编码。而 Unicode 中可能存在一个字符对应多个字节的问题，为了让计算机知道多少字节表示一个字符，面向传输的编码方式的 UTF−8 和 UTF−16 也随之诞生逐渐广泛使用，具体相关的知识读者可以继续查阅相关资料拓展视野，这里不再展开。
+  
+  同样使用hashmap解决
 
 
 - **Solution**
@@ -75,6 +79,8 @@ Output: false
     Time complexity: O(n + n) = O(n)
 
     Space complexity: O(n) --> create a hashmap with n elements
+    
+    - 由于题目只有字母，所以可以使用含有26个字母的array来替代hashmap，每一个元素为s里对应字母的个数，然后遍历t减去对应字母 --> 最后如果array里有元素不为0，则不是anagram
 
 
 ## 2. 49 [Group Anagrams](https://leetcode.com/problems/group-anagrams/description/)
@@ -165,7 +171,7 @@ Output: [["a"]]
       return res.values()
     ```
 
-    Time complexity: $O(m*(n+26)$ --> where $n$ is the largest length of each string, $m$ is the number of strings in `strs` --> 需要遍历 m 个字符串，对于每个字符串，需要 O(n) 的时间计算每个字母出现的次数，O(26) 的时间生成哈希表的键
+    Time complexity: $O(m*(n+26))$ --> where $n$ is the largest length of each string, $m$ is the number of strings in `strs` --> 需要遍历 m 个字符串，对于每个字符串，需要 O(n) 的时间计算每个字母出现的次数，O(26) 的时间生成哈希表的键
 
     Space complexity: $O(m*(n+26)$ --> the hash table records every string
 
@@ -209,7 +215,7 @@ Explanation: All three pairs have a total duration of 120, which is divisible by
 
   这道题首先会使用暴力解法，用两个for循环，但是会超时。观察的话可得知，(a + b) % 60 == 0 --> (a % 60 + b % 60) % 60 == 0
 
-  Two situations: 1. a % 60 + b % 60 == 60  2. a % 60 = 0 and b % 60 = 0
+  Two situations: 1. a % 60 + b % 60 == 60 (b % 60=60−a % 60)  2. a % 60 = 0 and b % 60 = 0
 
   这样的话这道题可以转换成 2 Sum类似，可以创建一个hashmap记录所有余数的数量
 
@@ -242,6 +248,4 @@ Explanation: All three pairs have a total duration of 120, which is divisible by
           return res   
           # Time complexity: O(N); Space complexity: O(N)
   ```
-
-  
 
