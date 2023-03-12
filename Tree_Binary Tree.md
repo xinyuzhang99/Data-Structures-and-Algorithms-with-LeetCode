@@ -30,7 +30,7 @@
 
   - <u>Balanced Binary Tree</u>
 
-    --> Each leaf is not more than a certain distance from the root node than any other leaf (all leaf nodes are located **from the root** **in the same distance**)
+    --> Each leaf is not more than **a certain distance** from the root node than any other leaf (all leaf nodes are located **from the root** **in the same distance**)
 
     <img src="/Users/xinyuzhang/Library/Application Support/typora-user-images/image-20220129001906030.png" alt="image-20220129001906030" style="zoom:80%;" />
 
@@ -41,6 +41,30 @@
       如图：
 
       ![img](https://img-blog.csdnimg.cn/20200806190511967.png)
+
+- **Tree Terminology**
+
+  <img src="/Users/xinyuzhang/Library/Application Support/typora-user-images/image-20220128230530874.png" alt="image-20220128230530874" style="zoom:80%;" />
+
+  - **Root:** top node without parent
+
+  - **Edge:** a link between parent and child
+
+  - **Leaf**: a node which does not have children
+
+  - **Sibling**: children of same parent
+
+  - **Ancestor:** parent, grandparent, great grandparent of a node --> ancestor of N7 are N4, N2, N1
+
+  - **Depth of Node**: a length of the path <u>from root to node</u> --> Depth of  N4: 2 (2 edges) <u>==从上往下计算==</u>
+
+  - **Height of Node:** a length of the path <u>from the node to the deepest node</u> --> Height of N3: 1 edge (to N6) <u>==从下往上计算==</u>
+
+    ==Depth + Height is always a constant==
+
+  - **Depth of Tree:** depth of root node --> Depth of N1: 0
+
+  - **Height of Tree**: height of root tree --> Height of N1: 3 (N1 to N7)
 
 - 树节点类：
 
@@ -131,6 +155,8 @@ Output: 2
 
   - <u>Method 1: Recursion --> Depth-first Search_</u>
 
+    --> the maximum depth of the tree = max(left subtree depth, right subtree depth) + 1
+    
     ```python
     # Definition for a binary tree node.
     # class TreeNode:
@@ -196,6 +222,8 @@ Output: [1]
 
   - <u>Method 1: Recursion</u>
 
+    <img src="https://leetcode.com/problems/binary-tree-preorder-traversal/Figures/144_rewrite/144-pre.png" alt="img" style="zoom: 80%;" />
+  
     ```python
     class Solution:
         def preorderTraversal(self, root: Optional[TreeNode]) -> List[int]:
@@ -210,9 +238,59 @@ Output: [1]
             preOrder(root)
             return res
     ```
-
+  
+    - Time complexity: O(N) --> traverse each node once
+  
+      Space complexity: O(N) --> for `res` and the stack memory used by the recursive call stack <font color = blue>**[the recursion internally uses a call stack that takes up space equivalent to the depth of the tree]** </font>
+  
     - 易错点：
-      - <font color=red>主函数里要单独写一个递归函数！</font>If all of the logis is in one function, `res` will be set to `[]` everytime `preorderTraversal` is called --> 递归过程要用一个新的函数写，然后在主函数call
+  
+      - <font color=red>主函数里要单独写一个递归函数！</font>If all of the logic is in one function, `res` will be set to `[]` everytime `preorderTraversal` is called --> 递归过程要用一个新的函数写，然后在主函数call
+  
+  - <u>Method 2: Iteration</u> ==Follow-up==
+  
+    --> use **stack** to implement dfs
+  
+     Note that the operations on the stack follow the first-in-last-out order. The node we add last is visited first. Therefore, to access the left child before the right child, we **add the right child before the left child**.
+  
+    ![img](https://leetcode.com/problems/binary-tree-preorder-traversal/Figures/144_rewrite/144-it.png)
+  
+    - Algorithm
+  
+      1. Initialize an empty array `answer` and an empty stack `stack`.
+  
+      2. Add `root` to `stack`.
+  
+      3. While `stack` is not empty, get the top node `currNode` from `stack`. If `currNode` is not NULL:
+  
+         - add its value to `answer`.
+  
+         - add its right child to `stack`.
+  
+         - add its left child to `stack`.
+  
+           Then repeat step 3.
+  
+      4. Return `answer` after we empty `stack`.
+  
+    ```python
+    def preorderTraversal(self, root: Optional[TreeNode]) -> List[int]:
+      res = []
+      stack = [root]
+    
+      while stack:
+        curr = stack.pop()
+        if curr:
+          res.append(curr.val)
+          stack.append(curr.right)
+          stack.append(curr.left)
+    
+      return res
+    ```
+  
+    - Time complexity: O(N) --> traverse each node once
+  
+      Space complexity: O(N) for `res` and `stack`
 
 ### 2.1 872 [Leaf-Similar Trees](https://leetcode.com/problems/leaf-similar-trees/description/)
 
@@ -281,7 +359,7 @@ Output: false
         return [root.val]
       left = getLeafValue(root.left)      # the leaf node value sequence of left subtree
       right = getLeafValue(root.right)		# the leaf node value sequence of right subtree
-      return left + right   							
+      return left + right   		          # concatenate values to a list					
     return getLeafValue(root1) == getLeafValue(root2)  
   ```
 
@@ -461,7 +539,7 @@ Output: []
                     node = Q.popleft()				# 从队首取出元素
                     # 将队首元素取出并进行连接
                     if i < n - 1:
-                        node.next = Q[0]
+                        node.next = Q[0]      # connect the current node to the next node
     
                     # 拓展下一层节点
                     if node.left:						
@@ -484,6 +562,9 @@ Output: []
     ```python
     class Solution:
         def connect(self, root: 'Optional[Node]') -> 'Optional[Node]':
+          	if root == None:
+                return
+              
             def traverse(node1: 'Optional[Node]', node2: 'Optional[Node]'):
                 if (node1 == None or node2 == None):   # 三叉树每个root包含两个节点
                     return 
@@ -493,8 +574,6 @@ Output: []
                 traverse(node2.left, node2.right)
                 traverse(node1.right, node2.left)			# 连接跨越父节点的两个子节点
     
-            if root == None:
-                return
             traverse(root.left, root.right)
             return root 
     ```
@@ -529,7 +608,7 @@ Output: []
                     root.right.next = root.next.left
             
                 traverse(root.left)
-                traverse(root.right)s
+                traverse(root.right)
     
             if not root:
                 return
@@ -582,46 +661,47 @@ Output: []
             return root
     ```
 
-  ## 5. 114 [Flatten Binary Tree to Linked List](https://leetcode.com/problems/flatten-binary-tree-to-linked-list/description/)
 
-  |  Category  |   Difficulty    |                             Tags                             |
-  | :--------: | :-------------: | :----------------------------------------------------------: |
-  | algorithms | Medium (58.05%) | [`tree`](https://leetcode.com/tag/tree); [`depth-first-search`](https://leetcode.com/tag/depth-first-search) |
+## 5. 114 [Flatten Binary Tree to Linked List](https://leetcode.com/problems/flatten-binary-tree-to-linked-list/description/)
 
-  Given the `root` of a binary tree, flatten the tree into a "linked list":
+|  Category  |   Difficulty    |                             Tags                             |
+| :--------: | :-------------: | :----------------------------------------------------------: |
+| algorithms | Medium (58.05%) | [`tree`](https://leetcode.com/tag/tree); [`depth-first-search`](https://leetcode.com/tag/depth-first-search) |
 
-  - The "linked list" should use the same `TreeNode` class where the `right` child pointer points to the next node in the list and the `left` child pointer is always `null`.
-  - The "linked list" should be in the same order as a [**pre-order** **traversal**](https://en.wikipedia.org/wiki/Tree_traversal#Pre-order,_NLR) of the binary tree.
+Given the `root` of a binary tree, flatten the tree into a "linked list":
 
-  **Example 1:**
+- The "linked list" should use the same `TreeNode` class where the `right` child pointer points to the next node in the list and the `left` child pointer is always `null`.
+- The "linked list" should be in the same order as a [**pre-order** **traversal**](https://en.wikipedia.org/wiki/Tree_traversal#Pre-order,_NLR) of the binary tree.
 
-  <img src="https://assets.leetcode.com/uploads/2021/01/14/flaten.jpg" alt="img" style="zoom:50%;" />
+**Example 1:**
 
-  ```
-  Input: root = [1,2,5,3,4,null,6]
-  Output: [1,null,2,null,3,null,4,null,5,null,6]
-  ```
+<img src="https://assets.leetcode.com/uploads/2021/01/14/flaten.jpg" alt="img" style="zoom:50%;" />
 
-  **Example 2:**
+```
+Input: root = [1,2,5,3,4,null,6]
+Output: [1,null,2,null,3,null,4,null,5,null,6]
+```
 
-  ```
-  Input: root = []
-  Output: []
-  ```
+**Example 2:**
 
-  **Example 3:**
+```
+Input: root = []
+Output: []
+```
 
-  ```
-  Input: root = [0]
-  Output: [0]
-  ```
+**Example 3:**
 
-  **Constraints:**
+```
+Input: root = [0]
+Output: [0]
+```
 
-  - The number of nodes in the tree is in the range `[0, 2000]`.
-  - `-100 <= Node.val <= 100`
+**Constraints:**
 
-  **Follow up:** Can you flatten the tree in-place (with `O(1)` extra space)?
+- The number of nodes in the tree is in the range `[0, 2000]`.
+- `-100 <= Node.val <= 100`
+
+**Follow up:** Can you flatten the tree in-place (with `O(1)` extra space)?
 
 - **Thoughts**
 
@@ -740,12 +820,13 @@ Output: 1
       # left + right 为最大直径，如果直径大于已有答案，则进行更新
       self.maxDiameter = max(self.maxDiameter, left + right)
       return max(left, right) + 1							# return depth (not longest path!!)
+    
     depth(root)
     return self.maxDiameter
   ```
-
+  
   Time complexity: O(N) --> traverse through all nodes in the tree
-
+  
   Space complexity: O(logN) / O(Height) -->  其中Height 为二叉树的高度。由于递归函数在递归过程中需要为==每一层递归函数分配栈空间==，所以这里需要额外的空间且该空间取决于递归的深度，而递归的深度显然为二叉树的高度，并且每次递归调用的函数里又只用了常数个变量，所以所需空间复杂度为 O(Height) 。
 
 ## 7. 654 [Maximum Binary Tree](https://leetcode.com/problems/maximum-binary-tree/description/)
@@ -891,7 +972,7 @@ Output: [-1]
     root = TreeNode(preorder[0])
     mid = inorder.index(preorder[0]) # linear time complexity: for 1 value, time complexity is O(1)
     root.left = self.buildTree(preorder[1:mid+1], inorder[:mid])
-    root.right = self.buildTree(preorder[mid+1:], inorder[mid+1:])
+    root.right = self.buildTree(preorder[mid+1:], inorder[mid+1:])  
     return root
   ```
 
@@ -931,12 +1012,17 @@ Output: []
 
   - The number of nodes in the tree is in the range `[0, 104]`.
 
-  - `-1000 <= Node.val <= 1000
+  - -1000 <= Node.val <= 1000
 
 - **Thoughts**
 
-  - 该题目的serialization其实就是对于==树的遍历==，可使用DFS进行前序遍历； deserialization和==树的构造题==类型相近，将list的数构造成树
-  - 关键点在于serialization输出一条完整字符串；deserialization最开始要将该字符串split
+  - 该题目的serialization其实就是对于==树的遍历==，可使用DFS进行前序遍历； deserialization和==树的构造题==类型相近，将list的数构造成树 --> 两个function都是用traversal递归解决
+
+  - 关键点在于serialization输出一条**完整字符串**；deserialization最开始要**将该字符串split**
+
+  - 之前的题目例如LeetCode 105 至少要得到前、中、后序遍历中的两种互相配合才能还原二叉树。那是因为题目的遍历结果没有记录空指针的信息。这里的 `node` 列表包含了空指针的信息，所以只使用 `node` 列表就可以还原二叉树。
+
+    <img src="https://labuladong.github.io/algo/images/%e4%ba%8c%e5%8f%89%e6%a0%91%e5%ba%8f%e5%88%97%e5%8c%96/1.jpeg" alt="img" style="zoom:50%;" />
 
 - **Solution**
 
@@ -954,7 +1040,7 @@ Output: []
           
           def dfs(root):
             if not root:
-              res.append('N')    # use 'N' to indicate null node
+              res.append('N')    # use 'N' to indicate null node / '-1'
               return None
             res.append(str(root.val))
             dfs(root.left)
@@ -1042,7 +1128,7 @@ Output: [[2,3],[3]]
 
     
 
-    如果你想知道以自己为根的子树是不是重复的，是否应该被加入结果列表中，你需要知道什么信息？
+    如果你想知道以自己为根的子树是不是重复的，是否应该被加入结果列表中，你需要知道什么信息？<font color=blue>**[To find if there are duplicate subtrees, each node should know the subtree where the root is itself --> serialization + hashmap]**</font>
 
     **你需要知道以下两点**：
 
@@ -1066,9 +1152,9 @@ Output: [[2,3],[3]]
               
               # left = dfs(root.left)   # left subtree
               # right = dfs(root.right) # right subtree
-              # subtree = str(left) + ',' + str(right) + ',' + str(root.val)
-              subtree = '{}, {}, {}'.format(dfs(root.left), dfs(root.right), root.val)
-  
+              # subtree = str(root.val) + ',' + str(left) + ',' + str(right)
+              subtree = '{}, {}, {}'.format(root.val, dfs(root.left), dfs(root.right))  # using the string formatting method 
+   
               hashtable[subtree] = 1 + hashtable.get(subtree, 0)
               if hashtable[subtree] == 2:   # subtree is a duplicate
                   res.append(root)
@@ -1078,7 +1164,7 @@ Output: [[2,3],[3]]
           return res
   ```
 
-  Time complexity: $O(N^2)$ -->  N 是二叉树上节点的数量。遍历所有节点，在每个节点处序列化 (连接成字符串) 需要时间 O(N) --> in each call, generating `subtree` and computing hashtable both cost O(N)
+  Time complexity: $O(N^2)$ -->  N 是二叉树上节点的数量。遍历所有节点，在每个节点处序列化 (<font color=blue>**连接成字符串**</font>) 需要时间 O(N) --> in each call, generating `subtree` and computing hashtable both cost O(N)
 
   Space complexity: $O(N^2)$  --> Recursion has O(N) time complexity, and in each recursive call, building a hashtable costs O(N)
 
@@ -1149,7 +1235,7 @@ Output: 3
 
 - **Thoughts**
 
-  - ==二叉树的中序遍历结果是有序的（升序）!== --> 可以通过中序遍历找到第 k 个最小元素 --> dfs + record the order of each element
+  - ==二叉搜索树的中序遍历结果是有序的（升序）!== --> 可以通过中序遍历找到第 k 个最小元素 --> dfs + record the order of each element + binary search
   - 二叉树的中序遍历可以通过迭代和递归两种方式实现
 
 - **Solution**
@@ -1160,15 +1246,15 @@ Output: 3
     def kthSmallest(self, root: Optional[TreeNode], k: int) -> int:
             self.res = 0
             self.order = 0      # current order of the node traversed
-            def dfs(root, k):
+            def dfs(root):
                 if not root:
                     return 
-                dfs(root.left, k)
+                dfs(root.left)
                 self.order += 1
                 if self.order == k:
                     self.res = root.val
-                dfs(root.right, k)
-            dfs(root, k)   
+                dfs(root.right)
+            dfs(root)   
             return self.res 
     ```
 
@@ -1184,7 +1270,8 @@ Output: 3
             n = 0
             while root or stack:
                 while root:
-                    stack.append(root)   # append a root in the stack and continue to find the left subtree
+                    # append a root in the stack and continue to find the whole left subtree
+                    stack.append(root)   
                     root = root.left
                 root = stack.pop()
                 n += 1
@@ -1192,51 +1279,52 @@ Output: 3
                     return root.val
                 root = root.right 
     ```
-
+    
     Time Complexity: O(N) --> O(H+k)，其中 H 是树的高度。在开始遍历之前，我们需要 O(H) 到达叶结点。当树是平衡树时，时间复杂度取得最小值 O(logN+k)；当树是线性树（树中每个结点都只有一个子结点或没有子结点）时，时间复杂度取得最大值 O(N+k)。
-
+    
     Space Complexity: O(N) --> recursion operations require stack memory
+  
 
-  ## 12. 538 [Convert BST to Greater Tree](https://leetcode.com/problems/convert-bst-to-greater-tree/description/)
+## 12. 538 [Convert BST to Greater Tree](https://leetcode.com/problems/convert-bst-to-greater-tree/description/)
 
-  |  Category  |   Difficulty    |                  Tags                   |
-  | :--------: | :-------------: | :-------------------------------------: |
-  | algorithms | Medium (66.39%) | [`tree`](https://leetcode.com/tag/tree) |
+|  Category  |   Difficulty    |                  Tags                   |
+| :--------: | :-------------: | :-------------------------------------: |
+| algorithms | Medium (66.39%) | [`tree`](https://leetcode.com/tag/tree) |
 
-  Given the `root` of a Binary Search Tree (BST), convert it to a Greater Tree such that every key of the original BST is changed to the original key plus the sum of all keys greater than the original key in BST.
+Given the `root` of a Binary Search Tree (BST), convert it to a Greater Tree such that every **key of the original BST is changed to the original key plus the sum of all keys greater than the original key in BST**.
 
-  As a reminder, a *binary search tree* is a tree that satisfies these constraints:
+As a reminder, a *binary search tree* is a tree that satisfies these constraints:
 
-  - The left subtree of a node contains only nodes with keys **less than** the node's key.
-  - The right subtree of a node contains only nodes with keys **greater than** the node's key.
-  - Both the left and right subtrees must also be binary search trees.
+- The left subtree of a node contains only nodes with keys **less than** the node's key.
+- The right subtree of a node contains only nodes with keys **greater than** the node's key.
+- Both the left and right subtrees must also be binary search trees.
 
-  **Example 1:**
+**Example 1:**
 
-  <img src="https://assets.leetcode.com/uploads/2019/05/02/tree.png" alt="img" style="zoom:50%;" />
+<img src="https://assets.leetcode.com/uploads/2019/05/02/tree.png" alt="img" style="zoom:50%;" />
 
-  ```
-  Input: root = [4,1,6,0,2,5,7,null,null,null,3,null,null,null,8]
-  Output: [30,36,21,36,35,26,15,null,null,null,33,null,null,null,8]
-  ```
+```
+Input: root = [4,1,6,0,2,5,7,null,null,null,3,null,null,null,8]
+Output: [30,36,21,36,35,26,15,null,null,null,33,null,null,null,8]
+```
 
-  **Example 2:**
+**Example 2:**
 
-  ```
-  Input: root = [0,null,1]
-  Output: [1,null,1]
-  ```
+```
+Input: root = [0,null,1]
+Output: [1,null,1]
+```
 
-  **Constraints:**
+**Constraints:**
 
-  - The number of nodes in the tree is in the range `[0, 104]`.
-  - `-104 <= Node.val <= 104`
-  - All the values in the tree are **unique**.
-  - `root` is guaranteed to be a valid binary search tree.
+- The number of nodes in the tree is in the range `[0, 104]`.
+- `-104 <= Node.val <= 104`
+- All the values in the tree are **unique**.
+- `root` is guaranteed to be a valid binary search tree.
 
 - **Thoughts**
 
-  BST 的每个节点左小右大，这似乎是一个有用的信息，既然累加和是计算大于等于当前值的所有元素之和，那么每个节点都去计算右子树的和 --> 利用中序遍历
+  BST 的每个节点左小右大，这似乎是一个有用的信息，既然累加和是计算大于等于当前值的所有元素之和，那么每个节点都去计算右子树的和 --> 利用**从右节点开始的中序遍历**
 
 - **Solution**
 
@@ -1247,7 +1335,7 @@ Output: 3
       if not root:
         return
       dfs(root.right)
-      self.sum += root.val
+      self.sum += root.val   # 在中序位置进行操作，update sum value and assign the the root
       root.val = self.sum
       dfs(root.left)
     dfs(root)
@@ -1373,7 +1461,7 @@ Output: true
 
 - **Thoughts**
 
-  - 这道题的重点是计算出每个节点左子树和右子树的高度，所以该题应在后序位置进行计算，与`6. 543 [Diameter of Binary Tree]`题类似
+  - 这道题的重点是计算出每个节点左子树和右子树的高度，所以该题应在**后序位置**进行计算，与`6. 543 [Diameter of Binary Tree]`题类似
 
 - **Solution**
 
@@ -1465,7 +1553,88 @@ Output: false
 
   - Time complexity: O(min(m,n))，其中 m 和 n 分别是两个二叉树的节点数。对两个二叉树==同时==进行深度优先搜索，只有当两个二叉树中的对应节点都不为空时才会访问到该节点，因此被访问到的节点数不会超过较小的二叉树的节点数。
 
-    Space complexity: O(min(m,n)) --> 空间复杂度取决于递归调用的层数，递归调用的层数不会超过较小的二叉树的最大高度，最坏情况下，二叉树的高度等于节点数。
+    Space complexity: O(min(m,n)) --> 空间复杂度取决于递归调用的层数，<u>递归调用的层数不会超过较小的二叉树的最大高度</u>，最坏情况下，二叉树的高度等于节点数。
+
+### 15.1 101 [Symmetric Tree](https://leetcode.com/problems/symmetric-tree/description/)
+
+|  Category  |  Difficulty   |                             Tags                             |
+| :--------: | :-----------: | :----------------------------------------------------------: |
+| algorithms | Easy (51.75%) | [`tree`](https://leetcode.com/tag/tree); [`depth-first-search`](https://leetcode.com/tag/depth-first-search) ; [`breadth-first-search`](https://leetcode.com/tag/breadth-first-search) |
+
+Given the `root` of a binary tree, *check whether it is a mirror of itself* (i.e., symmetric around its center).
+
+**Example 1:**
+
+<img src="https://assets.leetcode.com/uploads/2021/02/19/symtree1.jpg" alt="img" style="zoom: 67%;" />
+
+```
+Input: root = [1,2,2,3,4,4,3]
+Output: true
+```
+
+**Example 2:**
+
+<img src="https://assets.leetcode.com/uploads/2021/02/19/symtree2.jpg" alt="img" style="zoom:67%;" />
+
+```
+Input: root = [1,2,2,null,3,null,3]
+Output: false
+```
+
+**Constraints:**
+
+- The number of nodes in the tree is in the range `[1, 1000]`.
+- `-100 <= Node.val <= 100`
+
+**Follow up:** Could you solve it both recursively and iteratively?
+
+- **Solution**
+
+  - <u>Method 1: Recursive</u>
+
+    ```python
+    def isSymmetric(root):
+        def symmetric(left, right):
+                if not left and not right: # both subtrees don't exist
+                    return True
+                if not left or not right:  # one node is none
+                    return False
+                return (left.val == right.val) and symmetric(left.left, right.right) and symmetric(left.right, right.left)
+        return symmetric(root.left, root.right)
+    ```
+    
+    - Time complexity: O(N)
+    
+      Space complexity: O(N)
+  
+  - <u>Method 2: Iterative</u>
+  
+    Each time, two nodes are extracted and their values compared. Then, the right and left children of the two nodes are inserted in the queue in opposite order.
+  
+    ```python
+    # Iterative: using BFS
+        def isSymmetric(self, root: Optional[TreeNode]) -> bool:
+            q = deque([root, root])
+            while q:
+                r1 = q.popleft()
+                r2 = q.popleft()
+                if not r1 and not r2:
+                    continue
+                if not r1 or not r2:
+                    return False
+                if r1.val != r2.val:
+                    return False
+                
+                q.append(r1.left)
+                q.append(r2.right)
+                q.append(r1.right)
+                q.append(r2.left)
+            return True
+    ```
+  
+    - Time complexity: O(N)
+  
+      Space complexity: O(N)
 
 ## 16. 572 [Subtree of Another Tree](https://leetcode.com/problems/subtree-of-another-tree/description/)
 
@@ -1585,7 +1754,7 @@ Output: 1
 
   - `-109 <= Node.val <= 109`
 
-  - All `Node.val` are **unique**.
+  - All `Node.val` are <font color=blue>**unique**</font>.
 
   - `p != q`
 
@@ -1608,74 +1777,75 @@ Output: 1
   # Situation 2: left and right --> return root
   # Situation 3: left or right --> return left if left else right
   def lowestCommonAncestor(self, root: 'TreeNode', p: 'TreeNode', q: 'TreeNode') -> 'TreeNode':
-    # Base case
     if not root:
       return
     if (root.val == p.val) or (root.val == q.val):					 # because p and q exist and all values are unique
       return root
     
-    # Recursive function
+    # Recursive function: find the LCA node
     left = self.lowestCommonAncestor(root.left, p, q)					# find the LCA node in left subtree
     right = self.lowestCommonAncestor(root.right, p, q)				# find the LCA node in right subtree
-    if left and right:																			  # Situation 2
+    
+    # Situation 2: both left and right are valid --> find p, q on two sides of root
+    if left and right:						
       return root
-    return left if left else right														# Situation 3 --> p, q in one subtree
+    # Situation 3: only one subtree find the valid values p, q --> p and q are in one subtree
+    # Example: assuming 'p' found in left child, right child returned     'None'. This means 'q' is somewhere below node where 'p' was found we dont need to search all the way, because in such scenarios, node where 'p' found is LCA
+    return left if left else right  
   ```
-
+  
   - Time complexity: O(N) --> 其中 N 为二叉树节点数；最差情况下，需要递归遍历树的所有节点。
-
+  
     Space complexity: O(N) --> 最差情况下，递归深度达到 N ，系统使用 O(N) 大小的额外空间
-
+  
   - 公共祖先题目变体: https://mp.weixin.qq.com/s/njl6nuid0aalZdH5tuDpqQ
 
-## 18. 235 [Lowest Common Ancestor of a Binary Tree](https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-tree/description/)
+## 18. 235 [Lowest Common Ancestor of a Binary Search Tree](https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-search-tree/description/)
 
-|  Category  |   Difficulty    |                  Tags                   |
-| :--------: | :-------------: | :-------------------------------------: |
-| algorithms | Medium (55.62%) | [`tree`](https://leetcode.com/tag/tree) |
+|  Category  |  Difficulty   |                  Tags                   |
+| :--------: | :-----------: | :-------------------------------------: |
+| algorithms | Easy (57.29%) | [`tree`](https://leetcode.com/tag/tree) |
 
-Given a binary tree, find the lowest common ancestor (LCA) of two given nodes in the tree.
+- Given a **binary search tree (BST)**, find the lowest common ancestor (LCA) of two given nodes in the BST.
 
-According to the [definition of LCA on Wikipedia](https://en.wikipedia.org/wiki/Lowest_common_ancestor): “The lowest common ancestor is defined between two nodes `p` and `q` as the lowest node in `T` that has both `p` and `q` as descendants (where we allow **a node to be a descendant of itself**).”
+  According to the [definition of LCA on Wikipedia](https://en.wikipedia.org/wiki/Lowest_common_ancestor): “The lowest common ancestor is defined between two nodes `p` and `q` as the lowest node in `T` that has both `p` and `q` as descendants (where we allow **a node to be a descendant of itself**).”
 
-**Example 1:**
+   
 
-![img](https://assets.leetcode.com/uploads/2018/12/14/binarytree.png)
+  **Example 1:**
 
-```
-Input: root = [3,5,1,6,2,0,8,null,null,7,4], p = 5, q = 1
-Output: 3
-Explanation: The LCA of nodes 5 and 1 is 3.
-```
+  ![img](https://assets.leetcode.com/uploads/2018/12/14/binarysearchtree_improved.png)
 
-**Example 2:**
+  ```
+  Input: root = [6,2,8,0,4,7,9,null,null,3,5], p = 2, q = 8
+  Output: 6
+  Explanation: The LCA of nodes 2 and 8 is 6.
+  ```
 
-![img](https://assets.leetcode.com/uploads/2018/12/14/binarytree.png)
+  **Example 2:**
 
-```
-Input: root = [3,5,1,6,2,0,8,null,null,7,4], p = 5, q = 4
-Output: 5
-Explanation: The LCA of nodes 5 and 4 is 5, since a node can be a descendant of itself according to the LCA definition.
-```
+  ![img](https://assets.leetcode.com/uploads/2018/12/14/binarysearchtree_improved.png)
 
-**Example 3:**
+  ```
+  Input: root = [6,2,8,0,4,7,9,null,null,3,5], p = 2, q = 4
+  Output: 2
+  Explanation: The LCA of nodes 2 and 4 is 2, since a node can be a descendant of itself according to the LCA definition.
+  ```
 
-```
-Input: root = [1,2], p = 1, q = 2
-Output: 1 
-```
+  **Example 3:**
 
-- **Constraints:**
+  ```
+  Input: root = [2,1], p = 2, q = 1
+  Output: 2
+  ```
+
+  **Constraints:**
 
   - The number of nodes in the tree is in the range `[2, 105]`.
-
   - `-109 <= Node.val <= 109`
-
   - All `Node.val` are **unique**.
-
   - `p != q`
-
-  - `p` and `q` will exist in the tree.
+  - `p` and `q` will exist in the BST.
 
 - **Thoughts**
 
@@ -1698,16 +1868,16 @@ Output: 1
     cur = root
   
     while cur:   # guaranteed there must be an LCA --> p and q will exist in the tree
-      if p.val < cur.val and q.val < cur.val:     # find in the left tree
+      if p.val < cur.val and q.val < cur.val:     # both in the left tree
         cur = cur.left
-      elif p.val > cur.val and q.val > cur.val:   # find in the right tree
+      elif p.val > cur.val and q.val > cur.val:   # both in the right tree
         cur = cur.right
       # if one value is larger and the other one is smaller;or if root.val = one value
       else:   
         return cur
   ```
 
-  - Time complexity: O(logn) --> 其中 N 为二叉搜索树节点数
+  - Time complexity: O(h) --> 其中 N 为二叉搜索树节点数: worst case O(N), O(logN) if tree is balanced
 
     Space complexity: O(1) --> no extra memory used
 
@@ -1715,7 +1885,7 @@ Output: 1
     - 为什么不直接用root而是创建了一个cur指针：如果直接移动root指针 (reassign root to the next node on each step of the loop)
       - Root would no longer point to the original root of the tree. What if the code that called your function was relying on the root variable they passed to you? 
       - Reassigning parameters is an anti-pattern except when the function explicitly makes clear that that is the intention (除非是modifying in-place).
-      - Since cur here is just a pointer/reference to the object and not a copy of the tree itself, it <font color=red>**costs basically nothing**</font> to make that variable and preserve the original root parameter
+      - Since cur here is just **a pointer/reference to the object** and not a copy of the tree itself, it <font color=red>**costs basically nothing**</font> to make that variable and preserve the original root parameter
 
 ## 19. [Count Good Nodes in Binary Tree](https://leetcode.com/problems/count-good-nodes-in-binary-tree/description/)
 
@@ -1771,21 +1941,21 @@ Explanation: Root is considered as good.
 
   函数参数 `pathMax` 记录从根节点到当前节点路径中的最大值，通过比较 `root.val` 和 `pathMax` 比较就可判断 `root` 节点是不是「好节点」。
 
-  --> traverse through all nodes, if `root.val >= pathSum` --> the node is a good node
+  --> traverse through all nodes, if `root.val >= pathMax` --> the node is a good node
 
 - **Solution**
 
   ```python
   def goodNodes(self, root: TreeNode) -> int:
     self.count = 0
-    def dfs(root, pathSum):
+    def dfs(root, pathMax):
       if not root:
         return
-      if root.val >= pathSum:						 # good node: root.val >= pathMax
+      if root.val >= pathMax:						 # good node: root.val >= pathMax
         self.count += 1
-      pathSum = max(pathSum, root.val)
-      dfs(root.left, pathSum)
-      dfs(root.right, pathSum)
+      pathMax = max(pathMax, root.val)
+      dfs(root.left, pathMax)
+      dfs(root.right, pathMax)
     dfs(root, root.val)
     return self.count
   ```
@@ -1848,9 +2018,11 @@ Explanation: The optimal path is 15 -> 20 -> 7 with a path sum of 15 + 20 + 7 = 
 
   ```python
   def maxPathSum(self, root: Optional[TreeNode]) -> int:
-    # maxPathSum = root.val + pathSum(root.left) + pathSum(root.right)
     # pathSum = root.val + max(left, right)
+    # maxPathSum = root.val + pathSum(root.left) + pathSum(root.right)
     self.maxSum = float('-inf')
+    
+    # 函数定义：求以该节点为root的最大pathSum
     def pathSum(root):
       if not root:
         return 0
@@ -1860,7 +2032,7 @@ Explanation: The optimal path is 15 -> 20 -> 7 with a path sum of 15 + 20 + 7 = 
       self.maxSum = max(self.maxSum, left + right + root.val)
       return root.val + max(left, right) # 实现函数定义，左右子树的最大单边路径和加上根节点的值
     pathSum(root)
-    return self.pathSum
+    return self.maxSum
   ```
 
   - Time complexity: O(N) 
@@ -1870,10 +2042,10 @@ Explanation: The optimal path is 15 -> 20 -> 7 with a path sum of 15 + 20 + 7 = 
   - <font color=red>注意点：</font>
 
     - 只有在最大贡献值大于 0 时，才会选取对应子节点！！如果左右子树和的最大值都小于0，则忽略掉该子树的贡献
-
+  
       ```python
       left = max(pathSum(root.left), 0)				# 只有在最大贡献值大于 0 时，才会选取对应子节点
       right = max(pathSum(root.right), 0)
       ```
-
+  
       
