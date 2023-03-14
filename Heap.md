@@ -1,4 +1,4 @@
-# Heap 堆
+ # Heap 堆
 
 ## Python中堆的常用操作
 
@@ -96,11 +96,12 @@ Output: 4
     import heapq
     class Solution:
         def findKthLargest(self, nums: List[int], k: int) -> int:
-            maxheap = []
+          	maxheap = [-n for n in nums]
+            # maxheap = []
             heapq.heapify(maxheap)
     
-            for n in nums:
-                heapq.heappush(maxheap, -1 * n)
+            # for n in nums:
+                # heapq.heappush(maxheap, -1 * n)
             
             while k > 1:
                 heapq.heappop(maxheap)
@@ -162,7 +163,11 @@ Explanation: "the", "is", "sunny" and "day" are the four most frequent words, wi
 
   - `k` is in the range `[1, The number of **unique** words[i]]`
 
+
+**Follow-up:** Could you solve it in `O(n log(k))` time and `O(n)` extra space?
+
 - **Thoughts**
+
   - 对于找==top-k==的题目，使用Heap进行排序
   - 题目要求的顺序为：输出<u>频率大</u>的字符串，如果频率相同输出<u>字母顺序小</u>的字符串 --> 考虑使用堆结构进行排序 --> 由于python自带的是min-heap，故条件改为：<font color=blue>**频率小的元素放在堆顶，字母顺序大的元素放在堆顶** </font> --> 频率小的元素先出堆，字母顺序大的元素先出堆 --> 最后按照顺序取出来后<font color=blue>**反转顺序**</font>，即为正确顺序
   - <font color=red>**难点：**</font> write the <font color=red>**comparator function**</font>
@@ -176,9 +181,27 @@ Explanation: "the", "is", "sunny" and "day" are the four most frequent words, wi
   - S3: Create a result list and append the keys --> then reverse the list to get  the result list
 
   ```python
+  # transfer to top k frequent elements --> heap: (-frequency, word)
+  # build a hashmap {word:frequency}
+  def topKWords(words, k):
+      frequency = Counter(words)
+      maxHeap = [(-freq, word) for word, freq in frequency.items()]  # max heap
+      heapq.heapify(maxHeap)
+  
+      res = []
+      while k > 0:
+          word = heapq.heappop(maxHeap)
+          res.append(word[1])
+      return res
+  
+  ```
+
+  
+
+  ```python
   import heapq
   from typing import List
-  # The updated comparator function
+  # The updated comparator function of 
   class Node:
       def __init__(self, key, value):
           self.key = key
@@ -381,7 +404,7 @@ kthLargest.add(4);   // return 8
     - 为什么能保证堆顶元素是第 K 大元素？
       因为小根堆中保留的一直是堆中的前 K 大的元素，堆的大小是 K，所以堆顶元素是第 K 大元素。
     - 每次 add() 的时间复杂度是多少？
-      每次 add() 时，调用了堆的 push() 和 pop() 方法，两个操作的时间复杂度都是 log(K).。
+      每次 add() 时，调用了堆的 push() 和 pop() 方法，两个操作的时间复杂度都是 log(K)。
 
 - **Solution**
 
@@ -482,7 +505,7 @@ Output: 1
 
     Space complexity: O(n) --> build a heap to store most n values
 
-# 6. 973 [K Closest Points to Origin](https://leetcode.com/problems/k-closest-points-to-origin/description/)
+## 6. 973 [K Closest Points to Origin](https://leetcode.com/problems/k-closest-points-to-origin/description/)
 
 |  Category  |   Difficulty    |                             Tags                             |
 | :--------: | :-------------: | :----------------------------------------------------------: |
@@ -490,7 +513,7 @@ Output: 1
 
 Given an array of `points` where `points[i] = [xi, yi]` represents a point on the **X-Y** plane and an integer `k`, return the `k` closest points to the origin `(0, 0)`.
 
-The distance between two points on the **X-Y** plane is the Euclidean distance (i.e., `√(x1 - x2)2 + (y1 - y2)2`).
+The distance between two points on the **X-Y** plane is the Euclidean distance (i.e., `√(x1 - x2)^2 + (y1 - y2)2`).
 
 You may return the answer in **any order**. The answer is **guaranteed** to be **unique** (except for the order that it is in).
 
