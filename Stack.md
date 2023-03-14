@@ -476,8 +476,8 @@ Explanation: The next greater element for each value of nums1 is as follows:
     res = []
   
     for i in range(len(nums2) - 1, -1, -1):
-      while stack and nums2[i] > stack[-1]:
-        stack.pop()
+      while stack and nums2[i] > stack[-1]:    
+        stack.pop()						# pop values in the stack until find the next greater element
       hashtable[nums2[i]] = stack[-1] if stack else -1
       stack.append(nums2[i])
   
@@ -540,7 +540,7 @@ Output: [1,1,0]
           for i in range(n - 1, -1, -1):
               while stack and temperatures[i] >= temperatures[stack[-1]]:
                   stack.pop()
-              res[i] = stack[-1] - i if stack else -
+              res[i] = stack[-1] - i if stack else 0
               stack.append(i)
           return res
   ```
@@ -586,6 +586,8 @@ Output: [2,3,4,-1,4]
 
   - 该题目是一个典型的单调栈题目，只是需要处理的是循环数组。对于循环数组，一般是通过`%`求余数来模拟环形特效 --> `arr[index % len(nums)]`
   - 这个问题肯定还是要用单调栈的解题模板，但难点在于，比如输入是 `[2,1,2,4,3]`，对于最后一个元素 3，如何找到元素 4 作为下一个更大元素。**对于这种需求，常用套路就是将数组长度翻倍**
+
+  Key: double the array
 
 - **Solution**
 
@@ -691,21 +693,21 @@ Then, the fleet (speed 2) and the car starting at 4 (speed 1) become one fleet, 
 
   ```python
   def carFleet(self, target: int, position: List[int], speed: List[int]) -> int:
-    pair = sorted(zip(position, speed))
+    pair = sorted(zip(position, speed))  
     
-    time = []
+    time = []     # time is a stack
     for p, s in pair:
       time.append((target - p) / s)
   
-    res = 0
+    res = 0								 
     while len(time) > 1:
-      lead = time.pop()
+      lead = time.pop()		 # lead为最靠前的车辆需要的时间
       if lead < time[-1]:  # lead不会被追上，车队数量+1
         res += 1
       else:
         time[-1] = lead    # lead会被追上，为了确认该车队有多少车辆，将lead设置为time[-1]，根据lead最终到达时间进行判断
     
-    return res + 1				 # remain one car --> a fleet
+    return res + 1 				 # the remaining car is a fleet			 
   ```
 
   - Time complexity: O(NlogN) --> 排序的时间复杂度
@@ -875,3 +877,26 @@ Output: "ps"
   - `2 <= k <= 104`
 
   - `s` only contains lowercase English letters.
+
+- **Solution**
+
+  ```python
+  def removeDuplicates(self, s: str, k: int) -> str:
+          stack = []   # store [char, count]
+          for letter in s:
+              if stack and stack[-1][0] == letter:
+                  stack[-1][1] += 1					# only change the count, not append a same char into the stack
+                  if stack[-1][1] == k:
+                      stack.pop()
+              else:
+                  stack.append([letter, 1])
+          
+          res = ''
+          for char, count in stack:
+              res += (char * count)
+          return res
+  ```
+
+  - Time complexity: O(N + N) = O(N)
+
+    Space complexity:  O(N) for the stack and result string
