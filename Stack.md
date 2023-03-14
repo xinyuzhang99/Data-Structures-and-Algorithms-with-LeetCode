@@ -312,54 +312,55 @@ minStack.getMin(); // return -2
 
       Space complexity: $O(1)$
 
-  ## 4. 150 [Evaluate Reverse Polish Notation](https://leetcode.com/problems/evaluate-reverse-polish-notation/description/)
 
-  |  Category  |   Difficulty    | Tags  |
-  | :--------: | :-------------: | :---: |
-  | algorithms | Medium (42.84%) | stack |
+## 4. 150 [Evaluate Reverse Polish Notation](https://leetcode.com/problems/evaluate-reverse-polish-notation/description/)
 
-  Evaluate the value of an arithmetic expression in [Reverse Polish Notation](http://en.wikipedia.org/wiki/Reverse_Polish_notation).
+|  Category  |   Difficulty    | Tags  |
+| :--------: | :-------------: | :---: |
+| algorithms | Medium (42.84%) | stack |
 
-  Valid operators are `+`, `-`, `*`, and `/`. Each operand may be an integer or another expression.
+Evaluate the value of an arithmetic expression in [Reverse Polish Notation](http://en.wikipedia.org/wiki/Reverse_Polish_notation).
 
-  **Note** that division between two integers should truncate toward zero.
+Valid operators are `+`, `-`, `*`, and `/`. Each operand may be an integer or another expression.
 
-  It is guaranteed that the given RPN expression is always valid. That means the expression would always evaluate to a result, and there will not be any division by zero operation. 
+**Note** that division between two integers should truncate toward zero.
 
-  **Example 1:**
+It is guaranteed that the given RPN expression is always valid. That means the expression would always evaluate to a result, and there will not be any division by zero operation. 
 
-  ```
-  Input: tokens = ["2","1","+","3","*"]
-  Output: 9
-  Explanation: ((2 + 1) * 3) = 9
-  ```
+**Example 1:**
 
-  **Example 2:**
+```
+Input: tokens = ["2","1","+","3","*"]
+Output: 9
+Explanation: ((2 + 1) * 3) = 9
+```
 
-  ```
-  Input: tokens = ["4","13","5","/","+"]
-  Output: 6
-  Explanation: (4 + (13 / 5)) = 6
-  ```
+**Example 2:**
 
-  **Example 3:**
+```
+Input: tokens = ["4","13","5","/","+"]
+Output: 6
+Explanation: (4 + (13 / 5)) = 6
+```
 
-  ```
-  Input: tokens = ["10","6","9","3","+","-11","*","/","*","17","+","5","+"]
-  Output: 22
-  Explanation: ((10 * (6 / ((9 + 3) * -11))) + 17) + 5
-  = ((10 * (6 / (12 * -11))) + 17) + 5
-  = ((10 * (6 / -132)) + 17) + 5
-  = ((10 * 0) + 17) + 5
-  = (0 + 17) + 5
-  = 17 + 5
-  = 22 
-  ```
+**Example 3:**
 
-  **Constraints:**
+```
+Input: tokens = ["10","6","9","3","+","-11","*","/","*","17","+","5","+"]
+Output: 22
+Explanation: ((10 * (6 / ((9 + 3) * -11))) + 17) + 5
+= ((10 * (6 / (12 * -11))) + 17) + 5
+= ((10 * (6 / -132)) + 17) + 5
+= ((10 * 0) + 17) + 5
+= (0 + 17) + 5
+= 17 + 5
+= 22 
+```
 
-  - `1 <= tokens.length <= 104`
-  - `tokens[i]` is either an operator: `"+"`, `"-"`, `"*"`, or `"/"`, or an integer in the range `[-200, 200]`.
+**Constraints:**
+
+- `1 <= tokens.length <= 104`
+- `tokens[i]` is either an operator: `"+"`, `"-"`, `"*"`, or `"/"`, or an integer in the range `[-200, 200]`.
 
 - **Thoughts**
 
@@ -828,3 +829,49 @@ Output: 4
     - Time complexity: O(N) --> 输入数组里的每一个元素入栈一次，出栈一次
 
       Space complexity: O(N) --> create a stack 
+
+## 10. 1209 [Remove All Adjacent Duplicates in String II](https://leetcode.com/problems/remove-all-adjacent-duplicates-in-string-ii/description/)
+
+|  Category  |   Difficulty    | Tags |
+| :--------: | :-------------: | :--: |
+| algorithms | Medium (56.21%) | 4528 |
+
+You are given a string `s` and an integer `k`, a `k` **duplicate removal** consists of choosing `k` adjacent and equal letters from `s` and removing them, causing the left and the right side of the deleted substring to concatenate together.
+
+We repeatedly make `k` **duplicate removals** on `s` until we no longer can.
+
+Return *the final string after all such duplicate removals have been made*. It is guaranteed that the answer is **unique**.
+
+**Example 1:**
+
+```
+Input: s = "abcd", k = 2
+Output: "abcd"
+Explanation: There's nothing to delete.
+```
+
+**Example 2:**
+
+```
+Input: s = "deeedbbcccbdaa", k = 3
+Output: "aa"
+Explanation: 
+First delete "eee" and "ccc", get "ddbbbdaa"
+Then delete "bbb", get "dddaa"
+Finally delete "ddd", get "aa"
+```
+
+**Example 3:**
+
+```
+Input: s = "pbbcggttciiippooaais", k = 2
+Output: "ps" 
+```
+
+- **Constraints:**
+
+  - `1 <= s.length <= 105`
+
+  - `2 <= k <= 104`
+
+  - `s` only contains lowercase English letters.
