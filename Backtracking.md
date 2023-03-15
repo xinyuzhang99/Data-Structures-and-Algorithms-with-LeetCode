@@ -1,12 +1,12 @@
 # Backtracking
 
---> 回溯算法和DFS 算法非常类似，本质上就是一种暴力穷举算法，复杂度一般都很高。回溯算法和 DFS 算法的细微差别是：**回溯算法是在遍历「树枝」，DFS 算法是在遍历「节点」**
+--> 回溯算法和DFS算法非常类似，本质上就是一种暴力穷举算法，复杂度一般都很高。回溯算法和 DFS 算法的细微差别是：**回溯算法是在遍历「树枝」，DFS 算法是在遍历「节点」**
 
 --> 回溯是递归的副产品，只要有递归就会有回溯
 
 - 解决一个回溯问题，实际上就是一个决策树的遍历过程，站在回溯树的一个节点上，你只需要思考 3 个问题：
 
-  1、路径 / 状态：也就是已经做出的选择。 --> 记录在path中
+  1、路径 / 状态：也就是已经做出的选择。 --> **记录在path中**
 
   2、选择列表 / Path：也就是你当前可以做的选择。 --> 是一个栈
 
@@ -138,7 +138,7 @@ Output: [[1]]
               
               for i in range(len(nums)):
                   if used[i]:          # 排除不合法的选择    
-                      continue         # nums[i] 已经在 track 中，跳过
+                      continue         # nums[i] 已经在 path 中，跳过
                   # 做选择
                   path.append(nums[i])
                   used[i] = True
@@ -156,14 +156,16 @@ Output: [[1]]
 
     <img src="/Users/xinyuzhang/Library/Application Support/typora-user-images/image-20220617015130121.png" alt="image-20220617015130121" style="zoom: 67%;" />
 
-  - Space complexity: $O(N \times N!)$​  
+    --> n is the number of elements in the input list `nums`. This is because the algorithm **generates n! permutations** of the input list, and each permutation involves iterating over n elements.
 
+  - Space complexity: $O(N \times N!)$​  
+  
     - 递归树深度 $O(NlogN)$；
-    - 全排列个数 N!，每个全排列占空间 N。取较大者。
+    - 全排列个数 N!，每个全排列占空间 N。取较大者。--> Each permutation is a list of n elements, so the total memory used by all permutations is n * n!
 
   - 易错点：
-
-    - `res.append(path[:])`: 参数传递是值传递，对象类型变量在传参的过程中，==复制的是变量的地址==。这些地址被添加到 res 变量，但实际上指向的是同一块内存地址，因此我们会看到 6 个空的列表对象。解决的方法很简单，在 `res.add(path)` 这里做一次拷贝即可。
+  
+    - `res.append(path[:])`: 参数传递是值传递，对象类型变量在传参的过程中，==复制的是变量的地址 (pass by reference)==。这些地址被添加到 res 变量，但实际上指向的是同一块内存地址，因此我们会看到 6 个空的列表对象。解决的方法很简单，在 `res.add(path)` 这里做一次拷贝即可。
 
 ## 2. 51 [N-Queens](https://leetcode.com/problems/n-queens/description/)
 
@@ -199,7 +201,7 @@ Output: [["Q"]]
 
 - **Thoughts**
 
-  - 皇后的走法是：可以横直斜走，格数不限。因此要求皇后彼此之间不能相互攻击，等价于要求任何两个皇后都不能在同一行、同一列以及同一条斜线上。 --> 为了获得valid board, 需要满足三个条件 --> 同Set.md的`36. Valid Sudoku`类似，建立三个集合set
+  - 皇后的走法是：可以横直斜走，格数不限。因此要求皇后彼此之间不能相互攻击，等价于要求任何两个皇后都不能在同一行、同一列以及同一条斜线上。 --> 为了获得valid board, 需要满足三个条件 --> 同`Set.md`的`36. Valid Sudoku`类似，建立三个集合set
 
   - 关键点：如何表示不在同一条斜线上
 
@@ -237,6 +239,7 @@ Output: [["Q"]]
         if c in col or (r - c) in negDiag or (r + c) in posDiag:
           continue
         
+        # 在该[r, c]位置做选择放棋子
         board[r][c] = 'Q'
         col.add(c)
         negDiag.add(r - c)
@@ -244,6 +247,7 @@ Output: [["Q"]]
         
         backtrack(r + 1)     # proceed to the next row
         
+        # 撤销选择
         board[r][c] = '.'
         col.remove(c)
         negDiag.remove(r - c)
@@ -252,7 +256,7 @@ Output: [["Q"]]
     backtrack(0)
     return res
   ```
-
+  
   - Time complexity: $O(N!)$ --> 由于每个皇后必须位于不同列，因此已经放置的皇后所在的列不能放置别的皇后。第一个皇后有 N 列可以选择，第二个皇后最多有 N-1 列可以选择，第三个皇后最多有 N-2 列可以选择（如果考虑到不能在同一条斜线上，可能的选择数量更少），因此所有可能的情况不会超过 N! 种，遍历这些情况的时间复杂度是 O(N!)。
   - Space complexity: $O(N)$ --> N is the number of queens 空间复杂度主要取决于递归调用层数、记录每行放置的皇后的列下标的数组以及三个集合，递归调用层数不会超过 N，数组的长度为 N，每个集合的元素个数都不会超过 N。
 
@@ -327,9 +331,8 @@ Output: ["()"]
     return res
   ```
 
-  - Time complexity: <font color=red>空缺！！</font>
+  - Time complexity and space complexity: <img src="/Users/xinyuzhang/Library/Application Support/typora-user-images/image-20230314185109071.png" alt="image-20230314185109071" style="zoom:50%;" />
 
-    Space complexity: O(N)
 
 ## 4. 79 [Word Search](https://leetcode.com/problems/word-search/description/)
 
@@ -444,6 +447,8 @@ Output: false
   - Time complexity: $O(M \times N \times 4^{len(word)})$ --> $M\times N$是两个for循环的时间复杂度，在每一个循环里进行了backtrack操作；backtrack是递归的时间复杂度（递归算法的时间复杂度：==子问题个数 ^ 解决一个子问题的复杂度==），一个backtrack操作里会进行4次backtrack操作，解决一次backtrack操作需要进行`len(word)`的搜索，故为$O(M \times N \times 4^{len(word)})$ 
 
     Space complexity: $O(M\times N)$ --> extra memory for path set which stores each cell of the board (in the worst case)
+
+  - **LeetCode 212 Word Search II在Trie 笔记**
 
 
 ## 5. 78 [Subsets](https://leetcode.com/problems/subsets/description/)
@@ -854,7 +859,7 @@ Output: [[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,1,2],[3,2,1]]
 
     - 这句话可以翻译为 遇到相同的节点 要填后面的节点就一定先填过前面的节点 什么意思？ 假设三个1 分别为 1a 1b 1c 要想填1b 就一定之前填过1a 要想填过1c 就一定填过1b 那么三个1都被填充的顺序就一定为1a 1b 1c
 
-    - 同理可以把 !vis[i - 1]换成vis[i-1] 也能通过 此时意思就是要想填i 就必须没填过i-1 顺序就是1c 1b 1a
+      同理可以把 !vis[i - 1]换成vis[i-1] 也能通过 此时意思就是要想填i 就必须没填过i-1 顺序就是1c 1b 1a
 
     - 此外!vis[i - 1]会比vis[i-1] 快很多： 大家可以画个树状图，原因在于!vis[i - 1] 在遇到相同节点时，会一次性取出，而vis[i-1] 则是试错了前面所有的才找到对的
 
@@ -865,7 +870,7 @@ Output: [[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,1,2],[3,2,1]]
           nums.sort()
           res = []
           path = []
-          used = [False] * len(nums)
+          used = [False] * len(nums)     # 类似visited
   
           def backtrack(nums):
               if len(path) == len(nums):
@@ -960,7 +965,7 @@ Output: []
           res = []
           path = []
   
-          def backtrack(start,  candidates, target, pathSum):
+          def backtrack(start, pathSum):
               if pathSum == target:
                   res.append(path[:])
               
@@ -970,10 +975,10 @@ Output: []
               for i in range(start, len(candidates)):
                   path.append(candidates[i])
                   pathSum += candidates[i]
-                  backtrack(i, candidates, target, pathSum)		# 不用i+1了，表示可以重复读取当前的数
+                  backtrack(i, pathSum)				# 不用i + 1了，表示可以重复读当前的数
                   path.pop()
                   pathSum -= candidates[i]
-          backtrack(0, candidates, target, 0)
+          backtrack(0, 0)
           return res
   ```
 
@@ -1165,7 +1170,82 @@ Output: ["a","b","c"]
 
     <img src="/Users/xinyuzhang/Library/Application Support/typora-user-images/image-20220714185032162.png" alt="image-20220714185032162" style="zoom:50%;" />
 
-## 13. 140 [Word Break II](https://leetcode.com/problems/word-break-ii/description/)
+## 13. 797 [All Paths From Source to Target](https://leetcode.com/problems/all-paths-from-source-to-target/description/)
+
+|  Category  |   Difficulty    |                             Tags                             |
+| :--------: | :-------------: | :----------------------------------------------------------: |
+| algorithms | Medium (80.93%) | [`hash-table`](https://leetcode.com/tag/hash-table); [`math`](https://leetcode.com/tag/math) |
+
+Given a directed acyclic graph (**DAG**) of `n` nodes labeled from `0` to `n - 1`, find all possible paths from node `0` to node `n - 1` and return them in **any order**.
+
+The graph is given as follows: `graph[i]` is a list of all nodes you can visit from node `i` (i.e., there is a directed edge from node `i` to node `graph[i][j]`).
+
+**Example 1:**
+
+<img src="https://assets.leetcode.com/uploads/2020/09/28/all_1.jpg" alt="img" style="zoom:50%;" />
+
+```
+Input: graph = [[1,2],[3],[3],[]]
+Output: [[0,1,3],[0,2,3]]
+Explanation: There are two paths: 0 -> 1 -> 3 and 0 -> 2 -> 3.
+```
+
+**Example 2:**
+
+<img src="https://assets.leetcode.com/uploads/2020/09/28/all_2.jpg" alt="img" style="zoom:50%;" />
+
+```
+Input: graph = [[4,3,1],[3,2,4],[3],[4],[]]
+Output: [[0,4],[0,3,4],[0,1,3,4],[0,1,2,3,4],[0,1,4]]
+```
+
+- **Constraints:**
+
+  - `n == graph.length`
+
+  - `2 <= n <= 15`
+
+  - `0 <= graph[i][j] < n`
+
+  - `graph[i][j] != i` (i.e., there will be no self-loops).
+
+  - All the elements of `graph[i]` are **unique**.
+
+  - The input graph is **guaranteed** to be a **DAG**.
+
+- **Thoughts**
+
+  - 由于题目确定了该图不包含环，所以这道题可以用多叉树的dfs遍历解决 --> **以 `0` 为起点遍历图，同时记录遍历过的路径，当遍历到终点 (n - 1) 时将路径记录下来即可**
+  - 这道题和Backtracking笔记里的排列题和17 [Letter Combinations of a Phone Number](https://leetcode.com/problems/letter-combinations-of-a-phone-number/description/)接近。
+
+- **Solution**
+
+  ```python
+  def allPathsSourceTarget(self, graph: List[List[int]]) -> List[List[int]]:
+    res = []
+    path = []
+  
+    def dfs(node):          # node: the current node for traversal
+      # base case: 当目前遍历的节点为最后一个节点的时候，就找到了一条从出发点到终止点的路径
+      if node == len(graph) - 1: # 要求从节点0到节点n-1的路径并输出，所以是len(graph)-1
+        res.append(path[:])
+        return                                                                                     
+  
+      for i in range(len(graph[node])): # 遍历节点n连接的所有邻居节点
+        path.append(graph[node][i])
+        dfs(graph[node][i])
+        path.pop()
+  
+     path.append(0)           # 无论什么路径都是从0节点出发
+     dfs(0)                   # 开始遍历
+     return res
+  ```
+
+  - Time complexity：$O(n \times 2^n)$ --> each node has two conditions: in the path/not in the path, the total possible number of paths is $2^n$; the length of each path is n
+
+    Space complexity: $O(n)$ --> stack memory for recursion + path
+
+## 14. 140 [Word Break II](https://leetcode.com/problems/word-break-ii/description/)
 
 |  Category  |  Difficulty   |                             Tags                             |
 | :--------: | :-----------: | :----------------------------------------------------------: |
