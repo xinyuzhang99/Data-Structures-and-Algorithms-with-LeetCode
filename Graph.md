@@ -1100,7 +1100,17 @@ Output: [["X"]]
 
     Space complexity: $O(row \times col)$ --> set memory + stack memory for recursion
 
-## 8. 207 [Course Schedule](https://leetcode.com/problems/course-schedule/description/)
+## Topological Sort
+
+Sorts given actions in such a way that if there is a ==dependency of one action on another==, then the dependent action always comes later than its parent action. 例子：schedule, dictionary...
+
+解决办法主要分为两步：
+
+1. 构建dependency graph --> 创建一个dictionary, key为pre; value为next
+2. 构建dfs函数，分别含有visited, path两个集合记录值，res用于添加答案
+3. 将字典每个key都使用dfs
+
+### 8. 207 [Course Schedule](https://leetcode.com/problems/course-schedule/description/)
 
 |  Category  |   Difficulty    |                             Tags                             |
 | :--------: | :-------------: | :----------------------------------------------------------: |
@@ -1185,7 +1195,7 @@ To take course 1 you should have finished course 0, and to take course 0 you sho
 
     Space complexity: $O(V + E)$ --> the two lists created will insert all vertices and edges + stack memory for recursion (O(V))
 
-## 10. 210 [Course Schedule II](https://leetcode.com/problems/course-schedule-ii/description/)
+### 9. 210 [Course Schedule II](https://leetcode.com/problems/course-schedule-ii/description/)
 
 |  Category  |   Difficulty    |                             Tags                             |
 | :--------: | :-------------: | :----------------------------------------------------------: |
@@ -1260,7 +1270,7 @@ Output: [0]
                   return
               visited.add(pre)
               path.add(pre)
-              for course in graph[pre]:
+              for course in graph[pre]:  
                   dfs(course)
               res.insert(0, pre)    				# the only line added from Leetcode 207: add the prerequisite course into the result
               path.remove(pre)
@@ -1274,6 +1284,105 @@ Output: [0]
   ```
 
   - Time complexity：$O(V + E)$ --> V为先修课程的要求数，E为课程数
+
+    Space complexity: $O(V + E)$ --> the two lists created will insert all vertices and edges + stack memory for recursion (O(V))
+
+### 10. 269 Alien Dictionary (Hard)
+
+There is a new alien language that uses the English alphabet. However, the order among the letters is unknown to you.
+
+You are given a list of strings `words` from the alien language's dictionary, where the strings in `words` are  **sorted lexicographically** by the rules of this new language.
+
+Return *a string of the unique letters in the new alien language sorted in **lexicographically increasing order** by the new language's rules.* If there is no solution, return `""`*.* If there are multiple solutions, return ***any of them***.
+
+**Example 1:**
+
+```
+Input: words = ["wrt","wrf","er","ett","rftt"]
+Output: "wertf"
+```
+
+**Example 2:**
+
+```
+Input: words = ["z","x"]
+Output: "zx"
+```
+
+**Example 3:**
+
+```
+Input: words = ["z","x","z"]
+Output: ""
+Explanation: The order is invalid, so return "".
+```
+
+- **Constraints:**
+
+  - `1 <= words.length <= 100`
+
+  - `1 <= words[i].length <= 100`
+
+  - `words[i]` consists of only lowercase English letters.
+
+- **Thoughts**
+
+  这道题主要需要了解alien dictionary里不同字母之间谁前谁后，所以是要找出Dependency --> topological sort；就照着topological的模板步骤进行解答即可
+
+- **Solution**
+
+  ```python
+  class Solution:
+      def alienOrder(self, words: List[str]) -> str:
+          n = len(words)
+  
+          # 1. build the dependency graph --> key: each character in each word; value: a set of characters (dependency)
+          alienDict = {c:set() for w in words for c in w}
+          # extract dependency information of each pair
+          for i in range(n - 1):                       # O(N * M): number of words * minLen
+              wordA, wordB = words[i], words[i + 1]
+              
+              # 1. check if the solution is invalid: same prefix with larger length
+              lenA, lenB = len(wordA), len(wordB)
+              minLen = min(lenA, lenB)
+              if lenA > lenB and wordA[:minLen] == wordB[:minLen]:
+                  return ""
+  
+              # 2. add the dependency character to the graph
+              for j in range(minLen):                  
+                  if wordA[j] != wordB[j]:
+                      alienDict[wordA[j]].add(wordB[j])
+                      break    # break out of the loop as soon as find the character
+  
+          # 2. write Depth-first search with backtracking
+          visited = set()  # the visited key characters
+          path = set()     # the current path
+          self.hasCycle = False
+          res = []
+  
+          def dfs(pre):
+              if pre in path:   # already seen in the current path, has a cycle
+                  self.hasCycle = True
+              if pre in visited or self.hasCycle:
+                  return
+  
+              visited.add(pre)
+              path.add(pre)
+              for nei in alienDict[pre]:   # O(E): visit all neighbors
+                  dfs(nei)
+              res.insert(0, pre)  # add result at the start
+              path.remove(pre) 
+  
+          #3. iterate through each key character
+          for char in alienDict:            # O(V): visit all vertices
+              dfs(char)
+          
+          if self.hasCycle:
+              return ""
+          return "".join(res)
+  ```
+
+  - Time complexity：$O(V + E + N * M)$ 
 
     Space complexity: $O(V + E)$ --> the two lists created will insert all vertices and edges + stack memory for recursion (O(V))
 
