@@ -30,9 +30,9 @@ Do **not** allocate extra space for another array. You must do this by **modifyi
 class Solution:
     def removeDuplicates(self, nums: List[int]) -> int:
         n = len(nums)
-        j = 0
-        for i in range(n):
-            if nums[i] != nums[j]:
+        j = 0									# j: slow pointer
+        for i in range(n):		# i: fast pointer
+            if nums[i] != nums[j]:   # 如果nums[i] == nums[j]，忽视
                 j += 1
                 nums[j] = nums[i]
         return j + 1  # the length of the array is index + 1
@@ -43,7 +43,7 @@ class Solution:
 
 ## 通用解法
 
---> **保留k位**
+--> **保留k位相同数字**
 
 - 由于是保留 k 个相同数字，对于前 k 个数字，我们可以直接保留
 - 对于后面的任意数字，能够保留的前提是：<u>与当前写入的位置前面的第 k 个元素进行比较</u>，不相同则保留
@@ -63,7 +63,7 @@ class Solution:
 # Space Complexity: O(1) --> no additional memory needed
 ```
 
-<img src="/Users/xinyuzhang/Desktop/CS/Leetcode/LeetCode Notes/Two Pointers.gif" alt="Two Pointers" style="zoom:67%;" />
+<img src="/Users/xinyuzhang/Desktop/CS/Leetcode/LeetCode_Notes/Two Pointers.gif" alt="Two Pointers" style="zoom:67%;" />
 
 ## 2. 881 [Boats to Save People](https://leetcode.com/problems/boats-to-save-people/description/)
 
@@ -126,7 +126,7 @@ Explanation: 4 boats (3), (3), (4), (5)
               return 0
           
           # Simplified Version
-          while(i <= j):
+          while(i <= j):			# 当i == j时，证明还剩下一个人，直接坐一艘船走
               if people[i] + people[j] <= limit:
                   i += 1
               res += 1
@@ -232,6 +232,10 @@ It does not matter what you leave beyond the returned k (hence they are undersco
                   slow += 1
           return slow
   ```
+  
+    - Time complexity: O(N)
+  
+      Space complexity: O(1)
 
 ## 4. 283 [Move Zeroes](https://leetcode.com/problems/move-zeroes/description/)
 
@@ -265,7 +269,7 @@ Output: [0]
 
 - **Solution**
 
-  思路和27一模一样，除了将val变成0，然后把末尾所有值都赋为0
+  思路和27一模一样，除了将val变成0，然后<u>把末尾所有值都赋为0</u>
 
   ```python
   from typing import List
@@ -327,7 +331,7 @@ Output: ["h","a","n","n","a","H"]
           i = 0
           j = len(s) - 1
   
-          while i < j:
+          while i < j:			# 这里不用while i <= j，因为如果字符串是奇数长度的话中间的字符不用改变，如果是偶数长度的话不会有i == j的情况
               temp = s[i]
               s[i] = s[j]
               s[j] = temp
@@ -345,7 +349,7 @@ Output: ["h","a","n","n","a","H"]
 | :--------: | :-------------: | :----------------------------------------------------------: |
 | algorithms | Medium (58.88%) | [`array`](https://leetcode.com/tag/array);  [`two-pointers`](https://leetcode.com/tag/two-pointers); [`binary-search`](https://leetcode.com/tag/binary-search) |
 
-Given a **1-indexed** array of integers `numbers` that is already ***sorted in non-decreasing order\***, find two numbers such that they add up to a specific `target` number. Let these two numbers be `numbers[index1]` and `numbers[index2]` where `1 <= index1 < index2 <= numbers.length`.
+Given a **1-indexed** array of integers `numbers` that is already *sorted in non-decreasing order*, find two numbers such that they add up to a specific `target` number. Let these two numbers be `numbers[index1]` and `numbers[index2]` where `1 <= index1 < index2 <= numbers.length`.
 
 Return *the indices of the two numbers,* `index1` *and* `index2`*, **added by one** as an integer array* `[index1, index2]` *of length 2.*
 
@@ -1227,6 +1231,10 @@ Explanation: You need to reduce multiple spaces between two words to a single sp
 
     ```python
     def reverseWords(self, s: str) -> str:
+      # S1: remove leading and trailing zeros
+      # S2: apply two-pointer technique: [1] if s[i] == '', append s[i + 1: j + 1]; [2] then, while s[i] == '', i -= 1; then j = i; [3] until i < 0
+      # S3: joint the words in s to build the string
+      
       s = s.strip()
       n = len(s)
       i, j = n - 1, n - 1  # i = j = n - 1
@@ -1249,3 +1257,120 @@ Explanation: You need to reduce multiple spaces between two words to a single sp
     - Attention: 
       - `string.strip([chars])`: remove leading and trailing characters of a string
       - `string.strip()`: remove leading and trailing zeros of a string（将字符串前后的零删除）
+
+## 16. 271 Encode and Decode Strings
+
+Design an algorithm to encode **a list of strings** to **a string**. The encoded string is then sent over the network and is decoded back to the original list of strings.
+
+Machine 1 (sender) has the function:
+
+```
+string encode(vector<string> strs) {
+  // ... your code
+  return encoded_string;
+}
+```
+
+Machine 2 (receiver) has the function:
+
+```
+vector<string> decode(string s) {
+  //... your code
+  return strs;
+}
+```
+
+So Machine 1 does:
+
+```
+string encoded_string = encode(strs);
+```
+
+and Machine 2 does:
+
+```
+vector<string> strs2 = decode(encoded_string);
+```
+
+`strs2` in Machine 2 should be the same as `strs` in Machine 1.
+
+Implement the `encode` and `decode` methods.
+
+You are not allowed to solve the problem using any serialize methods (such as `eval`).
+
+**Example 1:**
+
+```
+Input: dummy_input = ["Hello","World"]
+Output: ["Hello","World"]
+Explanation:
+Machine 1:
+Codec encoder = new Codec();
+String msg = encoder.encode(strs);
+Machine 1 ---msg---> Machine 2
+
+Machine 2:
+Codec decoder = new Codec();
+String[] strs = decoder.decode(msg);
+```
+
+**Example 2:**
+
+```
+Input: dummy_input = [""]
+Output: [""]
+```
+
+**Constraints:**
+
+- `1 <= strs.length <= 200`
+- `0 <= strs[i].length <= 200`
+- `strs[i]` contains any possible characters out of `256` valid ASCII characters.
+
+**Follow up:** Could you write a generalized algorithm to work on any possible set of characters?
+
+- **Thoughts**
+
+  看到这道题首先的想法是使用分隔符将字符串列join连在一起生成一个字符串，然后再split成每个字符串。但Constraints的第一条提到`strs[i]` contains any possible characters out of `256` valid ASCII characters，所以好像选择什么样的分隔符都有可能出现在字符串里，从而导致混淆。
+
+  可行的方法为将字符串进行进一步的encode，在encode过程中，每一个字符串前面都包含(length, #)两个信息。这样在decode的时候，就可以通过双指针，当遇见分隔符的时候，进行字符串切割，不需要读字符串里面的内容。
+
+  例如：["Hello","World"]encode成"5#Hello5#World"。
+
+- **Solution**
+
+  ```python
+  # main problem: find the demiliter 
+  class Codec:
+      def encode(self, strs: List[str]) -> str:
+          """Encodes a list of strings to a single string.
+          """
+          res = ''
+          for s in strs:
+              res += str(len(s)) + '#' + s
+          return res
+          
+          
+      def decode(self, s: str) -> List[str]:
+          """Decodes a single string to a list of strings.
+          """
+          # Two-Pointer
+          res = []
+          i = 0  # current position
+  
+          while i < len(s):
+              j = i
+              while s[j] != '#':
+                  j += 1
+              length = int(s[i:j])
+              res.append(s[j+1:j+1+length])
+              i = j + length + 1    
+          return res
+                 
+  # Your Codec object will be instantiated and called as such:
+  # codec = Codec()
+  # codec.decode(codec.encode(strs))
+  ```
+
+  - Time Complexity: O(N) both for encode and decode
+  - Space Complexity: O(1) for the encode; O(N) for the decode
