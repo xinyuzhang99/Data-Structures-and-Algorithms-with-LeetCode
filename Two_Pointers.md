@@ -440,7 +440,7 @@ Explanation: The sum of -1 and 0 is -1. Therefore index1 = 1, index2 = 2. We ret
 
     Space Complexity: O(1)
 
-## 7. ※※ 5 [Longest Palindromic Substring](https://leetcode.com/problems/longest-palindromic-substring/description/)
+## 7. 5 [Longest Palindromic Substring](https://leetcode.com/problems/longest-palindromic-substring/description/)
 
 |  Category  |   Difficulty    |                             Tags                             |
 | :--------: | :-------------: | :----------------------------------------------------------: |
@@ -489,6 +489,13 @@ Output: "bb"
   - 找回文串的难点在于，回文串的的长度可能是奇数也可能是偶数，解决该问题的核心是==**从中心向两端扩散的双指针技巧**==。
 
     如果回文串的长度为奇数，则它有一个中心字符；如果回文串的长度为偶数，则可以认为它有两个中心字符。
+    
+    「中心扩散法」的基本思想是：**遍历每一个下标，以这个下标为中心**，利用「回文串」中心对称的特点，往两边扩散，看最多能扩散多远。
+    
+    细节：回文串在长度为奇数和偶数的时候，「回文中心」的形态不一样：
+    
+    奇数回文串的「中心」是一个具体的字符，例如：回文串 "aba" 的中心是字符 "b"；
+    偶数回文串的「中心」是位于中间的两个字符的「空隙」，例如：回文串 "abba" 的中心是两个 "b"，也可以看成两个 "b" 中间的空隙。
 
 -  **Solution**
 
@@ -525,10 +532,6 @@ Output: "bb"
     Time complexity: $O(N^2)$ --> i traverse through the whole string + l and r traverse through the whole string
 
     Space complexity: O(1)
-
-  - <u>Method 2: Dynamic Programming</u>
-
-    <font color=red>**空缺！！**</font>
 
 ## 8. 15 [3Sum](https://leetcode.com/problems/3sum/description/)
 
@@ -1347,7 +1350,7 @@ Output: [""]
           """
           res = ''
           for s in strs:
-              res += str(len(s)) + '#' + s
+              res += str(len(s)) + '#' + s   # 将字符串组合成(length#string)的形式
           return res
           
           
