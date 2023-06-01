@@ -350,6 +350,42 @@ def test_multi_pack1():
 
        观察发现，`dp[i][*][*] `的状态与上一时刻 `dp[i-1][*][*]` 有关，因此可考虑省去第一维度。⚠️ ⚠️ ⚠️ 同时又要注意到，如果先更新 `dp[j][1]` 的话，`dp[j][1]` 又会立马被用于更新 `dp[j][0]`，而先更新 `dp[j][0] `再更新 `dp[j][1] `则可避免这种时效问题。
 
+- **子序列问题**
+
+  子序列问题比子串、子数组更难一些，因为子序列问题是不连续的。子序列问题一般会**涉及到两个字符串**。**一般这类问题都是求最长子序列**，因为最短子序列就是一个字符 --> <font color=blue>**一旦涉及到子序列和最值 --> 考察的是动态规划，时间复杂度一般都是$O(N^2)$**</font>
+
+  - <u>两种思路</u>
+
+    1. 一维的dp数组 --> <font color=blue>**最长递增子序列，最大子数组和**</font>
+
+       ```python
+       n = len(array)
+       dp = [0] * n
+       
+       for i in range(1, n):
+         for j in range(i):
+           dp[i] = max/min(dp[i], dp[j] + ...)
+       ```
+
+       在这个思路中dp数组的定义是：**在子数组`arr[0...i]`中，我们要求的子序列长度是`dp[i]`**
+
+    2. 二维的dp数组 --> <font color=blue>**最长公共子序列，编辑距离 （<u>涉及两个字符串/数组的子序列</u>）+ 回文子序列问题 （只涉及一个字符串/数组）**</font>
+
+       ```python
+       n = len(arr)
+       dp = [[0] * n for _ in range(n + 1)]
+       
+       for i in range(n):
+         for j in range(n):
+           if arr[i-1] == arr[j-1]:
+             dp[i][j] = dp[i-1][j-1] + ...
+           else:
+             dp[i][j] = max/min(...)
+       ```
+
+       - 涉及两个字符串/数组的子序列：在子数组`arr1[0...i]`和子数组`arr2[0...j]`中，我们要求的子序列长度为`dp[i][j]`
+       - 只涉及一个字符串/数组：在子数组`array[i...j]`中，我们要求的子序列长度为`dp[i][j]`
+
 
 ## 1. 62 [Unique Paths](https://leetcode.com/problems/unique-paths/description/)
 
@@ -540,7 +576,7 @@ Output: 1
   根据动态规划的五个步骤：procedure: definition; function; initialization; traversal order; example
 
   - procedure: definition; function; initialization, traversal order, example
-  - definition: `dp[r][c]` is the number of unique path to grid[r][c]
+  - definition: `dp[r][c]` is the number of unique path to `grid[r][c]`
   - function: `dp[r][c] = dp[r - 1][c] + dp[r][c - 1]`; if `grid[r][c] == 1`, `dp[r][c] = 0`, continue
   - initialization: `dp[0][0] = 1`
 
@@ -1882,4 +1918,95 @@ Output: 5
 
     <font color=red>**易错点：在从二维数组转换为一维数组时一定要注意遍历第二维时要从后向前遍历，避免重复覆盖！！**</font>
 
+
+## 2. 1143 Longest Common Subsequence
+
+|  Category  |   Difficulty    |                     Tags                      |
+| :--------: | :-------------: | :-------------------------------------------: |
+| algorithms | Medium (58.89%) | [`Unknown`](https://leetcode.com/tag/Unknown) |
+
+Given two strings `text1` and `text2`, return *the length of their longest **common subsequence**.* If there is no **common subsequence**, return `0`.
+
+A **subsequence** of a string is a new string generated from the original string with some characters (can be none) deleted without changing the relative order of the remaining characters.
+
+- For example, `"ace"` is a subsequence of `"abcde"`.
+
+A **common subsequence** of two strings is a subsequence that is common to both strings.
+
+**Example 1:**
+
+```
+Input: text1 = "abcde", text2 = "ace" 
+Output: 3  
+Explanation: The longest common subsequence is "ace" and its length is 3.
+```
+
+**Example 2:**
+
+```
+Input: text1 = "abc", text2 = "abc"
+Output: 3
+Explanation: The longest common subsequence is "abc" and its length is 3.
+```
+
+**Example 3:**
+
+```
+Input: text1 = "abc", text2 = "def"
+Output: 0
+Explanation: There is no such common subsequence, so the result is 0. 
+```
+
+- **Constraints:**
+
+  - `1 <= text1.length, text2.length <= 1000`
+
+  - `text1` and `text2` consist of only lowercase English characters.
+
+- **Thoughts**
+
+  - 这道题目和718比较相似，因为有两个字符串来求共同字符串，所以使用二维dp模板
+
+  - 1. Definition: `dp[i][j]`：长度为<u>[0, i - 1]</u>的字符串text1与长度为<u>[0, j - 1]</u>的字符串text2的最长公共子序列为`dp[i][j]`
+
+    2. Function: 
+
+       主要就是两大情况： text1[i - 1] 与 text2[j - 1]相同，text1[i - 1] 与 text2[j - 1]不相同
+
+       如果text1[i - 1] 与 text2[j - 1]相同，那么找到了一个公共元素，所以`dp[i][j]` = `dp[i - 1`][j - 1] + 1;
+
+       如果text1[i - 1] 与 text2[j - 1]不相同，那就看看text1[0, i - 2]与text2[0, j - 1]的最长公共子序列 和 text1[0, i - 1]与text2[0, j - 2]的最长公共子序列，取最大的。
+
+       即：`dp[i][j] `= max(`dp[i - 1][j]`, `dp[i][j - 1]`);
+
+    3. Initialization: `dp[i][j] = 0`; dp: (i + 1) * (j + 1) --> <font color=red>设置dp数组为(i + 1) * (j + 1)是因为num1[0]和nums2[0]也要进行是否相等的比较，所以dp数组值不确定为0或1，要增加一行一列初始化</font>
+
+    4. Traversal order: 
+
+       ![1143.最长公共子序列](https://code-thinking-1253855093.file.myqcloud.com/pics/20210204115139616.jpg)
+
+       --> in-order
+
+    4. Return value: return `dp[-1][-1]`
+
+- **Solution**
+
+  ```python
+  class Solution:
+      def longestCommonSubsequence(self, text1: str, text2: str) -> int:
+          len1 = len(text1)
+          len2 = len(text2)
+          dp = [[0] * (len2 + 1) for _ in range(len1 + 1)]
   
+          for i in range(1, len1 + 1):
+              for j in range(1, len2 + 1):
+                  if text1[i-1] == text2[j-1]:
+                      dp[i][j] = dp[i-1][j-1] + 1
+                  else:
+                      dp[i][j] = max(dp[i-1][j], dp[i][j-1])
+          return dp[-1][-1]
+  ```
+
+  - Time complexity: O(m * n)
+
+    Space complexity: O(m * n) 
