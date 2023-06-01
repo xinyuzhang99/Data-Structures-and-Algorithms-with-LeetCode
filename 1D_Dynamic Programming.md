@@ -132,25 +132,6 @@
 
   ![img](https://camo.githubusercontent.com/624ae48228610285917d87d92baba28f9e2132199c3e266dbfb82f59acccf302/68747470733a2f2f636f64652d7468696e6b696e672e63646e2e626365626f732e636f6d2f706963732fe58aa8e68081e8a784e588922de680bbe7bb93e5a4a7e7bab2312e6a7067)
 
-- **子序列问题**
-
-  子序列问题比子串、子数组更难一些，因为子序列问题是不连续的。子序列问题一般会涉及到两个字符串。**一般这类问题都是求最长子序列**，因为最短子序列就是一个字符 --> <font color=blue>**一旦涉及到子序列和最值 --> 考察的是动态规划，时间复杂度一般都是$O(N^2)$**</font>
-
-  - <u>两种思路</u>
-
-    1. 一维的dp数组
-
-       ```python
-       n = len(array)
-       dp = [0] * n
-       
-       for i in range(1, n):
-         for j in range(i):
-           dp[i] = max/min(dp[i], dp[j] + ...)
-       ```
-
-       在这个思路中dp数组的定义是：**在子数组`arr[0...i]`中，我们要去的子序列长度是`dp[i]`**
-
 ## 1. 322 [Coin Change](https://leetcode.com/problems/coin-change/description/)
 
 |  Category  |   Difficulty    |                             Tags                             |
@@ -813,7 +794,7 @@ Output: 3
 
     Space complexity: O(1)
 
-## 子序列类型问题
+## 子序列/子数组类型问题
 
 ## 1. 300 [Longest Increasing Subsequence](https://leetcode.com/problems/longest-increasing-subsequence/description/)
 
@@ -1036,7 +1017,7 @@ Output: 23
   - <u>Method 1: Dynamic Programming</u>
 
     1. definition: dp[i]: 以 nums[i] 为结尾的「最大子数组和」为 dp[i]
-    2. function: `dp[i] = max(nums[i], nums[i] + dp[i - 1]) `
+    2. function: `dp[i] = max(nums[i], nums[i] + dp[i - 1]) ` （最大值可能为这个数字本身，也可能是和之前的最大子数组和相加）
     3. initialization: `dp[0] = nums[0]`
     4. traversal order: in order
     5. return value: `res = max(dp)`
@@ -1098,5 +1079,9 @@ Output: 23
 
       Space complexity: O(1)
 
-      
+## 子数组问题
+
+
+
+
 
