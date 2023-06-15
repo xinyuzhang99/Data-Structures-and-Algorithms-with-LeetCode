@@ -25,6 +25,7 @@
   <img src="https://labuladong.github.io/algo/images/interval/2.jpg" alt="img" style="zoom:50%;" />
 
   ```python
+  ## find the maximum number of overlapping intervals
   from typing import List
   def intervalSchedule(intvs: List[List[int]]) -> int:
       if len(intvs) == 0:
@@ -32,15 +33,13 @@
       # 按 end 升序排序
       intvs.sort(key=lambda x: x[1])
       # 至少有一个区间不相交
-      count = 1
-      # 排序后，第一个区间就是 x
-      x_end = intvs[0][1]
+      count = 0
+      lastEnd = float('-inf')
       for interval in intvs:
-          start = interval[0]
-          if start >= x_end:
+          if interval[0] >= lastEnd:  # or start > lastEnd
               # 找到下一个选择的区间了（去除与x相交的空间实际上是略过，不是真正的去除）
               count += 1
-              x_end = interval[1]
+              lastEnd = interval[1]
       return count
   ```
 
