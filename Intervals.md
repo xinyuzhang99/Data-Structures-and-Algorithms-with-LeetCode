@@ -520,5 +520,57 @@ Explanation: The balloons can be burst by 2 arrows:
 
     Space complexity: O(1)
 
+### 7. 252. Meeting Rooms
+
+Given an array of meeting time `intervals` where `intervals[i] = [starti, endi]`, determine if a person could attend all meetings.
+
+**Example 1:**
+
+```
+Input: intervals = [[0,30],[5,10],[15,20]]
+Output: false
+```
+
+**Example 2:**
+
+```
+Input: intervals = [[7,10],[2,4]]
+Output: true
+```
+
+- **Constraints:**
+
+  - `0 <= intervals.length <= 104`
+
+  - `intervals[i].length == 2`
+
+  - `0 <= starti < endi <= 106`
+
+- **Thoughts**
+
+  这道题目问是否能参加所有会议，其实就是要确认**非重叠会议**的数量等于所有会议的数量 --> 区间调度问题，使用贪心算法解决，直接使用模板即可
+
+- **Solution**
+
+  ```python
+  # attend all meetings: number of non-overlapping intervals = n
+  class Solution:
+      def canAttendMeetings(self, intervals: List[List[int]]) -> bool:
+          n = len(intervals)
+          intervals.sort(key=lambda x:x[1])
+          availableMeeting = 0
+          lastEnd = 0
+  
+          for interval in intervals:
+              if interval[0] >= lastEnd:
+                  availableMeeting += 1
+                  lastEnd = interval[1]
+          return availableMeeting == n
+  ```
+
+  - Time complexity: $NO(logN) + O(N) = NO(logN)$ 
+
+    Space complexity: O(1)
+
 
 
