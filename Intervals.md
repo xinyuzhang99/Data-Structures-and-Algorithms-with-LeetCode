@@ -365,7 +365,9 @@ Output: []
 
     Space complexity: $O(M + N)$ for the maximum number of elements in  `res` array
 
-## 5. 435 [Non-overlapping Intervals](https://leetcode.com/problems/non-overlapping-intervals/description/)
+## 区间调度问题 (Interval Scheduling)
+
+### 5. 435 [Non-overlapping Intervals](https://leetcode.com/problems/non-overlapping-intervals/description/)
 
 |  Category  |   Difficulty    |                    Tags                     |
 | :--------: | :-------------: | :-----------------------------------------: |
@@ -436,3 +438,87 @@ Explanation: You don't need to remove any of the intervals since they're already
   - Time complexity: $NO(logN) + O(N) = NO(logN)$ 
 
     Space complexity: O(1)
+
+### 6. 452 [Minimum Number of Arrows to Burst Balloons](https://leetcode.com/problems/minimum-number-of-arrows-to-burst-balloons/description/)
+
+|  Category  |   Difficulty    |                    Tags                     |
+| :--------: | :-------------: | :-----------------------------------------: |
+| algorithms | Medium (52.96%) | [`greedy`](https://leetcode.com/tag/greedy) |
+
+There are some spherical balloons taped onto a flat wall that represents the XY-plane. The balloons are represented as a 2D integer array `points` where `points[i] = [xstart, xend]` denotes a balloon whose **horizontal diameter** stretches between `xstart` and `xend`. You do not know the exact y-coordinates of the balloons.
+
+Arrows can be shot up **directly vertically** (in the positive y-direction) from different points along the x-axis. A balloon with `xstart` and `xend` is **burst** by an arrow shot at `x` if `xstart <= x <= xend`. There is **no limit** to the number of arrows that can be shot. A shot arrow keeps traveling up infinitely, bursting any balloons in its path.
+
+Given the array `points`, return *the **minimum** number of arrows that must be shot to burst all balloons*. 
+
+**Example 1:**
+
+```
+Input: points = [[10,16],[2,8],[1,6],[7,12]]
+Output: 2
+Explanation: The balloons can be burst by 2 arrows:
+- Shoot an arrow at x = 6, bursting the balloons [2,8] and [1,6].
+- Shoot an arrow at x = 11, bursting the balloons [10,16] and [7,12].
+```
+
+**Example 2:**
+
+```
+Input: points = [[1,2],[3,4],[5,6],[7,8]]
+Output: 4
+Explanation: One arrow needs to be shot for each balloon for a total of 4 arrows.
+```
+
+**Example 3:**
+
+```
+Input: points = [[1,2],[2,3],[3,4],[4,5]]
+Output: 2
+Explanation: The balloons can be burst by 2 arrows:
+- Shoot an arrow at x = 2, bursting the balloons [1,2] and [2,3].
+- Shoot an arrow at x = 4, bursting the balloons [3,4] and [4,5].
+```
+
+- **Constraints:**
+
+  - `1 <= points.length <= 105`
+
+  - `points[i].length == 2`
+
+  - `-231 <= xstart < xend <= 231 - 1`
+
+- **Thoughts**
+
+  这个问题和区间调度算法基本一模一样！如果最多有 `n` 个不重叠的区间，那么就至少需要 `n` 个箭头穿透所有区间：
+
+  <img src="https://labuladong.github.io/algo/images/interval/3.jpg" alt="img" style="zoom:50%;" />
+
+  只是有一点不一样，在 `intervalSchedule` 算法中，如果两个区间的边界触碰，不算重叠；而按照这道题目的描述，箭头如果碰到气球的边界气球也会爆炸，所以说相当于区间的边界触碰也算重叠：
+
+  <img src="https://labuladong.github.io/algo/images/interval/4.jpg" alt="img" style="zoom:50%;" />
+
+  --> 这道题和模板的区别仅在于判断时当`start > lastEnd`，才能判定为non-overlapping interval
+
+- **Solution**
+
+  ```python
+  # minimum number of arrows that must be shot to burst all balloons --> number of non-overlapping intervals --> similar to LeetCode 435
+  # if start >= lastEnd: count += 1, lastEnd = p[1]
+      def findMinArrowShots(self, points: List[List[int]]) -> int:
+          count = 0
+          points.sort(key=lambda x:x[1])
+  
+          lastEnd = float('-inf')
+          for p in points:
+              if p[0] > lastEnd:
+                  count += 1
+                  lastEnd = p[1]
+          return count
+  ```
+
+  - Time complexity: $NO(logN) + O(N) = NO(logN)$ 
+
+    Space complexity: O(1)
+
+
+
