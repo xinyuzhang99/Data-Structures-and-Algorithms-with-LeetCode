@@ -6,6 +6,44 @@
 
 **2、画图**。就是说不要偷懒，勤动手，两个区间的相对位置到底有几种可能，不同的相对位置我们的代码应该怎么去处理。
 
+- **使用贪心算法解决区间调度问题**
+
+  思路其实很简单，可以分为以下三步：
+
+  1、从区间集合 `intvs` 中选择一个区间 `x`，这个 `x` 是在当前所有区间中**结束最早的**（`end` 最小）。（按每个区间的 `end` 数值升序排序）
+
+  2、把所有与 `x` 区间相交的区间从区间集合 `intvs` 中删除。
+
+  3、重复步骤 1 和 2，直到 `intvs` 为空为止。之前选出的那些 `x` 就是最大不相交子集。
+
+  <img src="https://labuladong.github.io/algo/images/interval/1.gif" alt="img" style="zoom:50%;" />
+
+  关键在于，如何去除与 `x` 相交的区间，选择下一轮循环的 `x` 呢？
+
+  **由于我们事先排了序**，不难发现所有与 `x` 相交的区间必然会与 `x` 的 `end` 相交；如果一个区间不想与 `x` 的 `end` 相交，它的 `start` 必须要大于（或等于）`x` 的 `end`：
+
+  <img src="https://labuladong.github.io/algo/images/interval/2.jpg" alt="img" style="zoom:50%;" />
+
+  ```python
+  from typing import List
+  def intervalSchedule(intvs: List[List[int]]) -> int:
+      if len(intvs) == 0:
+          return 0
+      # 按 end 升序排序
+      intvs.sort(key=lambda x: x[1])
+      # 至少有一个区间不相交
+      count = 1
+      # 排序后，第一个区间就是 x
+      x_end = intvs[0][1]
+      for interval in intvs:
+          start = interval[0]
+          if start >= x_end:
+              # 找到下一个选择的区间了（去除与x相交的空间实际上是略过，不是真正的去除）
+              count += 1
+              x_end = interval[1]
+      return count
+  ```
+
 ## 1. 57 [Insert Interval](https://leetcode.com/problems/insert-interval/description/)
 
 |  Category  |   Difficulty    |                             Tags                             |
@@ -237,7 +275,7 @@ Explanation: Intervals [1,4] and [4,5] are considered overlapping.
 
     Space complexity: $O(N)$ / $O(logN)$ --> the sorting needs to take $O(logN)$ space
 
-### 4. 986 [Interval List Intersections](https://leetcode.com/problems/interval-list-intersections/description/)
+## 4. 986 [Interval List Intersections](https://leetcode.com/problems/interval-list-intersections/description/)
 
 |  Category  |   Difficulty    |                  Tags                   |
 | :--------: | :-------------: | :-------------------------------------: |
@@ -328,3 +366,74 @@ Output: []
 
     Space complexity: $O(M + N)$ for the maximum number of elements in  `res` array
 
+## 5. 435 [Non-overlapping Intervals](https://leetcode.com/problems/non-overlapping-intervals/description/)
+
+|  Category  |   Difficulty    |                    Tags                     |
+| :--------: | :-------------: | :-----------------------------------------: |
+| algorithms | Medium (48.44%) | [`greedy`](https://leetcode.com/tag/greedy) |
+
+Given an array of intervals `intervals` where `intervals[i] = [starti, endi]`, return *the minimum number of intervals you need to remove to make the rest of the intervals non-overlapping*.
+
+**Example 1:**
+
+```
+Input: intervals = [[1,2],[2,3],[3,4],[1,3]]
+Output: 1
+Explanation: [1,3] can be removed and the rest of the intervals are non-overlapping.
+```
+
+**Example 2:**
+
+```
+Input: intervals = [[1,2],[1,2],[1,2]]
+Output: 2
+Explanation: You need to remove two [1,2] to make the rest of the intervals non-overlapping.
+```
+
+**Example 3:**
+
+```
+Input: intervals = [[1,2],[2,3]]
+Output: 0
+Explanation: You don't need to remove any of the intervals since they're already non-overlapping.
+```
+
+- **Constraints:**
+
+  - `1 <= intervals.length <= 105`
+
+  - `intervals[i].length == 2`
+
+  - `-5 * 104 <= starti < endi <= 5 * 104`
+
+- **Thoughts**
+
+  这道题为区间调度问题，要求minimum，所以使用贪心算法。思路为：
+
+  1、从区间集合 `intvs` 中选择一个区间 `x`，这个 `x` 是在当前所有区间中**结束最早的**（`end` 最小）。（按每个区间的 `end` 数值升序排序）
+
+  2、把所有与 `x` 区间相交的区间从区间集合 `intvs` 中删除。
+
+  3、重复步骤 1 和 2，直到 `intvs` 为空为止。之前选出的那些 `x` 就是最大不相交子集。
+
+- **Solution**
+
+  ```python
+  # 1. sort the intervals based on the end (ascending)
+  # 2. check if interval_start < last_end, remove --> count += 1; if interval_start >= last_end, update last_end
+  def eraseOverlapIntervals(self, intervals: List[List[int]]) -> int:
+    count = 0  # number of intervals needed to be removed
+    intervals.sort(key=lambda x: x[1])
+  
+    lastEnd = float('-inf')
+    for interval in intervals:
+      if interval[0] < lastEnd:
+        count += 1
+      else:
+        lastEnd = interval[1]
+    return count      
+  ```
+
+  - Time complexity: $NO(logN) + O(N) = NO(logN)$ 
+
+    Space complexity: O(1)
