@@ -6,6 +6,38 @@
 
 **2、画图**。就是说不要偷懒，勤动手，两个区间的相对位置到底有几种可能，不同的相对位置我们的代码应该怎么去处理。
 
+- **区间调度问题的思路**
+
+  1. **第一个场景**，假设现在只有一个会议室，还有若干会议，你如何将尽可能多的会议安排到这个会议室里？
+
+     这个问题需要将这些会议（区间）按结束时间（右端点）排序，然后进行处理，详见前文 [贪心算法做时间管理](https://labuladong.github.io/algo/di-er-zhan-a01c6/tan-xin-le-9bedf/tan-xin-su-c41e8/)。
+
+  2. **第二个场景**，给你若干较短的视频片段，和一个较长的视频片段，请你从较短的片段中尽可能少地挑出一些片段，拼接出较长的这个片段。
+
+     这个问题需要将这些视频片段（区间）按开始时间（左端点）排序，然后进行处理，详见后文 [剪视频剪出一个贪心算法](https://labuladong.github.io/algo/di-er-zhan-a01c6/tan-xin-le-9bedf/jian-shi-p-4302c/)。
+
+  3. **第三个场景**，给你若干区间，其中可能有些区间比较短，被其他区间完全覆盖住了，请你删除这些被覆盖的区间。
+
+     这个问题需要将这些区间按左端点排序，然后就能找到并删除那些被完全覆盖的区间了，详见后文 [删除覆盖区间](https://labuladong.github.io/algo/di-san-zha-24031/jing-dian--a94a0/yi-ge-fang-93124/)。
+
+  4. **第四个场景**，给你若干区间，请你将所有有重叠部分的区间进行合并。
+
+     这个问题需要将这些区间按左端点排序，方便找出存在重叠的区间，详见后文 [合并重叠区间](https://labuladong.github.io/algo/di-san-zha-24031/jing-dian--a94a0/yi-ge-fang-93124/)。
+
+  5. **第五个场景**，有两个部门同时预约了同一个会议室的若干时间段，请你计算会议室的冲突时段。
+
+     这个问题就是给你两组区间列表，请你找出这两组区间的交集，这需要你将这些区间按左端点排序，详见后文 [区间交集问题](https://labuladong.github.io/algo/di-san-zha-24031/jing-dian--a94a0/yi-ge-fang-93124/)。
+
+  6. **第六个场景**，假设现在只有一个会议室，还有若干会议，如何安排会议才能使这个会议室的闲置时间最少？
+
+     这个问题需要动动脑筋，说白了这就是个 0-1 背包问题的变形：
+
+     会议室可以看做一个背包，每个会议可以看做一个物品，物品的价值就是会议的时长，请问你如何选择物品（会议）才能最大化背包中的价值（会议室的使用时长）？
+
+     当然，这里背包的约束不是一个最大重量，而是各个物品（会议）不能互相冲突。把各个会议按照结束时间进行排序，然后参考前文 [0-1 背包问题详解](https://labuladong.github.io/algo/di-er-zhan-a01c6/bei-bao-le-34bd4/jing-dian--28f3c/) 的思路即可解决，等我以后有机会可以写一写这个问题。
+
+  7. **第七个场景**，就是本文想讲的场景，给你若干会议，让你合理申请会议室。**给你输入若干时间区间，让你计算同一时刻「最多」有几个区间重叠**。题目的关键点在于，给你任意一个时刻，你是否能够说出这个时刻有几个会议？如果可以做到，那我遍历所有的时刻，找个最大值，就是需要申请的会议室数量。
+
 - **使用贪心算法解决区间调度问题**
 
   思路其实很简单，可以分为以下三步：
@@ -520,7 +552,7 @@ Explanation: The balloons can be burst by 2 arrows:
 
     Space complexity: O(1)
 
-### 7. 252. Meeting Rooms
+### 7. 252 Meeting Rooms
 
 Given an array of meeting time `intervals` where `intervals[i] = [starti, endi]`, determine if a person could attend all meetings.
 
@@ -572,5 +604,80 @@ Output: true
 
     Space complexity: O(1)
 
+### 8. 253 Meeting Rooms II
 
+Given an array of meeting time intervals `intervals` where `intervals[i] = [starti, endi]`, return *the minimum number of conference rooms required*.
+
+**Example 1:**
+
+```
+Input: intervals = [[0,30],[5,10],[15,20]]
+Output: 2
+```
+
+**Example 2:**
+
+```
+Input: intervals = [[7,10],[2,4]]
+Output: 1
+```
+
+- **Constraints:**
+
+  - `1 <= intervals.length <= 104`
+
+  - `0 <= starti < endi <= 106`
+
+- **Thoughts**
+
+  这道题乍看和之前的题目类似，但实际不同。<font color=blue>**遇见区间问题时要仔细分析具体题意是什么！**</font>
+
+  如果会议之间的时间有重叠，那就得额外申请会议室来开会，想求至少需要多少间会议室，就是让你计算同一时刻最多有多少会议在同时进行。换句话说，**如果把每个会议的起始时间看做一个线段区间，那么题目就是让你求最多有几个重叠区间**，仅此而已。--> <font color=blue>**给你输入若干时间区间，让你计算同一时刻「最多」有几个区间重叠**。</font>
+
+  红色的点代表每个会议的开始时间点，绿色的点代表每个会议的结束时间点。
+
+  现在假想有一条带着计数器的线，在时间线上从左至右进行扫描，每遇到红色的点，计数器 `count` 加一，每遇到绿色的点，计数器 `count` 减一：
+
+  <img src="https://labuladong.github.io/algo/images/%e5%ae%89%e6%8e%92%e4%bc%9a%e8%ae%ae%e5%ae%a4/2.jpeg" alt="img" style="zoom:50%;" />
+
+  **这样一来，每个时刻有多少个会议在同时进行，就是计数器 `count` 的值，`count` 的最大值，就是需要申请的会议室数量**。
+
+- **Solution**
+
+  ```python
+  # the minimum number of conference rooms required --> the maximum number of overlapping intervals at any given time point --> 给你输入若干时间区间，让你计算同一时刻「最多」有几个区间重叠。
+  # for each interval, if start < lastEnd, conference room += 1
+      def minMeetingRooms(self, intervals: List[List[int]]) -> int:
+          res = 0
+          start = sorted([interval[0] for interval in intervals])
+          end = sorted([interval[1] for interval in intervals])
+          # start = [interval[0] for interval in intervals]
+          # end = [interval[1] for interval in intervals]
+          # start.sort()
+          # end.sort()
+  
+          i, j = 0, 0
+          count = 0
+          while i < len(start):  # or: while i < len(start) and j < len(end) --> if i = len(start), no need to check j's status as end is always behind the start
+              # case 1: add a meeting room
+              if start[i] < end[j]:
+                  count += 1
+                  i += 1
+              # case 2: remove a meeting room
+              elif start[i] > end[j]:
+                  count -= 1
+                  j += 1
+              # case 3: keep meeting room number unchanged, move the two pointers to the next start and next end --> this step can be ignored and merge into `elif start[i] >= end[j]`
+              elif start[i] == end[j]:    # remain the same
+                  i += 1
+                  j += 1
+              
+              res = max(res, count)
+  
+          return res
+  ```
+
+  - Time complexity: NO(logN) + O(N) = NO(logN) --> `sort` + `while`
+
+    Space complexity: O(N) --> build `start` and `end` lists
 
