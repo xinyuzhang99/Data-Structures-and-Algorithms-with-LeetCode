@@ -2048,4 +2048,99 @@ Explanation: The optimal path is 15 -> 20 -> 7 with a path sum of 15 + 20 + 7 = 
       right = max(pathSum(root.right), 0)
       ```
   
-      
+
+### 21. 1569 [Number of Ways to Reorder Array to Get Same BST](https://leetcode.com/problems/number-of-ways-to-reorder-array-to-get-same-bst/description/)
+
+|  Category  |  Difficulty   | Tags |
+| :--------: | :-----------: | :--: |
+| algorithms | Hard (49.14%) | 782  |
+
+Given an array `nums` that represents a permutation of integers from `1` to `n`. We are going to construct a binary search tree (BST) by inserting the elements of `nums` in order into an initially empty BST. Find the number of different ways to reorder `nums` so that the constructed BST is identical to that formed from the original array `nums`.
+
+- For example, given `nums = [2,1,3]`, we will have 2 as the root, 1 as a left child, and 3 as a right child. The array `[2,3,1]` also yields the same BST but `[3,2,1]` yields a different BST.
+
+Return *the number of ways to reorder* `nums` *such that the BST formed is identical to the original BST formed from* `nums`.
+
+Since the answer may be very large, **return it modulo** `10^9 + 7`.
+
+**Example 1:**
+
+![img](https://assets.leetcode.com/uploads/2020/08/12/bb.png)
+
+```
+Input: nums = [2,1,3]
+Output: 1
+Explanation: We can reorder nums to be [2,3,1] which will yield the same BST. There are no other ways to reorder nums which will yield the same BST.
+```
+
+**Example 2:**
+
+![img](https://assets.leetcode.com/uploads/2020/08/12/ex1.png)
+
+```
+Input: nums = [3,4,5,1,2]
+Output: 5
+Explanation: The following 5 arrays will yield the same BST: 
+[3,1,2,4,5]
+[3,1,4,2,5]
+[3,1,4,5,2]
+[3,4,1,2,5]
+[3,4,1,5,2]
+```
+
+**Example 3:**
+
+![img](https://assets.leetcode.com/uploads/2020/08/12/ex4.png)
+
+```
+Input: nums = [1,2,3]
+Output: 0
+Explanation: There are no other orderings of nums that will yield the same BST.
+```
+
+- **Constraints:**
+
+  - `1 <= nums.length <= 1000`
+
+  - `1 <= nums[i] <= nums.length`
+
+  - All integers in `nums` are **distinct**.
+
+- **Thoughts**
+
+  ![image-20230616125616410](../../../../Library/Application%20Support/typora-user-images/image-20230616125616410.png)
+
+  这道题的重点为读懂题意并找出逻辑。题目需要找出组成同一棵BST的不同方式，所以要观察数组如何安排会组成同一棵树。可以有如下总结：
+
+  1. 每个数组的第一个元素永远为root节点是不变的
+  2. 由于是BST，所以可以根据root节点把剩下的元素确定属于左子树或右子树，分别获得两个子树的数组
+  3. <font color=blue>**[重点]**</font> 如果想构成相同的树，那么只要保证左子树和右子树数组元素的**<u>相对位置</u>**一致就可以，可随意穿插，如上图绿色和蓝色的部分。
+  4. 由于可以随意穿插，所以穿插的数量为组合数$C(|l|+|r|, |r|)$， $|·|$指的是数组的长度 --> Python可以使用自带的`math.comb`函数进行求解
+  5. 对于左子树和右子树，可以通过前1-4步的步骤求出构成每个子树的数量
+  6. 根据上述的步骤，最后组成一个BST总共需要的步骤为 $C(l+r, r) * ways(l) * ways(r)$
+
+- **Solution**
+
+  ```python
+  class Solution:
+      # key point: the relative order of left subtree nodes and right subtree nodes needs to be the same
+      # Eg. nums = [3,4,5,1,2]
+      # Left nodes: 1, 2; Right nodes: 3, 4
+      # how many way to interleave: C(l + r, r)
+      # total number of ways: C(l+r, r) * ways(l) * ways(r)
+      def numOfWays(self, nums: List[int]) -> int:
+          mod = 10**9 + 7
+          def ways(nums):
+              # base case
+              if len(nums) <= 2:
+                  return 1
+              # 获得左子树和右子树的数组: O(N) time complexity, O(N) space complexity
+              left = [x for x in nums if x < nums[0]]
+              right = [x for x in nums if x > nums[0]]
+              return comb(len(left) + len(right), len(left)) * ways(left) * ways(right)  # recursive calls in BST: O(logN) time complexity, O(logN) space complexity for stack memory
+          return (ways(nums) - 1) % mod  # -1是要除去题目自带的nums这种组成方式
+  ```
+
+  - Time complexity: $O(N * logN)$
+
+    Space complexity: $O(N) + O(logN) = O(N)$
