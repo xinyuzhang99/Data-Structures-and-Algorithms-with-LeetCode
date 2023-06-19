@@ -74,7 +74,6 @@
 
   异或运算的性质是需要我们牢记的：一个数和它本身做异或运算结果为 0，即 `a ^ a = 0`；一个数和 0 做异或运算的结果为它本身，即 `a ^ 0 = a`。
 
-  - Example: 
 
 ## 1. 191 [Number of 1 Bits](https://leetcode.com/problems/number-of-1-bits/description/)
 
@@ -237,6 +236,98 @@ Explantion: All integers have 1 bit in the binary representation, you should jus
   - Time complexity: O(nlogn), 其中 n 为整数数组 *arr* 的长度，由于`count1bits`的时间复杂度为O(1)，所以整体的时间复杂度为排序的时间复杂度
 
     Space complexity: O(1)
+
+### 1.2 383 [Counting Bits](https://leetcode.com/problems/counting-bits/description/)
+
+|  Category  |  Difficulty   |                             Tags                             |
+| :--------: | :-----------: | :----------------------------------------------------------: |
+| algorithms | Easy (74.39%) | [`dynamic-programming`](https://leetcode.com/tag/dynamic-programming); [`bit-manipulation`](https://leetcode.com/tag/bit-manipulation) |
+
+Given an integer `n`, return *an array* `ans` *of length* `n + 1` *such that for each* `i` (`0 <= i <= n`)*,* `ans[i]` *is the **number of*** `1`***'s** in the binary representation of* `i`.
+
+**Example 1:**
+
+```
+Input: n = 2
+Output: [0,1,1]
+Explanation:
+0 --> 0
+1 --> 1
+2 --> 10
+```
+
+**Example 2:**
+
+```
+Input: n = 5
+Output: [0,1,1,2,1,2]
+Explanation:
+0 --> 0
+1 --> 1
+2 --> 10
+3 --> 11
+4 --> 100
+5 --> 101
+```
+
+- **Constraints:**
+  - `0 <= n <= 105`
+
+- **Follow up:**
+
+  - It is very easy to come up with a solution with a runtime of `O(n log n)`. Can you do it in linear time `O(n)` and possibly in a single pass?
+
+  - Can you do it without using any built-in function (i.e., like `__builtin_popcount` in C++)?
+
+- **Solution**
+
+  - <u>Method 1: Bit Manipulation</u>
+
+    这道题实际也是求从0-n所有数字二进制含有的1比特数，其实与LeetCode 191完全一致 --> 使用`n = n & (n - 1)`
+
+    ```python
+    def countBits(self, n: int) -> List[int]:
+            res = []
+            for i in range(n + 1):  # O(N)
+                num = 0
+                while i:     # The number of iterations in the inner loop depends on the number of set bits in i, which is usually much smaller than n --> average time complexity of the inner loop: O(logN)      
+                    i &= i - 1  
+                    num += 1
+                res.append(num)
+            return res
+    ```
+
+    - Time complexity: $O(NlogN)$ --> 需要对从 0 到 *n* 的每个整数使用计算「一比特数」，对于每个整数计算「一比特数」的时间都不会超过 O*(log*n)。
+
+      Space complexity: O(1)
+
+  - <u>Method 2: Pattern based on Odd and Even Numbers</u> ==**Follow-up**==
+
+    上述Method 1固然可以解决该问题，但是没有利用题目的特殊情况：题目要求的是从0到n的二进制一比特数，这样可以根据先前的一比特数推断后面数的一比特数 --> 这里可以从奇偶找到规律
+
+    - **奇数**：二进制表示中，奇数一定比前面那个偶数多一个 1，因为多的就是最低位的 1。
+               举例： 
+               0 = 0       1 = 1
+               2 = 10      3 = 11
+    - **偶数**：二进制表示中，偶数中 1 的个数一定和除以 2 之后的那个数一样多。因为最低位是 0，除以 2 就是右移一位，也就是把那个 0 抹掉而已，所以 1 的个数是不变的。
+                举例：
+                2 = 10       4 = 100       8 = 1000
+                3 = 11       6 = 110       12 = 1100
+
+    ```python
+    def countBits(self, n: int) -> List[int]:
+            res = [0]
+            for i in range(1, n + 1):
+                if i % 2 == 0:      # 偶数时，与除以2的数的一比特数一样多
+                    res.append(res[i//2])
+                else:								# 奇数时，与前一个数（偶数）的一比特数一样
+                    res.append(res[i - 1] + 1)
+            return res
+    ```
+
+    - Time complexity: O(N)
+
+      Space complexity: O(N)
 
 ## 2. 231 [Power of Two](https://leetcode.com/problems/power-of-two/description/)
 
@@ -496,7 +587,7 @@ Explanation: n = 9 since there are 9 numbers, so all numbers are in the range [0
     # Space complexity: O(n)
   ```
 
-## 5. 7. [Reverse Integer](https://leetcode.com/problems/reverse-integer/description/)
+## 5. 7 [Reverse Integer](https://leetcode.com/problems/reverse-integer/description/)
 
 |  Category  |   Difficulty    |                  Tags                   |
 | :--------: | :-------------: | :-------------------------------------: |
