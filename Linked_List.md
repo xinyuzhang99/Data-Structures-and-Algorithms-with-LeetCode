@@ -90,17 +90,9 @@ Output: [0]
 
 ### 2. 19 [Remove Nth Node From End of List](https://leetcode.com/problems/remove-nth-node-from-end-of-list/description/)
 
-|  Category  |   Difficulty    | Likes | Dislikes |
-| :--------: | :-------------: | :---: | :------: |
-| algorithms | Medium (38.35%) | 10038 |   479    |
-
-<details open="" style="color: rgb(212, 212, 212); font-family: -apple-system, &quot;system-ui&quot;, &quot;Segoe WPC&quot;, &quot;Segoe UI&quot;, system-ui, Ubuntu, &quot;Droid Sans&quot;, sans-serif; font-size: 14px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: start; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial;"><summary><strong>Tags</strong></summary><p style="margin-top: 0px; margin-bottom: 0.7em;"><a href="https://leetcode.com/tag/linked-list" title="https://leetcode.com/tag/linked-list" style="color: var(--vscode-textLink-foreground); text-decoration: none;"><code style="color: var(--vscode-textLink-foreground); font-family: var(--vscode-editor-font-family, &quot;SF Mono&quot;, Monaco, Menlo, Consolas, &quot;Ubuntu Mono&quot;, &quot;Liberation Mono&quot;, &quot;DejaVu Sans Mono&quot;, &quot;Courier New&quot;, monospace); font-size: 1em; line-height: 1.357em; white-space: pre-wrap;">linked-list</code></a><span>&nbsp;</span>|<span>&nbsp;</span><a href="https://leetcode.com/tag/two-pointers" title="https://leetcode.com/tag/two-pointers" style="color: var(--vscode-textLink-foreground); text-decoration: none;"><code style="color: var(--vscode-textLink-foreground); font-family: var(--vscode-editor-font-family, &quot;SF Mono&quot;, Monaco, Menlo, Consolas, &quot;Ubuntu Mono&quot;, &quot;Liberation Mono&quot;, &quot;DejaVu Sans Mono&quot;, &quot;Courier New&quot;, monospace); font-size: 1em; line-height: 1.357em; white-space: pre-wrap;">two-pointers</code></a></p></details>
-
-<details open="" style="color: rgb(212, 212, 212); font-family: -apple-system, &quot;system-ui&quot;, &quot;Segoe WPC&quot;, &quot;Segoe UI&quot;, system-ui, Ubuntu, &quot;Droid Sans&quot;, sans-serif; font-size: 14px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: start; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial;"><summary><strong>Companies</strong></summary><p style="margin-top: 0px; margin-bottom: 0.7em;"><code style="color: var(--vscode-textPreformat-foreground); font-family: var(--vscode-editor-font-family, &quot;SF Mono&quot;, Monaco, Menlo, Consolas, &quot;Ubuntu Mono&quot;, &quot;Liberation Mono&quot;, &quot;DejaVu Sans Mono&quot;, &quot;Courier New&quot;, monospace); font-size: 1em; line-height: 1.357em; white-space: pre-wrap;">Unknown</code></p></details>
-
-Given the `head` of a linked list, remove the `nth` node from the end of the list and return its head.
-
- 
+|  Category  |   Difficulty    |           Tags            |
+| :--------: | :-------------: | :-----------------------: |
+| algorithms | Medium (38.35%) | Linked-list; two-pointers |
 
 **Example 1:**
 
@@ -165,15 +157,9 @@ Output: [1]
 
 ### 3. 876 [Middle of the Linked List](https://leetcode.com/problems/middle-of-the-linked-list/description/)
 
-|  Category  |  Difficulty   | Likes | Dislikes |
-| :--------: | :-----------: | :---: | :------: |
-| algorithms | Easy (72.70%) | 5393  |   135    |
-
-<details open="" style="color: rgb(212, 212, 212); font-family: -apple-system, &quot;system-ui&quot;, &quot;Segoe WPC&quot;, &quot;Segoe UI&quot;, system-ui, Ubuntu, &quot;Droid Sans&quot;, sans-serif; font-size: 14px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: start; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial;"><summary><strong>Tags</strong></summary><p style="margin-top: 0px; margin-bottom: 0.7em;"><a href="https://leetcode.com/tag/ordered-map" title="https://leetcode.com/tag/ordered-map" style="color: var(--vscode-textLink-foreground); text-decoration: none;"><code style="color: var(--vscode-textLink-foreground); font-family: var(--vscode-editor-font-family, &quot;SF Mono&quot;, Monaco, Menlo, Consolas, &quot;Ubuntu Mono&quot;, &quot;Liberation Mono&quot;, &quot;DejaVu Sans Mono&quot;, &quot;Courier New&quot;, monospace); font-size: 1em; line-height: 1.357em; white-space: pre-wrap;">ordered-map</code></a></p></details>
-
-<details open="" style="color: rgb(212, 212, 212); font-family: -apple-system, &quot;system-ui&quot;, &quot;Segoe WPC&quot;, &quot;Segoe UI&quot;, system-ui, Ubuntu, &quot;Droid Sans&quot;, sans-serif; font-size: 14px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: start; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial;"><summary><strong>Companies</strong></summary><p style="margin-top: 0px; margin-bottom: 0.7em;"><code style="color: var(--vscode-textPreformat-foreground); font-family: var(--vscode-editor-font-family, &quot;SF Mono&quot;, Monaco, Menlo, Consolas, &quot;Ubuntu Mono&quot;, &quot;Liberation Mono&quot;, &quot;DejaVu Sans Mono&quot;, &quot;Courier New&quot;, monospace); font-size: 1em; line-height: 1.357em; white-space: pre-wrap;">Unknown</code></p></details>
-
-Given the `head` of a singly linked list, return *the middle node of the linked list*.
+|  Category  |  Difficulty   |    Tags     |
+| :--------: | :-----------: | :---------: |
+| algorithms | Easy (72.70%) | Ordered-map |
 
 If there are two middle nodes, return **the second middle** node.
 
@@ -349,7 +335,7 @@ Explanation: There is no cycle in the linked list.
             return slow
     ```
 
-## 5. 160 [Intersection of Two Linked Lists](https://leetcode.com/problems/intersection-of-two-linked-lists/description/)
+### 5. 160 [Intersection of Two Linked Lists](https://leetcode.com/problems/intersection-of-two-linked-lists/description/)
 
 |  Category  |  Difficulty   |                         Tags                          |
 | :--------: | :-----------: | :---------------------------------------------------: |
@@ -511,7 +497,7 @@ Explanation: The two lists do not intersect, so return null.
 
     Space Complexity: O(1)
 
-## 6. 83 [Remove Duplicates from Sorted List](https://leetcode.com/problems/remove-duplicates-from-sorted-list/description/)
+### 6. 83 [Remove Duplicates from Sorted List](https://leetcode.com/problems/remove-duplicates-from-sorted-list/description/)
 
 |  Category  |  Difficulty   |                         Tags                          |
 | :--------: | :-----------: | :---------------------------------------------------: |
@@ -562,7 +548,7 @@ Output: [1,2,3]
             if not head:
                 return head
             while cur.next:
-                if cur.val == cur.next.val:
+                if cur.val ==  cur.next.val:
                     cur.next = cur.next.next
                 else:
                     cur = cur.next
@@ -577,6 +563,10 @@ Output: [1,2,3]
 
     <img src="https://labuladong.github.io/algo/images/%e6%95%b0%e7%bb%84%e5%8e%bb%e9%87%8d/2.gif" alt="img" style="zoom:33%;" />
 
+    如果遇见相同值，忽视；如果遇见不同的值，将链表进行连接
+    
+    最终slow指针前的为以去重完毕的链表，所以可以将`slow.next = None`，断掉与结尾重复元素的连接
+    
     ```python
     class Solution:
         def deleteDuplicates(self, head: Optional[ListNode]) -> Optional[ListNode]:
@@ -595,13 +585,12 @@ Output: [1,2,3]
             slow.next = None    #  断开与结尾重复元素的连接
             return head  
     ```
-
+    
     - Time complexity: O(N)
-
+    
       Space complexity: O(1)     
 
-
-## 6.1 **1836 Remove Duplicates From an Unsorted Linked List**
+#### 6.1 **1836 Remove Duplicates From an Unsorted Linked List**
 
 Given the `head` of a linked list, find all the values that appear **more than once** in the list and delete the nodes that have any of those values.
 
@@ -668,15 +657,13 @@ Explanation: 3 appears twice and 2 appears three times. After deleting all 3's a
           cur = head     # initialize the current pointer back to the head
           while cur:
               if hashmap[cur.val] > 1:
-                  pre.next = cur.next
-                  # cur = pre.next
-              else:
+                  pre.next = cur.next   # delete all repeted nodes, so do not need to adjust the count in the hashmap
+              else:											# if the node does not need to be deleted 
                   pre = pre.next
-                  # cur = cur.next
               cur = cur.next
           return dummyHead.next
   ```
-
+  
   - Time complexity: O(2N) = O(N)
 
     Space complexity: O(1)
@@ -916,7 +903,7 @@ Output: 3
 
 - **Follow up:**
 
-  - How can we prove that at least one duplicate number must exist in `nums`?
+  - How can we prove that at least one duplicate number must exist in `nums`? Set
 
   - Can you solve the problem in linear runtime complexity?
 
@@ -999,7 +986,7 @@ Output: 3
 
 https://leetcode.cn/problems/reverse-linked-list-ii/solution/yi-bu-yi-bu-jiao-ni-ru-he-yong-di-gui-si-lowt/
 
-### 1. 206 Reverse Linked List (https://leetcode.com/problems/reverse-linked-list/description/)
+### 1. 206 Reverse Linked List [](https://leetcode.com/problems/reverse-linked-list/description/)
 
 |  Category  |  Difficulty   |                         Tags                          |
 | :--------: | :-----------: | :---------------------------------------------------: |

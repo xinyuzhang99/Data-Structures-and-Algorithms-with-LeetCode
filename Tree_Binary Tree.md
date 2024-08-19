@@ -2049,7 +2049,7 @@ Explanation: The optimal path is 15 -> 20 -> 7 with a path sum of 15 + 20 + 7 = 
       ```
   
 
-### 21. 1569 [Number of Ways to Reorder Array to Get Same BST](https://leetcode.com/problems/number-of-ways-to-reorder-array-to-get-same-bst/description/)
+## 21. 1569 [Number of Ways to Reorder Array to Get Same BST](https://leetcode.com/problems/number-of-ways-to-reorder-array-to-get-same-bst/description/)
 
 |  Category  |  Difficulty   | Tags |
 | :--------: | :-----------: | :--: |

@@ -43,6 +43,10 @@
   n = ~-n
   # 现在 n = 1
   
+  # 8. extract the rightmost bit 
+  n % 2
+  n & 1
+  
   # 整数集合set位运算
   # 整数集合做标志时，比如回溯时的visited标志数组
   vstd 访问 i ：vstd | (1 << i)

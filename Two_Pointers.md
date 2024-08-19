@@ -497,7 +497,7 @@ Output: "bb"
     奇数回文串的「中心」是一个具体的字符，例如：回文串 "aba" 的中心是字符 "b"；
     偶数回文串的「中心」是位于中间的两个字符的「空隙」，例如：回文串 "abba" 的中心是两个 "b"，也可以看成两个 "b" 中间的空隙。
 
--  **Solution**
+- **Solution**
 
   - <u>Method 1: Two-Pointers</u>
 
@@ -530,6 +530,95 @@ Output: "bb"
     ```
 
     Time complexity: $O(N^2)$ --> i traverse through the whole string + l and r traverse through the whole string
+
+    Space complexity: O(1)
+
+#### 7.1 647 [Palindromic Substrings](https://leetcode.com/problems/palindromic-substrings/description/)
+
+|  Category  |   Difficulty    |                             Tags                             |
+| :--------: | :-------------: | :----------------------------------------------------------: |
+| algorithms | Medium (65.67%) | [`string`](https://leetcode.com/tag/string); [`dynamic-programming`](https://leetcode.com/tag/dynamic-programming) |
+
+Given a string `s`, return *the number of **palindromic substrings** in it*.
+
+A string is a **palindrome** when it reads the same backward as forward.
+
+A **substring** is a contiguous sequence of characters within the string.
+
+**Example 1:**
+
+```
+Input: s = "abc"
+Output: 3
+Explanation: Three palindromic strings: "a", "b", "c".
+```
+
+**Example 2:**
+
+```
+Input: s = "aaa"
+Output: 6
+Explanation: Six palindromic strings: "a", "a", "a", "aa", "aa", "aaa".
+```
+
+- **Constraints:**
+
+  - `1 <= s.length <= 1000`
+
+  - `s` consists of lowercase English letters.
+
+- **Thoughts**
+
+  这道题和上一道题的思路基本完全一致，只是输出结果不同。同样使用中心扩散法，分别计算奇数长度的回文串和偶数长度的回文串个数。
+
+- **Solution**
+
+  ```python
+  ## Original Version
+  def countSubstrings(self, s: str) -> int:
+          ## Method: Two-Pointer --> Expand Around Possible Centers
+          # idea: find the palindrome number which centers at s[i] or s[i]:s[i + 1]
+          # Have two cases: 
+          # odd-length palindrome: iterate every character 
+          # even-length palindrome: iterate every pair of characters
+          res = 0
+          n = len(s)
+  
+          for i in range(n):
+              # 1. odd-length palindrome
+              l, r = i, i
+              while (l >= 0 and r < len(s) and s[l] == s[r]): # find a palindrome
+                  res += 1
+                  l -= 1
+                  r += 1
+              
+              # 2. even-lenth palindrome
+              l, r = i, i + 1
+              while (l >= 0 and r < len(s) and s[l] == s[r]): # find a palindrome
+                  res += 1
+                  l -= 1
+                  r += 1
+          # return res
+      
+      ## Simplified Version
+      def countSubstrings(self, s: str) -> int:
+          res = 0
+          n = len(s)
+          for i in range(n):
+               res += self.countPalindrome(s, i, i)     # odd length
+               res += self.countPalindrome(s, i, i + 1) # even length
+          return res
+  
+      def countPalindrome(self, s, l, r):
+          res = 0
+          while (l >= 0 and r < len(s) and s[l] == s[r]): # find a palindrome
+                  res += 1
+                  l -= 1
+                  r += 1
+          return res
+  ```
+
+  - Time complexity: $O(N^2)$
 
     Space complexity: O(1)
 

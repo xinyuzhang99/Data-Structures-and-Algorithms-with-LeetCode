@@ -1983,7 +1983,7 @@ Explanation: There is no such common subsequence, so the result is 0.
 
     4. Traversal order: 
 
-       ![1143.最长公共子序列](https://code-thinking-1253855093.file.myqcloud.com/pics/20210204115139616.jpg)
+       <img src="https://code-thinking-1253855093.file.myqcloud.com/pics/20210204115139616.jpg" alt="1143.最长公共子序列" style="zoom: 67%;" />
 
        --> in-order
 
@@ -2010,3 +2010,56 @@ Explanation: There is no such common subsequence, so the result is 0.
   - Time complexity: O(m * n)
 
     Space complexity: O(m * n) 
+
+### 3. [Edit Distance](https://leetcode.com/problems/edit-distance/description/)
+
+|  Category  |  Difficulty   |                             Tags                             |
+| :--------: | :-----------: | :----------------------------------------------------------: |
+| algorithms | Hard (51.03%) | [`string`](https://leetcode.com/tag/string); [`dynamic-programming`](https://leetcode.com/tag/dynamic-programming) |
+
+Given two strings `word1` and `word2`, return *the minimum number of operations required to convert `word1` to `word2`*.
+
+You have the following three operations permitted on a word:
+
+- Insert a character
+- Delete a character
+- Replace a character
+
+**Example 1:**
+
+```
+Input: word1 = "horse", word2 = "ros"
+Output: 3
+Explanation: 
+horse -> rorse (replace 'h' with 'r')
+rorse -> rose (remove 'r')
+rose -> ros (remove 'e')
+```
+
+**Example 2:**
+
+```
+Input: word1 = "intention", word2 = "execution"
+Output: 5
+Explanation: 
+intention -> inention (remove 't')
+inention -> enention (replace 'i' with 'e')
+enention -> exention (replace 'n' with 'x')
+exention -> exection (replace 'n' with 'c')
+exection -> execution (insert 'u')
+```
+
+- **Constraints:**
+
+  - `0 <= word1.length, word2.length <= 500`
+
+  - `word1` and `word2` consist of lowercase English letters.
+
+- **Thoughts**
+
+  这道题目分析得知，所求的最少操作数量也实则求两个字符串最长子序列长度 --> 解法与前两题较为相似，使用二维dp模板
+
+  - 解题步骤：
+    1. Definition: `dp[i][j]`表示以下标i-1为结尾的字符串word1，和以下标j-1为结尾的字符串word2，最近编辑距离为`dp[i][j]`
+
+  

@@ -38,9 +38,16 @@
 
       **每次切分都能找到最小生成树的一条边，然后又可以进行新一轮切分，直到找到最小生成树的所有边为止**。
 
-- **Dijkstra (pronunciation: dike·struh) Algorithm**
+- **Single Source Shortest Path 单源最短路径算法**
 
-  --> 是一个 BFS 算法的加强版，都是从二叉树的层序遍历衍生出来的
+  SSSP问题: find a path between a given vertex (called source) to all other vertices in a graph such that ==the total distance between them (source and destination) is minimum==
+  
+  主要包含三个算法：**BFS; Dijkstra; Bellman Ford**
+  
+  - <u>Dijkstra (pronunciation: dike·struh) Algorithm</u>
+  
+    --> 是一个 BFS 算法的加强版，都是从二叉树的层序遍历衍生出来的，使用的是min-heap (keep track of <font color=blue>(current path length, node)</font>)
+  
 
 ## 1. 1135 [Connecting Cities With Minimum Cost](https://leetcode.com/problems/connecting-cities-with-minimum-cost/)
 

@@ -68,7 +68,6 @@ numArray.sumRange(0, 5); // return (-2) + 0 + 3 + (-5) + 2 + (-1) = -3
 
   ```python
   class NumArray:
-  
       def __init__(self, nums: List[int]):
         self.nums = nums
         self.preSum = [0] * (len(nums) + 1)
@@ -78,7 +77,7 @@ numArray.sumRange(0, 5); // return (-2) + 0 + 3 + (-5) + 2 + (-1) = -3
       def sumRange(self, left: int, right: int) -> int:
         return self.preSum[right+1] - self.preSum[left]
   ```
-
+  
   - Time complexity: 初始化 O(n)，每次检索 O(1)
   - Space complexity: O(N) --> 需要创建一个前缀和数组
 
@@ -663,7 +662,176 @@ Output: [[1]]
           return res      
   ```
 
-  Time complexity: $O(N^2)$ --> visit each element once
+  - Time complexity: $O(N^2)$ --> visit each element once
 
-  Space complexity: $O(N^2)$ for the result array
+    Space complexity: $O(N^2)$ for the result array
+
+### 3. 73 [Set Matrix Zeroes](https://leetcode.com/problems/set-matrix-zeroes/description/)
+
+|  Category  |   Difficulty    |                   Tags                    |
+| :--------: | :-------------: | :---------------------------------------: |
+| algorithms | Medium (48.55%) | [`array`](https://leetcode.com/tag/array) |
+
+Given an `m x n` integer matrix `matrix`, if an element is `0`, set its entire row and column to `0`'s.
+
+You must do it [in place](https://en.wikipedia.org/wiki/In-place_algorithm).
+
+**Example 1:**
+
+<img src="https://assets.leetcode.com/uploads/2020/08/17/mat1.jpg" alt="img" style="zoom: 67%;" />
+
+```
+Input: matrix = [[1,1,1],[1,0,1],[1,1,1]]
+Output: [[1,0,1],[0,0,0],[1,0,1]]
+```
+
+**Example 2:**
+
+<img src="https://assets.leetcode.com/uploads/2020/08/17/mat2.jpg" alt="img" style="zoom:67%;" />
+
+```
+Input: matrix = [[0,1,2,0],[3,4,5,2],[1,3,1,5]]
+Output: [[0,0,0,0],[0,4,5,0],[0,3,1,0]] 
+```
+
+**Constraints:**
+
+- `m == matrix.length`
+- `n == matrix[0].length`
+- `1 <= m, n <= 200`
+- `-231 <= matrix[i][j] <= 231 - 1`
+
+- **Follow up:**
+
+  - A straightforward solution using `O(mn)` space is probably a bad idea.
+
+  - A simple improvement uses `O(m + n)` space, but still not the best solution.
+
+  - Could you devise a constant space solution?
+
+- **Solution**
+
+  根据Follow-up的提示，这道题有三种解决方法。题目要求原地修改矩阵，所以难点在于如果在输入矩阵上原地修改把行列修改成了 0，那么再遍历到 0 的时候就不知道是原本数组中的 0 还是我们修改得到的 0。所有的解法都是为了解决该问题。
+
+  - <u>Method 1: $O(MN)$  space --> use another copy table 使用同等大小矩阵</u>
+
+    只要把输入的原始数组复制一份，那么根据 copy 出来的数组判断某个位置是否为 0，就是原始数组中的该位置是0。遇到 matrix_copy 的一个位置是 0，那么直接修改 matrix 的行列全部是 0。
+
+    ```python
+    def setZeroes(self, matrix: List[List[int]]) -> None:
+            """
+            Do not return anything, modify matrix in-place instead.
+            """
+            copy_m = copy.deepcopy(matrix)   # pay attention to the differences between shallow copy and deep copy!
+            m, n = len(matrix), len(matrix[0])
+    
+            for r in range(m):
+                for c in range(n):
+                    if copy_m[r][c] == 0:
+                        matrix[r] = [0] * n
+                        for i in range(m):
+                            matrix[i][c] = 0
+    ```
+
+    - Time complexity: $O(MN \times (M + N))$ --> $(M + N)$ 来自于每一个循环里都要将矩阵每一行/每一列变为0
+
+      Space complexity: $O(MN)$ --> for the copied table
+
+    - **<font color=red>注意shallow copy和deep copy区别：</font>**
+
+      - **直接赋值 `=`：**其实就是对象的引用（别名）。
+      - **浅拷贝(`copy`)：**拷贝父对象，不会拷贝对象的内部的子对象。--> construct a new compound object and then (to the extent possible) **<u>inserts *references*</u>** into it to the objects found in the original
+      - **深拷贝(`copy.deepcopy`)：** copy 模块的 deepcopy 方法，完全拷贝了父对象及其子对象。（需要`import copy`）--> construct a new compound object and then, recursively, inserts *copies* into it of the objects found in the original.
+
+      <img src="/Users/xinyuzhang/Library/Application Support/typora-user-images/image-20230107235035859.png" alt="image-20230107235035859" style="zoom:50%;" />
+
+  - <u>Method 2: $O(M + N)$ space --> use two arrays to indicate whether a column/row should be zero 使用与行列数量相等的标识</u>
+
+    额外创建两个数组，一个代表行一个代表列。遍历一次矩阵，记录一下每行、列是否出现了 0；如果出现了 0，最终将此行列置为 0。
+
+    ```python
+    def setZeroes(self, matrix: List[List[int]]) -> None:
+            """
+            Do not return anything, modify matrix in-place instead.
+            """
+        		m, n = len(matrix), len(matrix[0])
+            row = [False] * m   # indicate if ith row should be zero
+            col = [False] * n   # indicate if ith column should be zero
+    
+            for r in range(m):
+                for c in range(n):
+                    if matrix[r][c] == 0:
+                        row[r] = True
+                        col[c] = True
+            
+            for r in range(m):
+                for c in range(n):
+                    if row[r] or col[c]:
+                        matrix[r][c] = 0
+    ```
+
+    - Time complexity: $O(MN)$ 
+
+      Space complexity: $O(M + N)$ --> for the two arrays
+
+  - <u>Method 3: O(1) --> 使用**矩阵第 0 行和第 0 列**来保存 `matrix[1:M][1:N]` 中是否出现了 0 --> 使用已有数列代替Method 2额外生成的数列 
+
+    Pay attention: 第 0 行和第 0 列的数据就不是输入的原始数据了，被「污染」。因此，为了知道第 0 行和第 0 列是否有 0，就必须提前统计，把污染前的数据放到 row0 和 col0 中。
+
+    ```python
+    def setZeroes(self, matrix: List[List[int]]) -> None:
+            """
+            Do not return anything, modify matrix in-place instead.
+            """
+        		m, n = len(matrix), len(matrix[0])
+          
+            # row0 = False
+            # col0 = False
+        
+            ## check if the first row/column has zero
+            # for c in range(n):
+            #     if matrix[0][c] == 0:
+            #         row0 = True
+            
+            # for r in range(m):
+            #     if matrix[r][0] == 0:
+            #         col0 = True
+            
+            # 以上代码可用any写
+            row0 = any(matrix[0][c] == 0 for c in range(n))
+            col0 = any(matrix[r][0] == 0 for r in range(m)) 
+            
+            ## check matrix[1:m][1:n]
+            for r in range(1, m):
+                for c in range(1, n):
+                    if matrix[r][c] == 0:
+                        matrix[r][0] = 0
+                        matrix[0][c] = 0
+            
+            # !! This needs to be done first 因为每一个值是否更改取决于首行和首列的值
+            # 所以要先更改内部，最后再check首行首列是否需要变成0
+            for r in range(1, m):
+                for c in range(1, n):
+                    if matrix[r][0] == 0 or matrix[0][c] == 0:
+                        matrix[r][c] = 0
+    
+            if row0:   # first row needs to be set to zero
+                matrix[0] = [0] * n
+            
+            if col0:
+                for r in range(m):
+                    matrix[r][0] = 0
+    ```
+
+    - Time complexity: $O(MN)$ 
+
+      Space complexity: $O(1)$
+
+    
+
+    
+
+    
+
+  
 

@@ -631,8 +631,15 @@ The substring "BBBB" has the longest repeating letters, which is 4.
 - **Thoughts**
 
   - Question 1: 扩大窗口时需要将字符频率加入进`window`的hashmap里
+
   - Question 2: 左侧窗口收缩条件：当窗口长度减去最大频率字符数大于最多能更改的次数时 --> `len(window) - max(count) > k`
-  - Question 3: 收缩窗口时需要去掉字符，然后移动左指针进行收缩
+
+    `window_length = r - l + 1`
+
+    `window_length - max(window.values())` is the length of characters wanted to be replaced --> if the value <= k, the window is valid
+
+  - Question 3: 收缩窗口时需要去掉字符，然后移动左指针进行收缩 (change left pointer location until the window is valid again)
+
   - Question 4: res是在收缩窗口后更新
 
 - **Solution**
@@ -648,6 +655,7 @@ The substring "BBBB" has the longest repeating letters, which is 4.
       window[s[r]] = 1 + window.get(s[r], 0)
       # maxf = max(maxf, window[s[r]])
       # while (r - l + 1) - maxf > k
+      
       while (r - l + 1) - max(window.values()) > k:
         window[s[l]] -= 1
         l += 1

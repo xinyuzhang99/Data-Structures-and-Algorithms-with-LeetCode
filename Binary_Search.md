@@ -50,7 +50,7 @@
         elif (nums[m] > target):
           r = m - 1	 # 搜索区间变为 [left, mid-1]
       
-      # 检查索引是否出界
+      # 检查索引是否出界: target比nums中所有元素都大
       if (l >= len(nums) or nums[l] != target):
         return -1
       return l
@@ -78,7 +78,7 @@
         elif (nums[m] > target):
           r = m - 1	 # 搜索区间变为 [left, mid-1]
       
-      # 检查索引是否出界
+      # 检查索引是否出界：target比所有元素都小
       if (r < 0 or nums[r] != target):
         return -1
       return r
@@ -163,7 +163,7 @@ Output: [-1,-1]
           while (l <= r):
               m = (l + r)//2
               if nums[m] == target:
-                  r = m - 1
+                  r = m - 1    # 收缩左侧边界
               elif nums[m] < target:
                   l = m + 1
               elif nums[m] > target:
