@@ -25,7 +25,7 @@
           result.add(路径)
           return
       
-      # 类似多叉数的遍历问题
+      # 类似多叉树的遍历问题
       for 选择 in 选择列表:
           做选择  		# 将该选择从选择列表移除 --> 路径.add(选择) --> !!前序位置
           backtrack(路径, 选择列表)    
@@ -158,11 +158,10 @@ Output: [[1]]
 
     --> n is the number of elements in the input list `nums`. This is because the algorithm **generates n! permutations** of the input list, and each permutation involves iterating over n elements.
 
-  - Space complexity: $O(N \times N!)$​  
+  - Space complexity: *O*(*n*)
   
-    - 递归树深度 $O(NlogN)$；
-    - 全排列个数 N!，每个全排列占空间 N。取较大者。--> Each permutation is a list of n elements, so the total memory used by all permutations is n * n!
-
+    We don't count the answer as part of the space complexity. The extra space we use here is for `used` and the recursion call stack. The depth of the call stack is equal to the length of `used`, which is limited to *n*.
+  
   - 易错点：
   
     - `res.append(path[:])`: 参数传递是值传递，对象类型变量在传参的过程中，==复制的是变量的地址 (pass by reference)==。这些地址被添加到 res 变量，但实际上指向的是同一块内存地址，因此我们会看到 6 个空的列表对象。解决的方法很简单，在 `res.add(path)` 这里做一次拷贝即可。
@@ -332,7 +331,10 @@ Output: ["()"]
   ```
 
   - Time complexity and space complexity: <img src="/Users/xinyuzhang/Library/Application Support/typora-user-images/image-20230314185109071.png" alt="image-20230314185109071" style="zoom:50%;" />
-
+  
+  Space complexity: *O*(*n*)
+  
+  - The <font color=blue>**space complexity of a recursive call depends on the maximum depth of the recursive call stack**</font>, which is 2*n*. As each recursive call either adds a left parenthesis or a right parenthesis, and the total number of parentheses is 2*n*. Therefore, at most *O*(*n*) levels of recursion will be created, and each level consumes a constant amount of space.
 
 ## 4. 79 [Word Search](https://leetcode.com/problems/word-search/description/)
 
@@ -1030,7 +1032,7 @@ Output: [["a"]]
     - 组合问题：选取一个a之后，在bcdef中再去选取第二个，选取b之后在cdef中在选组第三个.....。
     - 切割问题：切割一个a之后，在bcdef中再去切割第二段，切割b之后在cdef中在切割第三段.....。
 
-    <img src="https://camo.githubusercontent.com/907a2a94961ed3e0c1b67469e6f51163ce7a044af822069f0983ceccf4c168a2/68747470733a2f2f636f64652d7468696e6b696e672e63646e2e626365626f732e636f6d2f706963732f3133312e2545352538382538362545352538392542322545352539422539452545362539362538372545342542382542322e6a7067" alt="131.分割回文串" style="zoom:50%;" />
+    <img src="https://code-thinking.cdn.bcebos.com/pics/131.%E5%88%86%E5%89%B2%E5%9B%9E%E6%96%87%E4%B8%B2.jpg" alt="131.分割回文串" style="zoom:50%;" />
 
     递归用来纵向遍历，for循环用来横向遍历，切割线（就是图中的红线）切割到字符串的结尾位置，说明找到了一个切割方法。
 

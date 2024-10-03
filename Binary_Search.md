@@ -1,6 +1,6 @@
 # Binary Search 二分搜索
 
-<img src="https://labuladong.github.io/algo/images/%e4%ba%8c%e5%88%86%e6%9f%a5%e6%89%be/poem.png" alt="img" style="zoom: 67%;" />
+<img src="https://labuladong.github.io/algo/images/%e4%ba%8c%e5%88%86%e6%9f%a5%e6%89%be/poem.png" alt="img" style="zoom:67%;" />
 
 - **搜索一个元素** (LeetCode 704)
 
@@ -549,10 +549,10 @@ Output: -1
 
     这启示我们可以在常规二分查找的时候查看当前 mid 为分割位置分割出来的两个部分 [l, mid] 和 [mid + 1, r] 哪个部分是有序的，并根据有序的那个部分确定我们该如何改变二分查找的上下界，因为我们能够根据有序的那部分判断出 target 在不在这个部分：
 
-    - 如果` [l, mid - 1]`是有序数组，且 target 的大小满足 [nums[l],nums[mid])，则我们应该将搜索范围缩小至 `[l, mid - 1]`，否则在 `[mid + 1, r]` 中寻找。
+    - 如果` [l, mid - 1]`是有序数组，且 target 的大小满足 [nums[l],nums[mid]，则我们应该将搜索范围缩小至 `[l, mid - 1]`，否则在 `[mid + 1, r]` 中寻找。
     - 如果 `[mid, r]` 是有序数组，且 target 的大小满足 [nums[mid+1],nums[r]]，则我们应该将搜索范围缩小至 `[mid + 1, r]`，否则在 `[l, mid - 1]` 中寻找。
 
-  - 总结：旋转数组就是一个有序数组切分为两个数组，只要用一次二分找到最小值min，再将min与taeget判断在哪一个数组，最后再二分一次就找到了。这道题和平常二分法查找的不同就在于,把一个有序递增的数组分成了,两个递增的数组,我们需要做的就是**判断这个数在哪一个递增的数组中,然后再去用常规的二分法去解决**
+  - 总结：旋转数组就是一个有序数组切分为两个数组，只要用一次二分找到最小值min，再将min与target判断在哪一个数组，最后再二分一次就找到了。这道题和平常二分法查找的不同就在于,把一个有序递增的数组分成了,两个递增的数组,我们需要做的就是**判断这个数在哪一个递增的数组中,然后再去用常规的二分法去解决**
 
 - **Solution**
 
@@ -675,3 +675,126 @@ timeMap.get("foo", 5);         // return "bar2"
   - Time Complexity: O(1) for `init__` and `set`; O(logn) for `get` (binary search)
 
     Space Complexity: O(n) --> create a hashmap
+
+## 7. Median of Two Sorted Arrays
+
+|  Category  |  Difficulty   |                             Tags                             |
+| :--------: | :-----------: | :----------------------------------------------------------: |
+| algorithms | Hard (34.24%) | [`array`](https://leetcode.com/tag/array?source=vscode) | [`binary-search`](https://leetcode.com/tag/binary-search?source=vscode) | [`divide-and-conquer`](https://leetcode.com/tag/divide-and-conquer?source=vscode) |
+
+Given two sorted arrays `nums1` and `nums2` of size `m` and `n` respectively, return **the median** of the two sorted arrays.
+
+The overall run time complexity should be `O(log (m+n))`.
+
+**Example 1:**
+
+```
+Input: nums1 = [1,3], nums2 = [2]
+Output: 2.00000
+Explanation: merged array = [1,2,3] and median is 2.
+```
+
+**Example 2:**
+
+```
+Input: nums1 = [1,2], nums2 = [3,4]
+Output: 2.50000
+Explanation: merged array = [1,2,3,4] and median is (2 + 3) / 2 = 2.5.
+```
+
+- **Constraints:**
+
+  - `nums1.length == m`
+
+  - `nums2.length == n`
+
+  - `0 <= m <= 1000`
+
+  - `0 <= n <= 1000`
+
+  - `1 <= m + n <= 2000`
+
+  - `-106 <= nums1[i], nums2[i] <= 106`
+
+- **Solutions**
+
+  - <u>Method 1:</u>
+
+    由于两个数组均为sorted的数组，首先的想法即为将两个数组merge为一个sorted数组，然后直接找到中位数
+
+    ```python
+    class Solution:
+        def findMedianSortedArrays(self, nums1: List[int], nums2: List[int]) -> float:
+            m, n = len(nums1), len(nums2)
+    
+            # S1: merge two arrays 使用双指针
+            nums = []
+            i, j = 0, 0
+            while i < m and j < n:      # iterate through the shorter array
+                if nums1[i] <= nums2[j]:
+                    nums.append(nums1[i])
+                    i += 1
+                else:
+                    nums.append(nums2[j])
+                    j += 1
+            
+            if i < m:
+                nums.extend(nums1[i:])
+            
+            if j < n:
+                nums.extend(nums2[j:])
+            
+            # S2: find median 
+            if (m + n) % 2:  # odd
+                return nums[(m + n)//2]
+            else:            # even
+                return (nums[(m + n)//2 - 1] + nums[(m + n)//2]) / 2      
+    ```
+
+    - Time complexity: O(m + n)
+    - Space complexity: O(m + n) for `nums`
+
+  - <u>Method 2: binary search</u>
+
+    这道题的要求为实现时间复杂度为`O(log(m+n))`，所以需要用到二分搜索法。为了找到中位数，可以先找到短数组的中位数，将短数组切割成左半部分和右半部分，这样另一个数组（长数组）的左半部分剩余数量能直接求到，也可以切割成左半部分和右半部分，这样即能找到总体的中位数
+
+    正常情况下：两个数组的左半部分需要小于另一个数组的右半部分；特殊情况：如果短数组左半部分大于长数组右半部分，则需要多切割长数组左半部分，减少短数组左半部分长度，于是`r = m  - 1`；反之: `l = m + 1`
+
+    <img src="../../../../Downloads/Leetcode.jpeg" alt="Leetcode" style="zoom:50%;" />
+
+    ```python
+    class Solution:
+        # use binary search to search for the shorter array
+        def findMedianSortedArrays(self, nums1: List[int], nums2: List[int]) -> float:
+            m, n = len(nums1), len(nums2)
+            total = m + n
+            half = total // 2
+    
+            A, B = nums1, nums2 # A should be the shorter array
+            if m > n:
+                A, B = B, A
+            
+            # start binary search
+            l, r = 0, len(A) - 1
+            while True:
+                mA = (l + r) // 2
+    
+                Aleft = A[mA] if mA >= 0 else float('-inf')   # from binary search template
+                Aright = A[mA + 1] if mA + 1 < len(A) else float('inf')
+                Bleft = B[half - mA - 2] if half - mA - 2 >= 0 else float('-inf')
+                Bright = B[half - mA - 1] if half - mA - 1 < len(B) else float('inf')
+    
+                if Aleft <= Bright and Bleft <= Aright:
+                    if total % 2:  # odd
+                        return min(Aright, Bright)
+                    else:          # even
+                        return (max(Aleft, Bleft) + min(Aright, Bright)) / 2
+                elif Aright < Bleft:    # find more A
+                    l = mA + 1
+                elif Bright < Aleft:    # find more B
+                    r = mA - 1
+    ```
+
+    - Time complexity: `O(log(min(m, n)))` (对较短的数组进行了二分查找)
+
+      Space complexity: O(1) (只有一些固定的变量，和数组长度无关)

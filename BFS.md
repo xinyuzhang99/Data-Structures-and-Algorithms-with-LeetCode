@@ -10,7 +10,7 @@
 
 - Procedures
 
-  - Pick any node, visit the adjacent unvisited vertex, mark it as visited, display it, and insert it in a queue.
+  - Pick any node, visit the adjacent unvisited vertex, mark it as visited, display it, and insert it in a <u>queue</u>.
   - If there are no remaining adjacent vertices left, remove the first vertex from the queue.
   - Repeat step 1 and step 2 until the queue is empty or the desired node is found.
 
@@ -193,6 +193,8 @@ Output: []
 
     - Time complexity: O(N) --> traverse through each node in the tree, and each node is accessed once
 
+      - Each node is added to the queue once, and each node is removed from the queue once and processed once. So, despite the nested loop structure, the work done by the algorithm corresponds to processing each node exactly once, making the time complexity O(n).
+      
       Space complexity: O(N) --> create a queue and N is the element in the queue (at most N elements)
 
   - <u>Method 2: DFS</u>
@@ -202,7 +204,7 @@ Output: []
     DFS 做本题的主要问题是： DFS 不是按照层次遍历的。为了让递归的过程中同一层的节点放到同一个列表中，<font color=blue>**在递归时要记录每个节点的深度 level。递归到新节点要把该节点放入 level 对应列表的末尾**。</font>
 
     当遍历到一个新的深度 level，而最终结果 res 中还没有创建 level 对应的列表时 (`len(res) == level`)，应该在 res 中新建一个列表用来保存该 level 的所有节点。
-
+  
     ```python
     def levelOrder(self, root: Optional[TreeNode]) -> List[List[int]]:
       res = []
@@ -218,7 +220,7 @@ Output: []
     ```
 
     - Time complexity: O(N) --> traverse through each node in the tree, and each node is accessed once#
-
+  
       Space complexity: O(N) --> recursion needs stack memory
 
 ## 3. 199 [Binary Tree Right Side View](https://leetcode.com/problems/binary-tree-right-side-view/description/)

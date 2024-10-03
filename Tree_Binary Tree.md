@@ -28,7 +28,7 @@
 
     若最底层为第 h 层，则该层包含 $1$ ~  $2^{(h-1)}$ 个节点。
 
-  - <u>Balanced Binary Tree</u>
+  - <u>Balanced Binary Tree 平衡二叉树</u>
 
     --> Each leaf is not more than **a certain distance** from the root node than any other leaf (all leaf nodes are located **from the root** **in the same distance**)
 
@@ -113,7 +113,7 @@
     traverse(root.right)    # 后序位置
   ```
 
-- <img src="/Users/xinyuzhang/Library/Application Support/typora-user-images/image-20220706234652980.png" alt="image-20220706234652980" style="zoom:50%;" />
+  <img src="/Users/xinyuzhang/Library/Application Support/typora-user-images/image-20220706234652980.png" alt="image-20220706234652980" style="zoom:50%;" />
 
 - **递归三部曲**
 

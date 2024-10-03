@@ -14,7 +14,7 @@
 
   遇见哈希冲突时经常使用链表方法
 
-- <img src="/Users/xinyuzhang/Library/Application Support/typora-user-images/image-20220520172754309.png" alt="image-20220520172754309" style="zoom:50%;" />
+  <img src="/Users/xinyuzhang/Library/Application Support/typora-user-images/image-20220520172754309.png" alt="image-20220520172754309" style="zoom:50%;" />
 
 - **Common Operations**
 
@@ -80,7 +80,7 @@ Output: true
                 if i in hashtable:
                     return True
                 else:
-                    hashtable[i] = 1
+                    hashtable[i] = 1   # add the element to the hash table
             return False  
     ```
 
@@ -254,7 +254,7 @@ Explanation: Same as Example 1, except with the 5 in the top left corner being m
           continue
         if (board[r][c] in row[r] or
             board[r][c] in col[c] or
-            board[r][c] in square[(r//3, c//3)]):
+            board[r][c] in square[(r//3, c//3)]):  # use a tuple as the dictionary key
           return False
         row[r].add(board[r][c])
         col[c].add(board[r][c])

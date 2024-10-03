@@ -130,7 +130,9 @@
 
 - **题型总结：**
 
-  ![img](https://camo.githubusercontent.com/624ae48228610285917d87d92baba28f9e2132199c3e266dbfb82f59acccf302/68747470733a2f2f636f64652d7468696e6b696e672e63646e2e626365626f732e636f6d2f706963732fe58aa8e68081e8a784e588922de680bbe7bb93e5a4a7e7bab2312e6a7067)
+  <img src="https://code-thinking.cdn.bcebos.com/pics/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92-%E6%80%BB%E7%BB%93%E5%A4%A7%E7%BA%B21.jpg" alt="img" style="zoom:33%;" />
+  
+  
 
 ## 1. 322 [Coin Change](https://leetcode.com/problems/coin-change/description/)
 
@@ -200,7 +202,7 @@ Output: 0
 
        以输入：coins = [1, 2, 5], amount = 5为例
 
-       <img src="https://camo.githubusercontent.com/1f86436773a97d299934ccae62025735d7c68958d4313139c75a88dcd2b6fc22/68747470733a2f2f696d672d626c6f672e6373646e696d672e636e2f32303231303230313131313833333930362e6a7067" alt="322.零钱兑换" style="zoom:50%;" />
+       <img src="https://code-thinking-1253855093.file.myqcloud.com/pics/20210201111833906.jpg" alt="322.零钱兑换" style="zoom:50%;" />
 
        --> dp[amount]为最终结果
 
@@ -1078,10 +1080,3 @@ Output: 23
     - Time complexity: $O(N)$
 
       Space complexity: O(1)
-
-## 子数组问题
-
-
-
-
-

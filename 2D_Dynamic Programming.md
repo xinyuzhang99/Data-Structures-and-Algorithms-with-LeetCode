@@ -2011,7 +2011,7 @@ Explanation: There is no such common subsequence, so the result is 0.
 
     Space complexity: O(m * n) 
 
-### 3. [Edit Distance](https://leetcode.com/problems/edit-distance/description/)
+## 3. 72 [Edit Distance](https://leetcode.com/problems/edit-distance/description/)
 
 |  Category  |  Difficulty   |                             Tags                             |
 | :--------: | :-----------: | :----------------------------------------------------------: |
