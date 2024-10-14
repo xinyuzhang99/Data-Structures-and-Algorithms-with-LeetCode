@@ -41,7 +41,7 @@ class Solution:
 - 时间复杂度：O(n)
 - 空间复杂度：O(1)
 
-## 通用解法
+### 通用解法
 
 --> **保留k位相同数字**
 
@@ -1350,7 +1350,7 @@ Explanation: You need to reduce multiple spaces between two words to a single sp
       - `string.strip([chars])`: remove leading and trailing characters of a string
       - `string.strip()`: remove leading and trailing zeros of a string（将字符串前后的零删除）
 
-## 16. 271 Encode and Decode Strings
+## 16. 271 [Encode and Decode Strings](https://leetcode.com/problems/encode-and-decode-strings/description/)
 
 Design an algorithm to encode **a list of strings** to **a string**. The encoded string is then sent over the network and is decoded back to the original list of strings.
 
@@ -1466,3 +1466,140 @@ Output: [""]
 
   - Time Complexity: O(N) both for encode and decode
   - Space Complexity: O(1) for the encode; O(N) for the decode
+
+## 17. 88 [Merge Sorted Array](https://leetcode.com/problems/merge-sorted-array/description/)
+
+|  Category  |  Difficulty   |                             Tags                             |
+| :--------: | :-----------: | :----------------------------------------------------------: |
+| algorithms | Easy (44.03%) | [`array`](https://leetcode.com/tag/array?source=vscode)； [`two-pointers`](https://leetcode.com/tag/two-pointers?source=vscode) |
+
+You are given two integer arrays `nums1` and `nums2`, sorted in **non-decreasing order**, and two integers `m` and `n`, representing the number of elements in `nums1` and `nums2` respectively.
+
+**Merge** `nums1` and `nums2` into a single array sorted in **non-decreasing order**.
+
+The final sorted array should not be returned by the function, but instead be *stored inside the array* `nums1`. To accommodate this, `nums1` has a length of `m + n`, where the first `m` elements denote the elements that should be merged, and the last `n` elements are set to `0` and should be ignored. `nums2` has a length of `n`.
+
+ 
+
+**Example 1:**
+
+```
+Input: nums1 = [1,2,3,0,0,0], m = 3, nums2 = [2,5,6], n = 3
+Output: [1,2,2,3,5,6]
+Explanation: The arrays we are merging are [1,2,3] and [2,5,6].
+The result of the merge is [1,2,2,3,5,6] with the underlined elements coming from nums1.
+```
+
+**Example 2:**
+
+```
+Input: nums1 = [1], m = 1, nums2 = [], n = 0
+Output: [1]
+Explanation: The arrays we are merging are [1] and [].
+The result of the merge is [1].
+```
+
+**Example 3:**
+
+```
+Input: nums1 = [0], m = 0, nums2 = [1], n = 1
+Output: [1]
+Explanation: The arrays we are merging are [] and [1].
+The result of the merge is [1].
+Note that because m = 0, there are no elements in nums1. The 0 is only there to ensure the merge result can fit in nums1.
+```
+
+**Constraints:**
+
+- `nums1.length == m + n`
+- `nums2.length == n`
+- `0 <= m, n <= 200`
+- `1 <= m + n <= 200`
+- `-109 <= nums1[i], nums2[j] <= 109` 
+
+**Follow up:** Can you come up with an algorithm that runs in `O(m + n)` time?
+
+- **Solutions**
+
+  - <u>Method 1: Merge and Sort</u>
+
+    最直观的方法是先将数组 *nums*2 放进数组 *nums*1 的尾部，然后直接使用函数对整个数组进行排序
+
+    <font color=blue>**[Note]**</font> 这种解法时间复杂度高，并且没有利用题目所说两个数组均为有序的条件
+
+    ```python
+    def merge(self, nums1: List[int], m: int, nums2: List[int], n: int) -> None:
+            """
+            Do not return anything, modify nums1 in-place instead.
+            """
+            nums1[m:] = nums2
+            nums1.sort()
+    ```
+
+    - Time Complexity: $O((m + n)log(m + n))$
+
+      Space Complexity: $O(log(m + n))$ for Timsort
+
+  - <u>Method 2: Two-Pointers</u>
+
+    1. 正向双指针：创建一个额外数组进行排序，类似 21.[Merge Two Sorted Lists](https://leetcode.com/problems/merge-two-sorted-lists/description/)， 然后将额外数组的所有元素填补给nums1数组
+
+       ```python
+       def merge(self, nums1: List[int], m: int, nums2: List[int], n: int) -> None:
+               """
+               Do not return anything, modify nums1 in-place instead.
+               """
+               # brute force: if not consider the O(1) space complexity requirement, create a new array and use two-pointers
+       
+               res = []
+               i, j = 0, 0
+               while i <= m - 1 and j <= n - 1:
+                   if nums1[i] <= nums2[j]:
+                       res.append(nums1[i])
+                       i += 1
+                   else:
+                       res.append(nums2[j])
+                       j += 1
+               
+               if i <= m - 1:
+                   res.extend(nums1[i:m])
+               if j <= n - 1:
+                   res.extend(nums2[j:n])
+               
+               for k in range(m + n):
+                   nums1[k] = res[k]
+       ```
+
+       - Time Complexity: $O(m + n)$
+
+         Space Complexity: $O(m + n)$ for the additional `res` array
+
+       2. ==逆向双指针==
+
+          当仔细观察两个数组，可以发现there are empty slots at the end of `nums1`，所以为了防止元素被覆盖，设置指针为从后向前遍历，每次取两者之中的较大者放进 *nums*1 的最后面（步骤和正向双指针基本一致）
+
+          ```python
+          def merge(self, nums1: List[int], m: int, nums2: List[int], n: int) -> None:
+                  """
+                  Do not return anything, modify nums1 in-place instead.
+                  """
+                  # there are empty slots at the end of nums1 --> start filling the end to sort to merge values
+                  i, j = m - 1, n - 1
+                  k = m + n - 1
+          
+                  while i >= 0 and j >= 0:
+                      if nums1[i] >= nums2[j]:
+                          nums1[k] = nums1[i]
+                          i -= 1
+                      else:
+                          nums1[k] = nums2[j]
+                          j -= 1
+                      k -= 1
+                  
+                  if j >= 0:
+                      nums1[:j+1] = nums2[:j+1]
+          ```
+
+          - Time Complexity: $O(m + n)$
+
+            Space Complexity: $O(1)$
