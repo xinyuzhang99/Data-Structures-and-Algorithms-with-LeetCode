@@ -217,6 +217,8 @@ It does not matter what you leave beyond the returned k (hence they are undersco
 
   <img src="/Users/xinyuzhang/Downloads/IMG_9694B5B5B2FF-1.jpeg" alt="IMG_9694B5B5B2FF-1" style="zoom: 33%;" />
 
+  **[Note]** 因为要返回k，可以设置一个counter去计数，在每次`nums[fast] != val`的时候计数+1，但这个过程与slow指针的变化过程一致，所以直接返回slow指针即可
+  
   ```python
   from typing import List
   class Solution:
