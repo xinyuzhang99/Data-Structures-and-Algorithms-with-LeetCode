@@ -40,13 +40,15 @@ class Solution:
 
 - 时间复杂度：O(n)
 - 空间复杂度：O(1)
+- **[Note]**: 这里的for循环也可以使用while循环进行，只是记得每次循环fast要+1
 
 ### 通用解法
 
 --> **保留k位相同数字**
 
-- 由于是保留 k 个相同数字，对于前 k 个数字，我们可以直接保留
-- 对于后面的任意数字，能够保留的前提是：<u>与当前写入的位置前面的第 k 个元素进行比较</u>，不相同则保留
+- 由于是保留 k 个相同数字，对于前 k 个数字，我们可以直接保留 --> 将slow和fast pointer同时往前进k位
+- 对于后面的任意数字，能够保留的前提是：<u>与当前写入的位置前面的第 k 个元素进行比较</u>，不相同则保留 (`if nums[fast] != nums[slow - k]`)
+- 类似题目：[80. Remove Duplicates from Sorted Array II](https://leetcode.com/problems/remove-duplicates-from-sorted-array-ii/)
 
 ```python
 class Solution:
